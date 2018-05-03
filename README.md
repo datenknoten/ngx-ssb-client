@@ -1,13 +1,13 @@
 # NgxSsbClient
 
-Welcome to my experiment with [scuttlebutt](). I started this client for two reasons:
+Welcome to my experiment with [scuttlebutt](https://www.scuttlebutt.nz/). I started this client for two reasons:
 
 1. I wanted to learn more about scuttlebutt.
 1. I was a bit unhappy with patchwork and wanted to explore other UI-Concepts.
 
 ## Goals
 
-I'm aiming at writing a full client with [angular]() and [semantic ui](). But as a german proverb goes [„Der Weg ist das Ziel“](http://false-friends.crellin.de/2012/06/der-weg-ist-das-ziel-auf-englisch.html), learning is my main goal while writing this client and not finishing as fast as possible.
+I'm aiming at writing a full client with [angular](https://angular.io/) and [semantic ui](https://semantic-ui.com/). But as a german proverb goes [„Der Weg ist das Ziel“](http://false-friends.crellin.de/2012/06/der-weg-ist-das-ziel-auf-englisch.html), learning is my main goal while writing this client and not finishing as fast as possible.
 
 ## Components
 
@@ -21,7 +21,7 @@ Since I'm very bad at design, I'm using this library as it provides fundamental 
 
 ### NGXS
 
-[ngxs]() is a library to manager your local state and it does so very good and very programmer friendly.
+[ngxs](https://ngxs.gitbook.io/ngxs) is a library to manager your local state and it does so very good and very programmer friendly.
 
 ### Toast UI Editor
 
