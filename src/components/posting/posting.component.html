@@ -1,0 +1,23 @@
+<div style="margin-top: 1em;" *ngIf="true">
+    <div class="ui top green attached segment">
+        <div class="ui grid">
+            <div class="two wide column">
+                <img class="ui fluid rounded image" [src]="image">
+            </div>
+            <div class="fourteen wide column">
+                <p *ngIf="posting.author">{{ posting.author.name[0] }} posted this {{ formatedDate }}</p>
+                <p *ngIf="!posting.author">{{ posting.authorId }} posted this {{ formatedDate }}</p>
+                <p>{{ likes }} People voted this and {{ posting.comments.length }} left a comment</p>
+            </div>
+        </div>
+    </div>
+    <div class="ui attached green segment">
+        <div class="sixteen wide column" style="padding-top: 0;" [innerHtml]="html | safeHtml">
+        </div>
+    </div>
+    <!-- <div class="ui bottom green attached segment">
+        <pre>
+            {{ debug }}
+        </pre>
+    </div> -->
+</div>

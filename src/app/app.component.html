@@ -1,0 +1,77 @@
+<div class="ui top attached green menu">
+    <a class="active item">Public Feed</a>
+    <a (click)="debug()" class="item">Private Feed</a>
+    <a class="item">Gatherings</a>
+    <a class="item">Discover</a>
+    <a class="item">My Network</a>
+    <div class="right menu">
+        <a class="item" href="" title="Settings">
+            <i class="cogs icon"></i>
+        </a>
+    </div>
+</div>
+<div class="ui grid" style="margin-left: 1em; margin-right: 1em;">
+    <div class="twelve wide column" *ngIf="postingsObservable">
+        <div *ngFor="let posting of postingsObservable | async">
+            <app-posting [posting]="posting"></app-posting>
+        </div>
+    </div>
+    <div class="four wide column">
+        <div (click)="addPost()" class="ui fluid green button">Post something…</div>
+        <div class="ui vertical fluid green menu" style="margin-top: 1em;">
+            <a class="item">
+                <i class="hashtag icon"></i>
+                Channels
+                <div class="menu">
+                    <a href="" class="item">
+                        #scuttlebutt
+                        <div class="horizontal ui label" title="10 new messages">10</div>
+                    </a>
+                    <a href="" class="item">#bread</a>
+                    <a href="" class="item">
+                        #ssbc-grant
+                        <div class="horizontal ui label" title="4 new messages">4</div>
+                    </a>
+                    <a href="" class="item">#hiking</a>
+                    <a href="" class="item">#typescript</a>
+                    <a href="" class="item">
+                        #patchwork
+                        <div class="horizontal ui label" title="6 new messages">6</div>
+                    </a>
+                </div>
+            </a>
+            <a class="item">
+                <i class="users icon"></i>
+                Friends
+                <div class="menu">
+                    <a class="item">
+                        <img class="ui left spaced mini image" src="./assets/user2.jpg"> dinosaur
+                        <!-- <div class="horizontal ui label" title="3 new messages">3</div> -->
+                    </a>
+                    <a class="item">
+                        <img class="ui left spaced mini image" src="./assets/user3.jpg"> elavoie
+                        <!-- <div class="horizontal ui label" title="3 new messages">3</div> -->
+                    </a>
+                    <a class="item">
+                        <img class="ui left spaced mini image" src="./assets/user4.jpg"> inoas
+                        <!-- <div class="horizontal ui label" title="3 new messages">3</div> -->
+                    </a>
+                </div>
+            </a>
+            <a class="item">
+                <i class="users icon"></i>
+                Following
+                <div class="menu">
+                    <a class="item">
+                        <img class="ui left spaced mini image" src="./assets/user5.jpg"> Dominic
+                        <!-- <div class="horizontal ui label" title="6 new messages">6</div> -->
+                    </a>
+                    <a class="item">
+                        <img class="ui left spaced mini image" src="./assets/user6.jpg"> SoapDog
+                        <!-- <div class="horizontal ui label" title="6 new messages">6</div> -->
+                    </a>
+                </div>
+            </a>
+        </div>
+    </div>
+</div>

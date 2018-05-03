@@ -1,0 +1,8 @@
+<div class="header">{{ modal.context.title }}</div>
+<div class="content">
+    <div #editor></div>
+</div>
+<div class="actions">
+    <button class="ui red button" (click)="modal.deny(undefined)">Cancel</button>
+    <button class="ui green button" (click)="modal.approve(undefined)" autofocus>OK</button>
+</div>
