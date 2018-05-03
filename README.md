@@ -45,5 +45,6 @@ These are some futures:
 If you want to develop on this do these steps:
 
 * Clone this repo
-* npm i
-* npm run start
+* Install [@angular/cli](https://cli.angular.io/) globally (-g)
+* `npm i`
+* `npm run start`
