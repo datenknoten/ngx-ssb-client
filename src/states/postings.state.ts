@@ -63,13 +63,13 @@ export class PostingsState {
                 ...state,
                 posting,
             ].sort((a, b) => {
-                return b.date.getTime() - a.date.getTime();
+                return b.latestActivity.getTime() - a.latestActivity.getTime();
             }));
         } else {
             ctx.setState([
                 ...state,
             ].sort((a, b) => {
-                return b.date.getTime() - a.date.getTime();
+                return b.latestActivity.getTime() - a.latestActivity.getTime();
             }));
         }
     }

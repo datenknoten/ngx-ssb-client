@@ -26,6 +26,18 @@ export class PostingModel extends BaseModel {
         Object.assign(this, init);
     }
 
+    public get latestActivity(): Date {
+        let newest = this.date;
+
+        for (const comment of this.comments) {
+            if (comment.date > newest) {
+                newest = comment.date;
+            }
+        }
+
+        return newest;
+    }
+
     public get html(): string {
         return md.block(this.content, {
             emoji: (emoji) => {

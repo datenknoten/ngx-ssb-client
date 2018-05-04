@@ -5,7 +5,7 @@
                 <img class="ui fluid rounded image" [src]="image">
             </div>
             <div class="fourteen wide column">
-                <p *ngIf="posting.author">{{ posting.author.name[0] }} posted this {{ formatedDate }}</p>
+                <p *ngIf="posting.author"><a [href]="authorLink">{{ posting.author.name[0] }}</a> posted this <a href="ssb://{{ posting.id }}">{{ formatedDate }}</a></p>
                 <p *ngIf="!posting.author">{{ posting.authorId }} posted this {{ formatedDate }}</p>
                 <p>{{ likes }} People voted this and {{ posting.comments.length }} left a comment</p>
             </div>

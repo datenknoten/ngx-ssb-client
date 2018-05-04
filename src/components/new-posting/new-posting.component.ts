@@ -13,9 +13,11 @@ import {
     ViewChild,
     ElementRef,
     OnInit,
+    ViewEncapsulation,
+    Input,
 } from '@angular/core';
 
-const Editor = require('tui-editor');
+import * as Editor from 'tui-editor';
 
 interface IConfirmModalContext {
     title: string;
@@ -25,45 +27,35 @@ interface IConfirmModalContext {
     selector: 'app-new-posting',
     templateUrl: './new-posting.component.html',
     styleUrls: ['./new-posting.component.scss'],
+    // encapsulation: ViewEncapsulation.None,
 })
 export class NewPostingComponent implements OnInit {
-    public options = {
-        initialValue: `# new posting`,
-        initialEditType: 'markdown',
-        previewStyle: 'vertical',
-        height: 'auto',
-        minHeight: '500px'
-    };
+    @Input()
+    public visible: boolean = false;
 
     @ViewChild('editor')
     private editorContainer: ElementRef;
 
     private editor: any;
 
-    public constructor(
-        public modal: SuiModal<IConfirmModalContext, void, void>,
-    ) {
-        this.modal.context = {
-            title: 'New Posting',
-        };
-    }
-
     public async ngOnInit() {
-        console.log(this.editorContainer);
-        // this.editor = new Editor({
-        //     el: this.editorContainer.nativeElement,
-        //     initialValue: `# new posting`,
-        //     initialEditType: 'markdown',
-        //     previewStyle: 'vertical',
-        //     height: '500px',
-        //     minHeight: '500px'
-        // });
-        console.log(this.editor);
+        setTimeout(() => {
+            this.initEditor();
+        }, 0);
+    }
+
+    public initEditor() {
+        this.editor = new Editor({
+            el: this.editorContainer.nativeElement,
+            initialEditType: 'markdown',
+            previewStyle: 'tabs',
+            exts: ['colorSyntax'],
+            height: '600px',
+        });
+    }
+
+    public cancel() {
+        this.visible = false;
     }
 }
 
-export class NewPostingModal extends ComponentModalConfig<IConfirmModalContext, void, void> {
-    public constructor() {
-        super(NewPostingComponent);
-    }
-}

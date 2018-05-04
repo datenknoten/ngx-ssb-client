@@ -6,6 +6,9 @@ import {
     Component,
     OnInit,
     ApplicationRef,
+    ViewChild,
+    ElementRef,
+    ChangeDetectionStrategy,
 } from '@angular/core';
 
 import {
@@ -25,32 +28,32 @@ import { Observable } from 'rxjs';
 import { PostingsState } from '../states';
 import { SuiModalService } from '@yhnavein/ng2-semantic-ui';
 import { NewPostingComponent } from '../components';
-import { NewPostingModal } from '../components/new-posting';
+import * as Editor from 'tui-editor';
 
 @Component({
     selector: 'app-root',
     templateUrl: './app.component.html',
-    styleUrls: ['./app.component.css']
+    styleUrls: ['./app.component.css'],
+    changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class AppComponent {
-
+export class AppComponent implements OnInit {
     public title: string = 'app';
 
-    @Select((state) => state.postings.filter(item => !item.rootId).slice(0, 20))
+    @Select((state) => state.postings.filter(item => !item.rootId))
     public postingsObservable: Observable<PostingModel[]>;
 
+    @ViewChild('editor')
+    private editorContainer: ElementRef;
+
+    @ViewChild('editor')
+    private editor: NewPostingComponent;
 
     public constructor(
         private electron: ElectronService,
         private sbot: ScuttlebotService,
         private store: Store,
         private app: ApplicationRef,
-        private modalService: SuiModalService,
-    ) {
-        this.postingsObservable.subscribe(items => {
-            this.app.tick();
-        });
-    }
+    ) { }
 
     public debug() {
         // tslint:disable-next-line:no-debugger
@@ -58,6 +61,10 @@ export class AppComponent {
     }
 
     public addPost() {
-        this.modalService.open(new NewPostingModal());
+        this.editor.visible = true;
+    }
+
+    public ngOnInit(): void {
+
     }
 }

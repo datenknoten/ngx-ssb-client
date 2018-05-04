@@ -14,6 +14,8 @@ import { PostingModel, IdentityModel, VotingModel } from '../models';
 import * as moment from 'moment';
 import { UpdatePosting, UpdateIdentity, AddVoting } from '../actions';
 
+const Names = window.require('ssb-names');
+
 @Injectable()
 export class ScuttlebotService {
 
@@ -28,8 +30,10 @@ export class ScuttlebotService {
     }
     private async init() {
         const util = window.require('util');
-        const party = util.promisify(window.require('ssb-party'));
-        this.bot = await party();
+
+        const ssbClient = util.promisify(window.require('ssb-client'));
+
+        this.bot = await ssbClient();
 
         const whoami = await new Promise((resolve, reject) => {
             this.bot.whoami((err, id) => {
@@ -40,12 +44,19 @@ export class ScuttlebotService {
             });
         });
 
-        const userFeed = this.bot.createUserStream({
-            id: whoami,
-            reverse: true,
-        });
+        // const names = Names.init(this.bot);
 
-        this.parseFeed(userFeed);
+        // console.log(names);
+
+        console.log(this.bot);
+
+
+        // const userFeed = this.bot.createUserStream({
+        //     id: whoami,
+        //     reverse: true,
+        // });
+
+        // this.parseFeed(userFeed);
 
         const publicFeed = this.bot.createFeedStream({
             reverse: true,
@@ -53,6 +64,36 @@ export class ScuttlebotService {
         });
 
         this.parseFeed(publicFeed);
+    }
+
+    private async fetchIdentity(id: string) {
+        if (!id) {
+            return;
+        }
+        if (!id.startsWith('@')) {
+            return;
+        }
+
+        const data = await new Promise<any>((resolve, reject) => {
+            const feed = this.bot.links({ dest: id, rel: 'about', values: true, live: true });
+
+            feed(undefined, (err, _data) => {
+                if (err) {
+                    reject(err);
+                    return;
+                }
+                resolve(_data);
+            });
+        });
+
+        if (data && data.value && data.value.content) {
+            this.store.dispatch(new UpdateIdentity(
+                data.value.content.about,
+                data.value.content.name,
+                data.value.content.description,
+                data.value.content.image,
+            ));
+        }
     }
 
     private parsePost(id: string, packet: any) {
@@ -64,6 +105,9 @@ export class ScuttlebotService {
             .selectSnapshot<IdentityModel[]>((state) => state.identities)
             .filter(item => item.id === packet.author)
             .pop();
+        if (!posting.author) {
+            this.fetchIdentity(posting.authorId);
+        }
         posting.votes = this
             .store
             .selectSnapshot<VotingModel[]>((state) => state.votings)
@@ -102,14 +146,17 @@ export class ScuttlebotService {
         } else if (packet.content && packet.content.type === 'vote') {
             const voting = new VotingModel();
             voting.id = id;
-            voting.value = packet.content.value;
-            voting.reason = packet.content.reason;
-            voting.link = packet.content.link;
+            voting.value = packet.content.vote.value;
+            voting.reason = packet.content.vote.expression;
+            voting.link = packet.content.vote.link;
             this.store.dispatch(new AddVoting(voting));
         }
     }
 
     private async get(id: string): Promise<void> {
+        if (!id) {
+            return;
+        }
         try {
             const packet = await new Promise<any>((resolve, reject) => {
                 this.bot.get(id, (err, data) => {
@@ -122,7 +169,7 @@ export class ScuttlebotService {
             });
             if (packet && packet.value) {
                 if (packet.value.content) {
-                    this.parsePacket(id, packet.value);
+                    this.parsePacket(id, packet);
                 }
             }
         } catch (error) {

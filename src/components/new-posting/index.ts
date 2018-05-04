@@ -4,5 +4,4 @@
 
 export {
     NewPostingComponent,
-    NewPostingModal,
 } from './new-posting.component';

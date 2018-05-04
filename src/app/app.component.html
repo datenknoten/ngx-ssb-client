@@ -10,6 +10,7 @@
         </a>
     </div>
 </div>
+<app-new-posting #editor></app-new-posting>
 <div class="ui grid" style="margin-left: 1em; margin-right: 1em;">
     <div class="twelve wide column" *ngIf="postingsObservable">
         <div *ngFor="let posting of postingsObservable | async">
@@ -17,7 +18,7 @@
         </div>
     </div>
     <div class="four wide column">
-        <div (click)="addPost()" class="ui fluid green button">Post something…</div>
+        <div (click)="addPost()" class="ui fluid green button" style="margin-top: 1em;">Post something…</div>
         <div class="ui vertical fluid green menu" style="margin-top: 1em;">
             <a class="item">
                 <i class="hashtag icon"></i>

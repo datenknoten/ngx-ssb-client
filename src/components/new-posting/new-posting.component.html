@@ -1,8 +1,11 @@
-<div class="header">{{ modal.context.title }}</div>
-<div class="content">
-    <div #editor></div>
-</div>
-<div class="actions">
-    <button class="ui red button" (click)="modal.deny(undefined)">Cancel</button>
-    <button class="ui green button" (click)="modal.approve(undefined)" autofocus>OK</button>
+<div id="editor" [ngClass]="{ 'ui modal': true, 'active': visible }">
+    <div class="header">New Posting</div>
+    <div class="content">
+        <div style="height: 600px;" #editor></div>
+    </div>
+    <div class="actions">
+        <button class="ui red button" (click)="cancel()">Cancel</button>
+        <button class="ui green button" autofocus>Post</button>
+    </div>
+
 </div>

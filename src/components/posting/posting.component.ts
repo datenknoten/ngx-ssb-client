@@ -61,4 +61,8 @@ export class PostingComponent {
         return this.posting.votes.length;
     }
 
+    public get authorLink() {
+        return `ssb://${this.posting.authorId}`;
+    }
+
 }
