@@ -13,6 +13,7 @@ import { Store } from '@ngxs/store';
 import { PostingModel, IdentityModel, VotingModel } from '../models';
 import * as moment from 'moment';
 import { UpdatePosting, UpdateIdentity, AddVoting, SetContact } from '../actions';
+import { FeedEndError } from '../errors';
 
 const Names = window.require('ssb-names');
 
@@ -30,7 +31,7 @@ export class ScuttlebotService {
     }
 
     public async updateFeed() {
-        await this.parseFeed(this.bot.createLogStream({
+        await this.parseFeed(this.bot.createFeedStream({
             reverse: true,
             limit: 500,
         }));
@@ -71,6 +72,11 @@ export class ScuttlebotService {
         return new Promise<any>((resolve, reject) => {
 
             feed(undefined, (err, _data) => {
+                if (typeof err === 'boolean' && err) {
+                    debugger;
+                    reject(new FeedEndError());
+                    return;
+                }
                 if (err) {
                     reject(err);
                     return;
@@ -257,9 +263,18 @@ export class ScuttlebotService {
         }
     }
     private async parseFeed(feed: (abort: any, cb: (err, data) => void) => any) {
-        const item = await this.getFeedItem(feed);
-        this.parsePacket(item.key, item.value);
+        try {
+            const item = await this.getFeedItem(feed);
+            console.log({item});
+            this.parsePacket(item.key, item.value);
 
-        setTimeout(this.parseFeed.bind(this, feed), 0);
+            setTimeout(this.parseFeed.bind(this, feed), 0);
+        } catch (error) {
+            if (error instanceof FeedEndError) {
+                return;
+            } else {
+                throw error;
+            }
+        }
     }
 }
