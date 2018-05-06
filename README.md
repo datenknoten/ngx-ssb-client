@@ -29,12 +29,17 @@ Since I'm very bad at design, I'm using this library as it provides fundamental 
 
 ## TODO
 
-This are immidiatly doable Tasks I have to do to make my client somewhat useable.
+These are tasks that need some love:
 
-* Skip `ssb-party` and learn to start my own sbot instance so I can load `ssb-names`, because than I can fetch names and images for identities better.
-* Integrate tui.editor
-* Better way to filter the feed
+* Need to make [ssb-names](https://github.com/ssbc/ssb-names) work, so I can better display names and images of identities. I should pester @dominictarr with this.
+* Enforce preview mode when posting a message
+* Upload blobs. Need to connect to [electrons file chooser](https://github.com/electron/electron/blob/master/docs/api/dialog.md)
 * Add a activity timestamp to the `PostingModel` and sort with this field.
+* Add a profile detail page
+* Add a search view
+* Include subscribed channels in the side bar
+* Add a channel feed page
+
 
 These are some futures:
 
