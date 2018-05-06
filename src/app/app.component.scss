@@ -1,0 +1,12 @@
+.fab.button {
+    position: fixed;
+    bottom: 1em;
+    right: 1em;
+    z-index: 99999;
+}
+
+.following.menu {
+    a:hover {
+        background-color: rgba(0, 0, 0, 0.03);
+    }
+}

@@ -5,6 +5,13 @@
     <a class="item">Discover</a>
     <a class="item">My Network</a>
     <div class="right menu">
+        <div class="ui right aligned category search item">
+            <div class="ui transparent icon input">
+                <input class="prompt" placeholder="Search animals..." type="text">
+                <i class="search link icon"></i>
+            </div>
+            <div class="results"></div>
+        </div>
         <a class="item" href="" title="Settings">
             <i class="cogs icon"></i>
         </a>
@@ -18,9 +25,19 @@
         </div>
     </div>
     <div class="four wide column">
-        <div (click)="addPost()" class="ui fluid green button" style="margin-top: 1em;">Post something…</div>
-        <div class="ui vertical fluid green menu" style="margin-top: 1em;">
-            <a class="item">
+        <div class="ui fluid card" style="margin-top: 1em;" *ngIf="(self | async)">
+            <div class="image">
+                <img src="http://localhost:8989/blobs/get/{{ (self | async).primaryImage }}">
+            </div>
+            <div class="content">
+                <a class="header">{{ (self | async).primaryName }}</a>
+            </div>
+        </div>
+        <div (click)="addPost()" class="ui green fab button">
+            Post
+        </div>
+        <div class="ui vertical fluid green following menu" style="margin-top: 1em;" *ngIf="(self | async)">
+            <div class="item">
                 <i class="hashtag icon"></i>
                 Channels
                 <div class="menu">
@@ -40,39 +57,18 @@
                         <div class="horizontal ui label" title="6 new messages">6</div>
                     </a>
                 </div>
-            </a>
-            <a class="item">
-                <i class="users icon"></i>
-                Friends
-                <div class="menu">
-                    <a class="item">
-                        <img class="ui left spaced mini image" src="./assets/user2.jpg"> dinosaur
-                        <!-- <div class="horizontal ui label" title="3 new messages">3</div> -->
-                    </a>
-                    <a class="item">
-                        <img class="ui left spaced mini image" src="./assets/user3.jpg"> elavoie
-                        <!-- <div class="horizontal ui label" title="3 new messages">3</div> -->
-                    </a>
-                    <a class="item">
-                        <img class="ui left spaced mini image" src="./assets/user4.jpg"> inoas
-                        <!-- <div class="horizontal ui label" title="3 new messages">3</div> -->
-                    </a>
-                </div>
-            </a>
-            <a class="item">
+            </div>
+            <div class="item">
                 <i class="users icon"></i>
                 Following
                 <div class="menu">
-                    <a class="item">
-                        <img class="ui left spaced mini image" src="./assets/user5.jpg"> Dominic
-                        <!-- <div class="horizontal ui label" title="6 new messages">6</div> -->
-                    </a>
-                    <a class="item">
-                        <img class="ui left spaced mini image" src="./assets/user6.jpg"> SoapDog
-                        <!-- <div class="horizontal ui label" title="6 new messages">6</div> -->
+                    <a class="item" (click)="log(followee)" *ngFor="let followee of (self | async).following">
+                        <img class="ui left spaced mini image" src="./assets/img/image.png" *ngIf="!followee.primaryImage">
+                        <img class="ui left spaced mini image" src="http://localhost:8989/blobs/get/{{ followee.primaryImage }}" *ngIf="followee.primaryImage"> {{ followee.primaryName }}
+                        <!-- <div class="horizontal ui label" title="3 new messages">3</div> -->
                     </a>
                 </div>
-            </a>
+            </div>
         </div>
     </div>
 </div>

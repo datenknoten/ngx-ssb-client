@@ -13,7 +13,7 @@ import {
 } from '../models';
 
 import {
-    UpdateIdentity, SetIdentity,
+    UpdateIdentity, SetIdentity, SetContact,
 } from '../actions';
 
 @State<IdentityModel[]>({
@@ -21,15 +21,6 @@ import {
     defaults: []
 })
 export class IdentitiesState {
-    // @Action(AddIdentity)
-    // public addIdentity(ctx: StateContext<IdentityModel[]>, action: AddIdentity) {
-    //     const state = ctx.getState();
-    //     ctx.setState([
-    //         ...state,
-    //         action.identity,
-    //     ]);
-    // }
-
     @Action(UpdateIdentity)
     public updateIdentity(ctx: StateContext<IdentityModel[]>, action: UpdateIdentity) {
         const state = ctx.getState();
@@ -37,6 +28,7 @@ export class IdentitiesState {
 
         if (!identity) {
             identity = new IdentityModel();
+            identity.isSelf = action.isSelf;
             identity.id = action.id;
             ctx.setState([
                 ...state,
@@ -44,19 +36,46 @@ export class IdentitiesState {
             ]);
         }
 
-        if (action.about) {
+        if (action.about && identity.about.indexOf(action.about) === -1) {
             identity.about.push(action.about);
         }
 
-        if (action.image) {
+        if (action.image && identity.image.indexOf(action.image) === -1) {
             identity.image.push(action.image);
         }
 
-        if (action.name) {
+        if (action.name && identity.name.indexOf(action.name) === -1) {
             identity.name.push(action.name);
         }
 
         ctx.dispatch(new SetIdentity(identity));
+    }
 
+    @Action(SetContact)
+    public setContact(ctx: StateContext<IdentityModel[]>, action: SetContact) {
+        const state = ctx.getState();
+        let from = state.filter(item => item.id === action.from).pop();
+        let to = state.filter(item => item.id === action.to).pop();
+
+        if (!from) {
+            from = new IdentityModel();
+            from.id = action.from;
+            ctx.setState([
+                ...state,
+                from,
+            ]);
+        }
+
+        if (!to) {
+            to = new IdentityModel();
+            to.id = action.to;
+            ctx.setState([
+                ...state,
+                to,
+            ]);
+        }
+
+        from.following.push(to);
+        to.followers.push(from);
     }
 }

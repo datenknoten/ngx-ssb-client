@@ -33,7 +33,7 @@ import * as Editor from 'tui-editor';
 @Component({
     selector: 'app-root',
     templateUrl: './app.component.html',
-    styleUrls: ['./app.component.css'],
+    styleUrls: ['./app.component.scss'],
     changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class AppComponent implements OnInit {
@@ -41,6 +41,9 @@ export class AppComponent implements OnInit {
 
     @Select((state) => state.postings.filter(item => !item.rootId))
     public postingsObservable: Observable<PostingModel[]>;
+
+    @Select((state) => state.identities.filter(item => item.isSelf).pop())
+    public self: Observable<IdentityModel>;
 
     @ViewChild('editor')
     private editorContainer: ElementRef;
@@ -53,7 +56,7 @@ export class AppComponent implements OnInit {
         private sbot: ScuttlebotService,
         private store: Store,
         private app: ApplicationRef,
-    ) { }
+    ) {}
 
     public debug() {
         // tslint:disable-next-line:no-debugger
@@ -66,5 +69,10 @@ export class AppComponent implements OnInit {
 
     public ngOnInit(): void {
 
+    }
+
+    public log(item) {
+        // tslint:disable-next-line:no-console
+        console.log(item);
     }
 }

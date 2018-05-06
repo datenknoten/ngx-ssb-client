@@ -8,5 +8,6 @@ export class UpdateIdentity {
         public name?: string,
         public about?: string,
         public image?: string,
+        public isSelf: boolean = false,
     ) { }
 }

@@ -18,10 +18,9 @@ import {
 } from '@angular/core';
 
 import * as Editor from 'tui-editor';
-
-interface IConfirmModalContext {
-    title: string;
-}
+import {
+    ScuttlebotService,
+} from '../../providers';
 
 @Component({
     selector: 'app-new-posting',
@@ -37,6 +36,10 @@ export class NewPostingComponent implements OnInit {
     private editorContainer: ElementRef;
 
     private editor: any;
+
+    public constructor(
+        public scuttlebot: ScuttlebotService,
+    ) {}
 
     public async ngOnInit() {
         setTimeout(() => {
@@ -56,6 +59,21 @@ export class NewPostingComponent implements OnInit {
 
     public cancel() {
         this.visible = false;
+    }
+
+    public async submit() {
+        const content = this.editor.getMarkdown();
+
+        this.editor.setMarkdown('');
+
+        const data = await this.scuttlebot.publish({
+            type: 'post',
+            text: content,
+        });
+
+        await this.scuttlebot.updateFeed();
+
+        console.log(data);
     }
 }
 

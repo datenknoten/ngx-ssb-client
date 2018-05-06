@@ -20,6 +20,7 @@ export class PostingModel extends BaseModel {
     public comments: PostingModel[] = [];
     public content: string;
     public rootId?: string;
+    public primaryChannel?: string;
 
     public constructor(init?: Partial<PostingModel>) {
         super();
@@ -44,6 +45,7 @@ export class PostingModel extends BaseModel {
                 return emoji in emojiNamedCharacters ?
                     `<img
     src="./assets/img/emoji/${encodeURI(emoji)}.png"
+    class="emoji"
     alt=":${emoji}:" title=":${emoji}:"
     style="width: 1.5em; height: 1.5em; align-content: center; margin-bottom: -0.3em;" />` : `:${emoji}:`;
             },

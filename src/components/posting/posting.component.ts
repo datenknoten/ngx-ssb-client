@@ -39,7 +39,7 @@ export class PostingComponent {
         const cheerio = this.electron.remote.require('cheerio');
         const $ = cheerio.load(this.posting.html);
 
-        $('img').addClass('ui fluid image');
+        $('img:not(.emoji)').addClass('ui fluid image');
         $('h1,h2,h3').addClass('ui dividing header');
 
         return $.html();
@@ -63,6 +63,11 @@ export class PostingComponent {
 
     public get authorLink() {
         return `ssb://${this.posting.authorId}`;
+    }
+
+    public log() {
+        // tslint:disable-next-line:no-console
+        console.log(this.posting);
     }
 
 }

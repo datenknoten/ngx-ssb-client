@@ -12,7 +12,7 @@ import {
 import { Store } from '@ngxs/store';
 import { PostingModel, IdentityModel, VotingModel } from '../models';
 import * as moment from 'moment';
-import { UpdatePosting, UpdateIdentity, AddVoting } from '../actions';
+import { UpdatePosting, UpdateIdentity, AddVoting, SetContact } from '../actions';
 
 const Names = window.require('ssb-names');
 
@@ -28,6 +28,26 @@ export class ScuttlebotService {
         // tslint:disable-next-line:no-floating-promises
         this.init();
     }
+
+    public async updateFeed() {
+        await this.parseFeed(this.bot.createLogStream({
+            reverse: true,
+            limit: 500,
+        }));
+    }
+
+    public async publish(message: any) {
+        return new Promise<any>((resolve, reject) => {
+            this.bot.publish(message, (err, data) => {
+                if (err) {
+                    reject(err);
+                    return;
+                }
+                resolve(data);
+            });
+        });
+    }
+
     private async init() {
         const util = window.require('util');
 
@@ -35,47 +55,20 @@ export class ScuttlebotService {
 
         this.bot = await ssbClient();
 
-        const whoami = await new Promise((resolve, reject) => {
-            this.bot.whoami((err, id) => {
-                if (err) {
-                    reject(err);
-                }
-                resolve(id.id);
-            });
-        });
+        const whoami = await this.getFeedItem(this.bot.whoami);
+
+        await this.fetchIdentity(whoami.id, true);
+
+        await this.fetchContacts(whoami.id);
 
         // const names = Names.init(this.bot);
-
         // console.log(names);
 
-        console.log(this.bot);
-
-
-        // const userFeed = this.bot.createUserStream({
-        //     id: whoami,
-        //     reverse: true,
-        // });
-
-        // this.parseFeed(userFeed);
-
-        const publicFeed = this.bot.createFeedStream({
-            reverse: true,
-            limit: 500,
-        });
-
-        this.parseFeed(publicFeed);
+        await this.updateFeed();
     }
 
-    private async fetchIdentity(id: string) {
-        if (!id) {
-            return;
-        }
-        if (!id.startsWith('@')) {
-            return;
-        }
-
-        const data = await new Promise<any>((resolve, reject) => {
-            const feed = this.bot.links({ dest: id, rel: 'about', values: true, live: true });
+    private async getFeedItem(feed: any): Promise<any> {
+        return new Promise<any>((resolve, reject) => {
 
             feed(undefined, (err, _data) => {
                 if (err) {
@@ -85,13 +78,90 @@ export class ScuttlebotService {
                 resolve(_data);
             });
         });
+    }
 
-        if (data && data.value && data.value.content) {
+    private async fetchContacts(id: string) {
+        if (!id) {
+            return;
+        }
+
+        if (!id.startsWith('@')) {
+            return;
+        }
+
+        const feed = this.bot.friends.stream({ live: true });
+
+        const data = await this.getFeedItem(feed);
+
+        if (!(typeof data === 'object')) {
+            return;
+        }
+
+        const followers = [];
+
+        for (const key of Object.keys(data)) {
+            if ((Object.keys(data[key]).indexOf(id) >= 0) && (data[key][id])) {
+                followers.push(key);
+            }
+        }
+
+        const following = [];
+
+        for (const key of Object.keys(data[id])) {
+            if (data[id][key]) {
+                following.push(key);
+            }
+        }
+
+        for (const follower of followers) {
+            // tslint:disable-next-line:no-floating-promises
+            this.fetchIdentity(follower);
+            this.store.dispatch(new SetContact(
+                follower,
+                id,
+            ));
+        }
+
+        for (const followee of following) {
+            // tslint:disable-next-line:no-floating-promises
+            this.fetchIdentity(followee);
+            this.store.dispatch(new SetContact(
+                id,
+                followee,
+            ));
+        }
+    }
+
+    private async fetchIdentity(id: string, isSelf: boolean = false) {
+        if (!id) {
+            return;
+        }
+
+        if (!id.startsWith('@')) {
+            return;
+        }
+
+        const feed = this.bot.links({ dest: id, rel: 'about', values: true, live: true });
+        while (true) {
+            const data = await this.getFeedItem(feed);
+
+            if (!(data && data.value && data.value.content)) {
+                break;
+            }
+
+            let imageId;
+
+            if (typeof data.value.content.image === 'object') {
+                imageId = data.value.content.image.link;
+            } else {
+                imageId = data.value.content.image;
+            }
             this.store.dispatch(new UpdateIdentity(
                 data.value.content.about,
                 data.value.content.name,
                 data.value.content.description,
-                data.value.content.image,
+                imageId,
+                isSelf,
             ));
         }
     }
@@ -99,6 +169,7 @@ export class ScuttlebotService {
     private parsePost(id: string, packet: any) {
         const posting = new PostingModel();
         posting.id = id;
+        posting.primaryChannel = packet.content.channel;
         posting.authorId = packet.author;
         posting.author = this
             .store
@@ -106,6 +177,7 @@ export class ScuttlebotService {
             .filter(item => item.id === packet.author)
             .pop();
         if (!posting.author) {
+            // tslint:disable-next-line:no-floating-promises
             this.fetchIdentity(posting.authorId);
         }
         posting.votes = this
@@ -134,16 +206,22 @@ export class ScuttlebotService {
     }
 
     private parsePacket(id: string, packet: any) {
-        if (packet.content && packet.content.type === 'post') {
+        if (!(typeof packet.content === 'object')) {
+            return;
+        }
+
+        const packetType = packet.content.type;
+
+        if (packetType === 'post') {
             this.parsePost(id, packet);
-        } else if (packet.content && packet.content.type === 'about') {
+        } else if (packetType === 'about') {
             this.store.dispatch(new UpdateIdentity(
                 packet.content.about,
                 packet.content.name,
                 packet.content.description,
                 packet.content.image,
             ));
-        } else if (packet.content && packet.content.type === 'vote') {
+        } else if (packetType === 'vote') {
             const voting = new VotingModel();
             voting.id = id;
             voting.value = packet.content.vote.value;
@@ -152,7 +230,6 @@ export class ScuttlebotService {
             this.store.dispatch(new AddVoting(voting));
         }
     }
-
     private async get(id: string): Promise<void> {
         if (!id) {
             return;
@@ -179,15 +256,10 @@ export class ScuttlebotService {
             }
         }
     }
+    private async parseFeed(feed: (abort: any, cb: (err, data) => void) => any) {
+        const item = await this.getFeedItem(feed);
+        this.parsePacket(item.key, item.value);
 
-    private parseFeed(feed: (abort: any, cb: (err, data) => void) => any) {
-        feed(undefined, (err, data) => {
-            if (data && data.value) {
-                if (data.value.content) {
-                    this.parsePacket(data.key, data.value);
-                }
-            }
-            setTimeout(this.parseFeed.bind(this, feed), 0);
-        });
+        setTimeout(this.parseFeed.bind(this, feed), 0);
     }
 }

@@ -2,12 +2,33 @@
     <div class="ui top green attached segment">
         <div class="ui grid">
             <div class="two wide column">
-                <img class="ui fluid rounded image" [src]="image">
+                <img class="ui fluid rounded green image" [src]="image">
             </div>
             <div class="fourteen wide column">
-                <p *ngIf="posting.author"><a [href]="authorLink">{{ posting.author.name[0] }}</a> posted this <a href="ssb://{{ posting.id }}">{{ formatedDate }}</a></p>
-                <p *ngIf="!posting.author">{{ posting.authorId }} posted this {{ formatedDate }}</p>
-                <p>{{ likes }} People voted this and {{ posting.comments.length }} left a comment</p>
+                <p>
+                    <a class="ui basic green label">
+                        <i class="user icon"></i>
+                        <span *ngIf="posting.author">{{ posting.author.name[0] }}</span>
+                        <span *ngIf="!posting.author">{{ posting.authorId }}</span>
+                    </a>
+                    <a class="ui basic green label">
+                        <i class="calendar icon"></i> {{ formatedDate }}
+                    </a>
+                    <a class="ui basic green label">
+                        <i class="heart icon"></i> {{ likes }}
+                    </a>
+                    <a class="ui basic green label">
+                        <i class="comment icon"></i> {{ posting.comments.length }}
+                    </a>
+                    <a class="ui basic green label" (click)="log()">
+                        <i class="bug icon"></i>
+                    </a>
+                </p>
+                <p *ngIf="posting.primaryChannel">
+                    <a class="ui basic green label">
+                        <i class="hashtag icon"></i> {{ posting.primaryChannel }}
+                    </a>
+                </p>
             </div>
         </div>
     </div>
