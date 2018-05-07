@@ -1,0 +1,12 @@
+patch-package
+--- a/node_modules/ip/lib/ip.js
++++ b/node_modules/ip/lib/ip.js
+@@ -2,7 +2,7 @@
+ 
+ var ip = exports;
+ var Buffer = require('buffer').Buffer;
+-var os = require('os');
++//var os = require('os');
+ 
+ ip.toBuffer = function(ip, buff, offset) {
+   offset = ~~offset;
