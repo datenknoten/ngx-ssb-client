@@ -75,4 +75,8 @@ export class AppComponent implements OnInit {
         // tslint:disable-next-line:no-console
         console.log(item);
     }
+
+    public async updateFeed() {
+        await this.sbot.updateFeed();
+    }
 }
