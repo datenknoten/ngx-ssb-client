@@ -73,7 +73,6 @@ export class ScuttlebotService {
 
             feed(undefined, (err, _data) => {
                 if (typeof err === 'boolean' && err) {
-                    debugger;
                     reject(new FeedEndError());
                     return;
                 }
@@ -147,28 +146,36 @@ export class ScuttlebotService {
             return;
         }
 
-        const feed = this.bot.links({ dest: id, rel: 'about', values: true, live: true });
-        while (true) {
-            const data = await this.getFeedItem(feed);
+        try {
+            const feed = this.bot.links({ dest: id, rel: 'about', values: true, live: true });
+            while (true) {
+                const data = await this.getFeedItem(feed);
 
-            if (!(data && data.value && data.value.content)) {
-                break;
+                if (!(data && data.value && data.value.content)) {
+                    break;
+                }
+
+                let imageId;
+
+                if (typeof data.value.content.image === 'object') {
+                    imageId = data.value.content.image.link;
+                } else {
+                    imageId = data.value.content.image;
+                }
+                this.store.dispatch(new UpdateIdentity(
+                    data.value.content.about,
+                    data.value.content.name,
+                    data.value.content.description,
+                    imageId,
+                    isSelf,
+                ));
             }
-
-            let imageId;
-
-            if (typeof data.value.content.image === 'object') {
-                imageId = data.value.content.image.link;
+        } catch (error) {
+            if (error instanceof FeedEndError) {
+                return;
             } else {
-                imageId = data.value.content.image;
+                throw error;
             }
-            this.store.dispatch(new UpdateIdentity(
-                data.value.content.about,
-                data.value.content.name,
-                data.value.content.description,
-                imageId,
-                isSelf,
-            ));
         }
     }
 
@@ -265,7 +272,6 @@ export class ScuttlebotService {
     private async parseFeed(feed: (abort: any, cb: (err, data) => void) => any) {
         try {
             const item = await this.getFeedItem(feed);
-            console.log({item});
             this.parsePacket(item.key, item.value);
 
             setTimeout(this.parseFeed.bind(this, feed), 0);
