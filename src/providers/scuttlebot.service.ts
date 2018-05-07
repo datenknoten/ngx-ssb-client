@@ -14,6 +14,7 @@ import { PostingModel, IdentityModel, VotingModel } from '../models';
 import * as moment from 'moment';
 import { UpdatePosting, UpdateIdentity, AddVoting, SetContact } from '../actions';
 import { FeedEndError } from '../errors';
+import { AngularWaitBarrier } from 'blocking-proxy/built/lib/angular_wait_barrier';
 
 const Names = window.require('ssb-names');
 
@@ -69,11 +70,11 @@ export class ScuttlebotService {
     }
 
     private async getFeedItem(feed: any): Promise<any> {
-        return new Promise<any>((resolve, reject) => {
+        const result = await new Promise<any>((resolve, reject) => {
 
             feed(undefined, (err, _data) => {
                 if (typeof err === 'boolean' && err) {
-                    reject(new FeedEndError());
+                    resolve(new FeedEndError());
                     return;
                 }
                 if (err) {
@@ -83,6 +84,12 @@ export class ScuttlebotService {
                 resolve(_data);
             });
         });
+
+        if (result instanceof FeedEndError) {
+            throw result;
+        } else {
+            return result;
+        }
     }
 
     private async fetchContacts(id: string) {
@@ -274,7 +281,7 @@ export class ScuttlebotService {
             const item = await this.getFeedItem(feed);
             this.parsePacket(item.key, item.value);
 
-            setTimeout(this.parseFeed.bind(this, feed), 0);
+            setImmediate(this.parseFeed.bind(this, feed));
         } catch (error) {
             if (error instanceof FeedEndError) {
                 return;

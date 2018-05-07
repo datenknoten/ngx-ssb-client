@@ -2,6 +2,10 @@
  * @license MIT
  */
 
-export class FeedEndError {
+ import {
+     BaseError,
+ } from '../errors';
+
+export class FeedEndError extends BaseError {
 
 }
