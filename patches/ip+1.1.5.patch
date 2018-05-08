@@ -6,7 +6,16 @@ patch-package
  var ip = exports;
  var Buffer = require('buffer').Buffer;
 -var os = require('os');
-+//var os = require('os');
++// var os = require('os');
  
  ip.toBuffer = function(ip, buff, offset) {
    offset = ~~offset;
+@@ -354,7 +354,7 @@ ip.loopback = function(family) {
+ //   * undefined: First address with `ipv4` or loopback address `127.0.0.1`.
+ //
+ ip.address = function(name, family) {
+-  var interfaces = os.networkInterfaces();
++  var interfaces = {}; // os.networkInterfaces();
+   var all;
+ 
+   //

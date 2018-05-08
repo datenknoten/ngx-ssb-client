@@ -12,6 +12,8 @@ const md = require('ssb-markdown');
 
 const emojiNamedCharacters = require('emoji-named-characters');
 
+const twemoji = require('twemoji');
+
 export class PostingModel extends BaseModel {
     public author: IdentityModel;
     public authorId: string;
@@ -42,12 +44,15 @@ export class PostingModel extends BaseModel {
     public get html(): string {
         return md.block(this.content, {
             emoji: (emoji) => {
-                return emoji in emojiNamedCharacters ?
-                    `<img
-    src="./assets/img/emoji/${encodeURI(emoji)}.png"
-    class="emoji"
-    alt=":${emoji}:" title=":${emoji}:"
-    style="width: 1.5em; height: 1.5em; align-content: center; margin-bottom: -0.3em;" />` : `:${emoji}:`;
+                if (emoji in emojiNamedCharacters) {
+                    return twemoji.parse(emojiNamedCharacters[emoji].character, {
+                        folder: 'emoji',
+                        ext: '.svg',
+                        base: '/assets/'
+                    });
+                } else {
+                    return `:${emoji}:`;
+                }
             },
             imageLink: (id) => {
                 return `http://localhost:8989/blobs/get/${id}`;
