@@ -9,12 +9,14 @@ import {
 } from '@ngxs/store';
 
 import {
-    IdentityModel,
+    IdentityModel, ChannelSubscription,
 } from '../models';
 
 import {
-    UpdateIdentity, SetIdentity, SetContact,
+    UpdateIdentity, SetIdentity, SetContact, SetChannelSubscription,
 } from '../actions';
+
+const normalizeChannel = window.require('ssb-ref').normalizeChannel;
 
 @State<IdentityModel[]>({
     name: 'identities',
@@ -77,5 +79,40 @@ export class IdentitiesState {
 
         from.following.push(to);
         to.followers.push(from);
+    }
+
+    @Action(SetChannelSubscription)
+    public setChannelSubscription(ctx: StateContext<IdentityModel[]>, action: SetChannelSubscription) {
+        const state = ctx.getState();
+        let identity = state.filter(item => item.id === action.id).pop();
+
+        if (!identity) {
+            identity = new IdentityModel();
+            identity.id = action.id;
+            ctx.setState([
+                ...state,
+                identity,
+            ]);
+        }
+
+        const channel = normalizeChannel(action.channel);
+
+        const channelSubscription = identity.channels.filter(item => item.channel === channel).pop();
+
+        if (channelSubscription) {
+            if (action.date > channelSubscription.lastModified) {
+                channelSubscription.isSubscribed = action.isSubscribed;
+                channelSubscription.lastModified = action.date;
+            }
+        } else {
+            const subscription = new ChannelSubscription();
+            subscription.channel = channel;
+            subscription.lastModified = action.date;
+            subscription.isSubscribed = action.isSubscribed;
+            identity.channels = [
+                ...identity.channels,
+                subscription,
+            ];
+        }
     }
 }

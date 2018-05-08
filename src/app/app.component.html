@@ -41,20 +41,10 @@
                 <i class="hashtag icon"></i>
                 Channels
                 <div class="menu">
-                    <a href="" class="item">
-                        #scuttlebutt
-                        <div class="horizontal ui label" title="10 new messages">10</div>
-                    </a>
-                    <a href="" class="item">#bread</a>
-                    <a href="" class="item">
-                        #ssbc-grant
-                        <div class="horizontal ui label" title="4 new messages">4</div>
-                    </a>
-                    <a href="" class="item">#hiking</a>
-                    <a href="" class="item">#typescript</a>
-                    <a href="" class="item">
-                        #patchwork
-                        <div class="horizontal ui label" title="6 new messages">6</div>
+                    <a class="item" href="" *ngFor="let channel of (self | async).channels">
+                        <span *ngIf="channel.isSubscribed">
+                            {{ channel.channel }}
+                        </span>
                     </a>
                 </div>
             </div>
