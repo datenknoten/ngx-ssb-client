@@ -241,6 +241,8 @@ export class ScuttlebotService {
             voting.reason = packet.content.vote.expression;
             voting.link = packet.content.vote.link;
             this.store.dispatch(new AddVoting(voting));
+        } else if (packetType === 'channel') {
+            console.log(packet);
         }
     }
     private async get(id: string): Promise<void> {
