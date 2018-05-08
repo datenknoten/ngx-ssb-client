@@ -45,13 +45,11 @@ export class PostingModel extends BaseModel {
         return md.block(this.content, {
             emoji: (emoji) => {
                 if (emoji in emojiNamedCharacters) {
-                    console.log(emojiNamedCharacters[emoji]);
-                    const result = twemoji.parse(emojiNamedCharacters[emoji].character, {
+                    return twemoji.parse(emojiNamedCharacters[emoji].character, {
                         folder: 'emoji',
                         ext: '.svg',
                         base: '/assets/'
                     });
-                    return result;
                 } else {
                     return `:${emoji}:`;
                 }
