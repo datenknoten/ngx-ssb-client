@@ -4,6 +4,7 @@
 
 import {
     BaseModel,
+    ChannelSubscription,
 } from '../models';
 
 export class IdentityModel extends BaseModel {
@@ -14,7 +15,7 @@ export class IdentityModel extends BaseModel {
     public following: IdentityModel[] = [];
     public blocking: IdentityModel[] = [];
     public followers: IdentityModel[] = [];
-    public channels: string[] = [];
+    public channels: ChannelSubscription[] = [];
 
 
     public constructor(init?: Partial<IdentityModel>) {

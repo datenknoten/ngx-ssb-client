@@ -12,11 +12,9 @@ import {
 import { Store } from '@ngxs/store';
 import { PostingModel, IdentityModel, VotingModel } from '../models';
 import * as moment from 'moment';
-import { UpdatePosting, UpdateIdentity, AddVoting, SetContact } from '../actions';
+import { UpdatePosting, UpdateIdentity, AddVoting, SetContact, SetChannelSubscription } from '../actions';
 import { FeedEndError } from '../errors';
 import { AngularWaitBarrier } from 'blocking-proxy/built/lib/angular_wait_barrier';
-
-const Names = window.require('ssb-names');
 
 @Injectable()
 export class ScuttlebotService {
@@ -63,8 +61,9 @@ export class ScuttlebotService {
 
         await this.fetchContacts(whoami.id);
 
-        // const names = Names.init(this.bot);
-        // console.log(names);
+        await this.parseFeed(this.bot.createUserStream({
+            id: whoami.id,
+        }));
 
         await this.updateFeed();
     }
@@ -248,6 +247,13 @@ export class ScuttlebotService {
             voting.reason = packet.content.vote.expression;
             voting.link = packet.content.vote.link;
             this.store.dispatch(new AddVoting(voting));
+        } else if (packetType === 'channel') {
+            this.store.dispatch(new SetChannelSubscription(
+                packet.author,
+                packet.content.channel,
+                packet.content.subscribed,
+                moment(packet.timestamp).toDate(),
+            ));
         }
     }
     private async get(id: string): Promise<void> {
