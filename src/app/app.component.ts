@@ -29,6 +29,7 @@ import { PostingsState } from '../states';
 import { SuiModalService } from '@yhnavein/ng2-semantic-ui';
 import { NewPostingComponent } from '../components';
 import * as Editor from 'tui-editor';
+import { Router, NavigationEnd } from '@angular/router';
 
 @Component({
     selector: 'app-root',
@@ -56,6 +57,7 @@ export class AppComponent implements OnInit {
         private sbot: ScuttlebotService,
         private store: Store,
         private app: ApplicationRef,
+        private router: Router,
     ) {}
 
     public debug() {
@@ -68,7 +70,12 @@ export class AppComponent implements OnInit {
     }
 
     public ngOnInit(): void {
-
+        this.router.events.subscribe((evt) => {
+            if (!(evt instanceof NavigationEnd)) {
+                return;
+            }
+            window.scrollTo(0, 0);
+        });
     }
 
     public log(item) {
