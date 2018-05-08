@@ -3,17 +3,23 @@
  */
 
 import { BrowserModule } from '@angular/platform-browser';
-import { NgModule } from '@angular/core';
+import {
+    NgModule,
+} from '@angular/core';
 
 
 import { AppComponent } from './app.component';
 import {
     PostingComponent,
     NewPostingComponent,
+    PostingDetailComponent,
+    PublicFeedComponent,
+
 } from '../components';
 
 import {
     SafeHtmlPipe,
+    HumanReadableDatePipe,
 } from '../pipes';
 
 import {
@@ -30,15 +36,40 @@ import {
     VotingsState,
 } from '../states';
 
+import {
+    RouterModule,
+    Routes,
+} from '@angular/router';
+
 
 @NgModule({
     declarations: [
         AppComponent,
         PostingComponent,
         SafeHtmlPipe,
+        HumanReadableDatePipe,
         NewPostingComponent,
+        PostingDetailComponent,
+        PublicFeedComponent,
     ],
     imports: [
+        RouterModule.forRoot([
+            {
+                path: '',
+                redirectTo: 'public',
+                pathMatch: 'full',
+            },
+            {
+                path: 'public',
+                component: PublicFeedComponent,
+            },
+            {
+                path: 'posting/:id',
+                component: PostingDetailComponent,
+            }
+        ], {
+            enableTracing: false,
+        }),
         BrowserModule,
         NgxsModule.forRoot([
             IdentitiesState,
@@ -53,7 +84,8 @@ import {
     ],
     bootstrap: [AppComponent],
     entryComponents: [
-        NewPostingComponent,
+        PostingDetailComponent,
+        PublicFeedComponent,
     ]
 })
 export class AppModule { }

@@ -2,7 +2,7 @@
     <div class="ui top green attached segment">
         <div class="ui grid">
             <div class="two wide column">
-                <img class="ui fluid rounded green image" [src]="image">
+                <img class="ui fluid rounded green image" [src]="getImage(posting.author)">
             </div>
             <div class="fourteen wide column">
                 <p>
@@ -11,11 +11,11 @@
                         <span *ngIf="posting.author">{{ posting.author.name[0] }}</span>
                         <span *ngIf="!posting.author">{{ posting.authorId }}</span>
                     </a>
-                    <a class="ui basic green label">
-                        <i class="calendar icon"></i> {{ formatedDate }}
+                    <a class="ui basic green label" [routerLink]="['/posting', posting.id]">
+                        <i class="calendar icon"></i> {{ posting.date | humanReadableDate }}
                     </a>
                     <a class="ui basic green label">
-                        <i class="heart icon"></i> {{ likes }}
+                        <i class="heart icon"></i> {{ posting.voteCount }}
                     </a>
                     <a class="ui basic green label">
                         <i class="comment icon"></i> {{ posting.comments.length }}
@@ -33,12 +33,36 @@
         </div>
     </div>
     <div class="ui attached green segment">
-        <div class="sixteen wide column" style="padding-top: 0;" [innerHtml]="html | safeHtml">
+        <div class="sixteen wide column" style="padding-top: 0;" [innerHtml]="convertHtml(posting.html) | safeHtml">
         </div>
     </div>
-    <!-- <div class="ui bottom green attached segment">
-        <pre>
-            {{ debug }}
-        </pre>
-    </div> -->
+    <ng-container *ngIf="mode == 'full'">
+        <div class="ui bottom green attached segment" *ngFor="let comment of posting.comments">
+            <div class="ui grid">
+                <div class="two wide column">
+                    <img class="ui fluid rounded green image" [src]="getImage(comment.author)">
+                </div>
+                <div class="fourteen wide column">
+                    <p>
+                        <a class="ui basic green label">
+                            <i class="user icon"></i>
+                            <span *ngIf="comment.author">{{ comment.author.name[0] }}</span>
+                            <span *ngIf="!comment.author">{{ comment.authorId }}</span>
+                        </a>
+                        <a class="ui basic green label">
+                            <i class="calendar icon"></i> {{ comment.date | humanReadableDate }}
+                        </a>
+                        <a class="ui basic green label">
+                            <i class="heart icon"></i> {{ comment.voteCount }}
+                        </a>
+                    </p>
+                </div>
+                <div class="sixteen wide column" style="padding-top: 0;">
+                    <div class="ui fitted divider"></div>
+                </div>
+                <div class="sixteen wide column" style="padding-top: 0;" [innerHtml]="convertHtml(comment.html) | safeHtml">
+                </div>
+            </div>
+        </div>
+    </ng-container>
 </div>

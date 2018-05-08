@@ -9,7 +9,7 @@ import {
     ViewEncapsulation,
 } from '@angular/core';
 
-import { PostingModel } from '../../models';
+import { PostingModel, IdentityModel } from '../../models';
 
 import {
     ElectronService,
@@ -22,22 +22,28 @@ import * as moment from 'moment';
     templateUrl: './posting.component.html',
     styleUrls: ['./posting.component.scss'],
 })
-export class PostingComponent {
+export class PostingComponent implements OnInit {
 
     @Input()
     public posting: PostingModel;
+
+    @Input()
+    public mode: 'condensed' | 'full' = 'condensed';
 
     public constructor(
         private electron: ElectronService,
     ) {}
 
+    public ngOnInit(): void {
+    }
+
     public get formatedDate() {
         return moment(this.posting.date).fromNow();
     }
 
-    public get html() {
+    public convertHtml(html: string) {
         const cheerio = this.electron.remote.require('cheerio');
-        const $ = cheerio.load(this.posting.html);
+        const $ = cheerio.load(html);
 
         $('img:not(.emoji)').addClass('ui fluid image');
         $('h1,h2,h3').addClass('ui dividing header');
@@ -45,9 +51,9 @@ export class PostingComponent {
         return $.html();
     }
 
-    public get image() {
-        if (this.posting.author && (this.posting.author.image.length > 0)) {
-            return `http://localhost:8989/blobs/get/${this.posting.author.image[0]}`;
+    public getImage(identity: IdentityModel) {
+        if (identity && (identity.image.length > 0)) {
+            return `http://localhost:8989/blobs/get/${identity.primaryImage}`;
         } else {
             return './assets/img/image.png';
         }
@@ -55,10 +61,6 @@ export class PostingComponent {
 
     public get debug() {
         return JSON.stringify(this.posting, undefined, '  ');
-    }
-
-    public get likes() {
-        return this.posting.votes.length;
     }
 
     public get authorLink() {

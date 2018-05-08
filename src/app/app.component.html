@@ -1,5 +1,5 @@
 <div class="ui top attached green menu">
-    <a class="active item" (click)="updateFeed()">Public Feed</a>
+    <a class="active item" routerLink="/">Public Feed</a>
     <a (click)="debug()" class="item">Private Feed</a>
     <a class="item">Gatherings</a>
     <a class="item">Discover</a>
@@ -19,10 +19,8 @@
 </div>
 <app-new-posting #editor></app-new-posting>
 <div class="ui grid" style="margin-left: 1em; margin-right: 1em;">
-    <div class="twelve wide column" *ngIf="postingsObservable">
-        <div *ngFor="let posting of postingsObservable | async">
-            <app-posting [posting]="posting"></app-posting>
-        </div>
+    <div class="twelve wide column">
+        <router-outlet></router-outlet>
     </div>
     <div class="four wide column">
         <div class="ui fluid card" style="margin-top: 1em;" *ngIf="(self | async)">

@@ -15,6 +15,7 @@ import * as moment from 'moment';
 import { UpdatePosting, UpdateIdentity, AddVoting, SetContact, SetChannelSubscription } from '../actions';
 import { FeedEndError } from '../errors';
 import { AngularWaitBarrier } from 'blocking-proxy/built/lib/angular_wait_barrier';
+const util = window.require('util');
 
 @Injectable()
 export class ScuttlebotService {
@@ -37,20 +38,11 @@ export class ScuttlebotService {
     }
 
     public async publish(message: any) {
-        return new Promise<any>((resolve, reject) => {
-            this.bot.publish(message, (err, data) => {
-                if (err) {
-                    reject(err);
-                    return;
-                }
-                resolve(data);
-            });
-        });
+        const publish = util.promisify(this.bot.publish);
+        return publish(message);
     }
 
     private async init() {
-        const util = window.require('util');
-
         const ssbClient = util.promisify(window.require('ssb-client'));
 
         this.bot = await ssbClient();
@@ -260,16 +252,9 @@ export class ScuttlebotService {
         if (!id) {
             return;
         }
+        const get = util.promisify(this.bot.get);
         try {
-            const packet = await new Promise<any>((resolve, reject) => {
-                this.bot.get(id, (err, data) => {
-                    if (err) {
-                        reject(err);
-                        return;
-                    }
-                    resolve(data);
-                });
-            });
+            const packet = await get(id);
             if (packet && packet.value) {
                 if (packet.value.content) {
                     this.parsePacket(id, packet);

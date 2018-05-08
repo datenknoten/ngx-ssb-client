@@ -66,14 +66,13 @@ export class NewPostingComponent implements OnInit {
 
         this.editor.setMarkdown('');
 
-        const data = await this.scuttlebot.publish({
+        await this.scuttlebot.publish({
             type: 'post',
             text: content,
         });
 
         await this.scuttlebot.updateFeed();
 
-        console.log(data);
     }
 }
 

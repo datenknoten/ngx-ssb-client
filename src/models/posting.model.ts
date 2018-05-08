@@ -66,4 +66,16 @@ export class PostingModel extends BaseModel {
             }
         });
     }
+
+    public get voteCount(): number {
+        let count = 0;
+        for (const votes of this.votes) {
+            if (votes.value === 1) {
+                count += 1;
+            } else {
+                count -= 1;
+            }
+        }
+        return count;
+    }
 }

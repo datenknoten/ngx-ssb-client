@@ -44,7 +44,7 @@ export class PostingsState {
             if (root) {
                 root.comments.push(posting);
                 root.comments.sort((a, b) => {
-                    return b.date.getTime() - a.date.getTime();
+                    return a.date.getTime() - b.date.getTime();
                 });
             }
         } else {
@@ -54,7 +54,9 @@ export class PostingsState {
             if (comments.length > 0) {
                 posting.comments = [
                     ...comments
-                ];
+                ].sort((a, b) => {
+                    return a.date.getTime() - b.date.getTime();
+                });
             }
         }
 
