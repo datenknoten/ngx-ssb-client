@@ -16,13 +16,9 @@ catch (_a) {
     // tslint:disable-next-line:no-console
     console.log('asar');
 }
-const util = require("util");
-const createSsbParty = util.promisify(require('ssb-party'));
 async function createWindow() {
     const electronScreen = electron_1.screen;
     const size = electronScreen.getPrimaryDisplay().workAreaSize;
-    const sbot = await createSsbParty();
-    electron_1.app['sbot'] = sbot;
     // Create the browser window.
     win = new electron_1.BrowserWindow({
         x: 0,

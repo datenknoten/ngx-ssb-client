@@ -18,16 +18,11 @@ try {
 }
 
 import * as util from 'util';
-const createSsbParty = util.promisify(require('ssb-party'));
 
 async function createWindow() {
 
     const electronScreen = screen;
     const size = electronScreen.getPrimaryDisplay().workAreaSize;
-
-    const sbot = await createSsbParty();
-
-    app['sbot'] = sbot;
 
     // Create the browser window.
     win = new BrowserWindow({
