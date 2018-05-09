@@ -41,7 +41,7 @@ export class PostingsState {
         if (posting.rootId) {
             const root = state.filter(item => item.id === posting.rootId).pop();
 
-            if (root) {
+            if (root && root.comments.filter(item => item.id === posting.id).length === 0) {
                 root.comments.push(posting);
                 root.comments.sort((a, b) => {
                     return a.date.getTime() - b.date.getTime();
