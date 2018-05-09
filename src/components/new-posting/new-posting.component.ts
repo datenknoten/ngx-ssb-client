@@ -72,15 +72,10 @@ export class NewPostingComponent {
             }
         }
 
-        console.log('##### posting', posting);
-
-        await this.scuttlebot.publish(posting);
-
         this.cancel();
 
-        this.scuttlebot.updateFeed();
-
-
+        await this.scuttlebot.publish(posting);
+        await this.scuttlebot.updateFeed();
     }
 }
 
