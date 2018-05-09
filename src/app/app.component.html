@@ -17,7 +17,6 @@
         </a>
     </div>
 </div>
-<app-new-posting #editor></app-new-posting>
 <div class="ui grid" style="margin-left: 1em; margin-right: 1em; margin-top: 2em;">
     <div class="twelve wide column">
         <router-outlet></router-outlet>
@@ -30,9 +29,6 @@
             <div class="content">
                 <a class="header">{{ (self | async).primaryName }}</a>
             </div>
-        </div>
-        <div (click)="addPost()" class="ui green fab button">
-            Post
         </div>
         <div class="ui vertical fluid green following menu" style="margin-top: 1em;" *ngIf="(self | async)">
             <div class="item">

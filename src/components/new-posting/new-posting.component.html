@@ -1,9 +1,14 @@
-<div id="editor" [ngClass]="{ 'ui modal': true, 'active': visible }">
-    <div class="header">New Posting</div>
+<div class="ui fluid input" *ngIf="!visible">
+    <input placeholder="Type in here to compose a new posting…" type="text" (focus)="setupEditor()">
+</div>
+<div id="editor" class="ui fluid card" *ngIf="visible">
+    <div class="content">
+        <div class="header">New Posting</div>
+    </div>
     <div class="content">
         <div style="height: 600px;" #editor></div>
     </div>
-    <div class="actions">
+    <div class="extra content">
         <button class="ui red button" (click)="cancel()">Cancel</button>
         <button class="ui green button" (click)="submit()">Post</button>
     </div>

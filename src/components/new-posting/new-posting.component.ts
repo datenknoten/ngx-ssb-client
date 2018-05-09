@@ -28,7 +28,7 @@ import {
     styleUrls: ['./new-posting.component.scss'],
     // encapsulation: ViewEncapsulation.None,
 })
-export class NewPostingComponent implements OnInit {
+export class NewPostingComponent {
     @Input()
     public visible: boolean = false;
 
@@ -41,23 +41,23 @@ export class NewPostingComponent implements OnInit {
         public scuttlebot: ScuttlebotService,
     ) {}
 
-    public async ngOnInit() {
-        setTimeout(() => {
-            this.initEditor();
-        }, 0);
-    }
+    public setupEditor() {
+        this.visible = true;
+        setImmediate(() => {
+            this.editor = new Editor({
+                el: this.editorContainer.nativeElement,
+                initialEditType: 'markdown',
+                previewStyle: 'tabs',
+                exts: ['colorSyntax'],
+                height: '600px',
+            });
 
-    public initEditor() {
-        this.editor = new Editor({
-            el: this.editorContainer.nativeElement,
-            initialEditType: 'markdown',
-            previewStyle: 'tabs',
-            exts: ['colorSyntax'],
-            height: '600px',
+            this.editor.focus();
         });
     }
 
     public cancel() {
+        this.editor = undefined;
         this.visible = false;
     }
 
@@ -72,6 +72,8 @@ export class NewPostingComponent implements OnInit {
         });
 
         await this.scuttlebot.updateFeed();
+
+        this.cancel();
 
     }
 }
