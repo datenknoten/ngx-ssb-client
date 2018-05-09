@@ -1,11 +1,11 @@
 <div style="margin-top: 1em;" *ngIf="true">
-    <div class="ui top green attached segment">
+    <div class="ui posting-info top green attached segment">
         <div class="ui grid">
-            <div class="two wide column">
+            <div class="three wide column">
                 <img class="ui fluid rounded green image" [src]="getImage(posting.author)">
             </div>
-            <div class="fourteen wide column">
-                <p>
+            <div class="thirteen wide column">
+                <div class="info">
                     <a class="ui green image label">
                         <i class="user icon"></i>
                         <div class="detail" *ngIf="posting.author">{{ posting.author.name[0] }}</div>
@@ -15,28 +15,28 @@
                         <i class="calendar icon"></i>
                         <div class="detail">{{ posting.date | humanReadableDate }}</div>
                     </a>
+                </div>
+                <div class="info">
+                    <a class="ui green image label" *ngIf="posting.primaryChannel">
+                        <i class="hashtag icon"></i>
+                        <div class="detail">{{ posting.primaryChannel }}</div>
+                    </a>
                     <a class="ui green image label">
-                        <i class="heart icon"></i>
+                        <i class="heart outline icon"></i>
                         <div class="detail">{{ posting.voteCount }}</div>
                     </a>
                     <a class="ui green image label">
                         <i class="comment icon"></i>
                         <div class="detail">{{ posting.comments.length }}</div>
                     </a>
+                    <div class="ui green image label" title="The estimated time to read this posting">
+                        <i class="hourglass half icon"></i>
+                        <div class="detail">{{ posting.totalReadingTime | humanReadableDuration }}</div>
+                    </div>
                     <a class="ui green image label" (click)="log()">
                         <i class="bug icon"></i>
                     </a>
-                    <a class="ui green image label">
-                        <i class="hourglass half icon"></i>
-                        <div class="detail">{{ posting.totalReadingTime | humanReadableDuration }}</div>
-                    </a>
-                </p>
-                <p *ngIf="posting.primaryChannel">
-                    <a class="ui green image label">
-                        <i class="hashtag icon"></i>
-                        <div class="detail">{{ posting.primaryChannel }}</div>
-                    </a>
-                </p>
+                </div>
             </div>
         </div>
     </div>
