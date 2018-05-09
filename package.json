@@ -18,7 +18,8 @@
         "electron:local": "npm run build:prod && electron .",
         "electron:linux": "npm run build:prod && npx electron-builder build --linux",
         "electron:windows": "npm run build:prod && npx electron-builder build --windows",
-        "electron:mac": "npm run build:prod && npx electron-builder build --mac"
+        "electron:mac": "npm run build:prod && npx electron-builder build --mac",
+        "prepush": "npm run lint && npm run build"
     },
     "private": true,
     "dependencies": {
@@ -64,6 +65,7 @@
         "electron-builder": "20.13.3",
         "electron-reload": "1.2.2",
         "electron": "2.0.0",
+        "husky": "0.14.3",
         "jasmine-core": "2.8.0",
         "jasmine-spec-reporter": "4.2.1",
         "karma-chrome-launcher": "2.2.0",
