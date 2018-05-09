@@ -10,3 +10,7 @@ img.emoji {
 body {
     background-color: rgba(0, 0, 0, 0.05) !important;
 }
+
+.sidebar.column {
+    max-width: 300px;
+}

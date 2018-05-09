@@ -21,8 +21,8 @@
     <div class="twelve wide column">
         <router-outlet></router-outlet>
     </div>
-    <div class="four wide column">
-        <div class="ui fluid card" style="margin-top: 1em;" *ngIf="(self | async)">
+    <div class="four wide sidebar column">
+        <div class="ui fluid card" *ngIf="(self | async)">
             <div class="image">
                 <img src="http://localhost:8989/blobs/get/{{ (self | async).primaryImage }}">
             </div>

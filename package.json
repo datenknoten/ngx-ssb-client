@@ -19,7 +19,7 @@
         "electron:linux": "npm run build:prod && npx electron-builder build --linux",
         "electron:windows": "npm run build:prod && npx electron-builder build --windows",
         "electron:mac": "npm run build:prod && npx electron-builder build --mac",
-        "prepush": "npm run lint && npm run build"
+        "prepush": "npm run lint && ng build --prod"
     },
     "private": true,
     "dependencies": {
