@@ -248,6 +248,16 @@ export class ScuttlebotService {
             voting.value = packet.content.vote.value;
             voting.reason = packet.content.vote.expression;
             voting.link = packet.content.vote.link;
+            voting.authorId = packet.author;
+            voting.author = this
+                .store
+                .selectSnapshot<IdentityModel[]>((state) => state.identities)
+                .filter(item => item.id === packet.author)
+                .pop();
+            if (!voting.author) {
+                // tslint:disable-next-line:no-floating-promises
+                this.fetchIdentity(voting.authorId);
+            }
             this.store.dispatch(new AddVoting(voting));
         } else if (packetType === 'channel') {
             this.store.dispatch(new SetChannelSubscription(

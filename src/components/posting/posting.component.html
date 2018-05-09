@@ -21,11 +21,11 @@
                         <i class="hashtag icon"></i>
                         <div class="detail">{{ posting.primaryChannel }}</div>
                     </a>
-                    <a class="ui green image label">
+                    <a class="ui green image label" [title]="formatVotes(posting)">
                         <i class="heart outline icon"></i>
                         <div class="detail">{{ posting.voteCount }}</div>
                     </a>
-                    <a class="ui green image label">
+                    <a class="ui green image label" [title]="formatComments(posting)" [routerLink]="['/posting', posting.id]">
                         <i class="comment icon"></i>
                         <div class="detail">{{ posting.comments.length }}</div>
                     </a>

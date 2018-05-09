@@ -72,4 +72,32 @@ export class PostingComponent implements OnInit {
         console.log(this.posting);
     }
 
+    public formatVotes(posting: PostingModel): string {
+        if (posting.votes.length === 0) {
+            return 'No Likes ☹';
+        }
+
+        const likers = posting
+            .votes
+            .map(item => item.author ? item.author.primaryName : item.authorId)
+            .filter((value, index, self) => self.indexOf(value) === index)
+            .join(',');
+
+        return `Likes by ${likers}`;
+    }
+
+    public formatComments(posting: PostingModel): string {
+        if (posting.comments.length === 0) {
+            return 'No comments ☹';
+        }
+
+        const commenters = posting
+            .comments
+            .map(item => item.author ? item.author.primaryName : item.authorId)
+            .filter((value, index, self) => self.indexOf(value) === index)
+            .join(',');
+
+        return `Comments by ${commenters}`;
+    }
+
 }

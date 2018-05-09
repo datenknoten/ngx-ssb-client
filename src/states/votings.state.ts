@@ -14,6 +14,7 @@ import {
 
 import {
     AddVoting,
+    SetIdentity,
 } from '../actions';
 
 @State<VotingModel[]>({
@@ -31,5 +32,19 @@ export class VotingsState {
                 action.voting,
             ]);
         }
+    }
+
+    @Action(SetIdentity)
+    public setIdentity(ctx: StateContext<VotingModel[]>, action: SetIdentity) {
+        const state = ctx.getState();
+        state
+            .filter(item => item.authorId === action.identity.id)
+            .forEach(item => {
+                item.author = action.identity;
+            });
+
+        ctx.setState([
+            ...state,
+        ]);
     }
 }
