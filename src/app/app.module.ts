@@ -20,6 +20,7 @@ import {
 import {
     SafeHtmlPipe,
     HumanReadableDatePipe,
+    HumanReadableDurationPipe,
 } from '../pipes';
 
 import {
@@ -48,6 +49,7 @@ import {
         PostingComponent,
         SafeHtmlPipe,
         HumanReadableDatePipe,
+        HumanReadableDurationPipe,
         NewPostingComponent,
         PostingDetailComponent,
         PublicFeedComponent,

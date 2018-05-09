@@ -6,30 +6,35 @@
             </div>
             <div class="fourteen wide column">
                 <p>
-                    <a class="ui basic green label">
+                    <a class="ui green image label">
                         <i class="user icon"></i>
-                        <span *ngIf="posting.author">{{ posting.author.name[0] }}</span>
-                        <span *ngIf="!posting.author">{{ posting.authorId }}</span>
+                        <div class="detail" *ngIf="posting.author">{{ posting.author.name[0] }}</div>
+                        <div class="detail" *ngIf="!posting.author">{{ posting.authorId }}</div>
                     </a>
-                    <a class="ui basic green label" [routerLink]="['/posting', posting.id]">
-                        <i class="calendar icon"></i> {{ posting.date | humanReadableDate }}
+                    <a class="ui green image label" [routerLink]="['/posting', posting.id]">
+                        <i class="calendar icon"></i>
+                        <div class="detail">{{ posting.date | humanReadableDate }}</div>
                     </a>
-                    <a class="ui basic green label">
-                        <i class="heart icon"></i> {{ posting.voteCount }}
+                    <a class="ui green image label">
+                        <i class="heart icon"></i>
+                        <div class="detail">{{ posting.voteCount }}</div>
                     </a>
-                    <a class="ui basic green label">
-                        <i class="comment icon"></i> {{ posting.comments.length }}
+                    <a class="ui green image label">
+                        <i class="comment icon"></i>
+                        <div class="detail">{{ posting.comments.length }}</div>
                     </a>
-                    <a class="ui basic green label" (click)="log()">
+                    <a class="ui green image label" (click)="log()">
                         <i class="bug icon"></i>
                     </a>
-                    <a class="ui basic green label">
-                        <i class="hourglass half icon"></i> Needs about {{ posting.readingTime }} Minutes to read
+                    <a class="ui green image label">
+                        <i class="hourglass half icon"></i>
+                        <div class="detail">{{ posting.totalReadingTime | humanReadableDuration }}</div>
                     </a>
                 </p>
                 <p *ngIf="posting.primaryChannel">
-                    <a class="ui basic green label">
-                        <i class="hashtag icon"></i> {{ posting.primaryChannel }}
+                    <a class="ui green image label">
+                        <i class="hashtag icon"></i>
+                        <div class="detail">{{ posting.primaryChannel }}</div>
                     </a>
                 </p>
             </div>
@@ -47,16 +52,18 @@
                 </div>
                 <div class="fourteen wide column">
                     <p>
-                        <a class="ui basic green label">
+                        <a class="ui green image label">
                             <i class="user icon"></i>
-                            <span *ngIf="comment.author">{{ comment.author.name[0] }}</span>
-                            <span *ngIf="!comment.author">{{ comment.authorId }}</span>
+                            <div class="detail" *ngIf="comment.author">{{ comment.author.name[0] }}</div>
+                            <div class="detail" *ngIf="!comment.author">{{ comment.authorId }}</div>
                         </a>
-                        <a class="ui basic green label">
-                            <i class="calendar icon"></i> {{ comment.date | humanReadableDate }}
+                        <a class="ui green image label">
+                            <i class="calendar icon"></i>
+                            <div class="detail">{{ comment.date | humanReadableDate }}</div>
                         </a>
-                        <a class="ui basic green label">
-                            <i class="heart icon"></i> {{ comment.voteCount }}
+                        <a class="ui green image label">
+                            <i class="heart icon"></i>
+                            <div class="detail">{{ comment.voteCount }}</div>
                         </a>
                     </p>
                 </div>

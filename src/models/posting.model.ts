@@ -88,10 +88,10 @@ export class PostingModel extends BaseModel {
             text += comment.content + '\n';
         }
 
-        return Math.floor(readingTime(text).time / 1000 / 60);
+        return readingTime(text).time;
     }
 
     public get readingTime(): number {
-        return Math.floor(readingTime(this.content).time / 1000 / 60);
+        return readingTime(this.content).time;
     }
 }
