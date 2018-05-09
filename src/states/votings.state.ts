@@ -24,9 +24,12 @@ export class VotingsState {
     @Action(AddVoting)
     public updatePosting(ctx: StateContext<VotingModel[]>, action: AddVoting) {
         const state = ctx.getState();
-        ctx.setState([
-            ...state,
-            action.voting,
-        ]);
+
+        if (state.filter(item => item.id === action.voting.id).length === 0) {
+            ctx.setState([
+                ...state,
+                action.voting,
+            ]);
+        }
     }
 }
