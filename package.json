@@ -36,18 +36,19 @@
         "cheerio": "1.0.0-rc.2",
         "core-js": "2.5.6",
         "emoji-named-characters": "1.0.2",
+        "humanize-duration": "3.14.0",
         "moment": "2.22.1",
         "pull-stream": "3.6.8",
+        "reading-time": "1.1.1",
         "rxjs": "6.1.0",
+        "semantic-ui-css": "2.3.1",
         "ssb-client": "4.5.7",
         "ssb-links": "3.0.3",
         "ssb-markdown": "3.6.0",
         "ssb-ref": "2.11.1",
         "tui-editor": "1.1.0",
         "twemoji": "2.5.1",
-        "zone.js": "0.8.26",
-        "reading-time": "1.1.1",
-        "humanize-duration": "3.14.0"
+        "zone.js": "0.8.26"
     },
     "devDependencies": {
         "@angular-devkit/build-angular": "0.6.0",

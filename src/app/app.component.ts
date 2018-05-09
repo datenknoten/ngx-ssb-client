@@ -26,7 +26,6 @@ import {
 } from '@ngxs/store';
 import { Observable } from 'rxjs';
 import { PostingsState } from '../states';
-import { SuiModalService } from '@yhnavein/ng2-semantic-ui';
 import { NewPostingComponent } from '../components';
 import * as Editor from 'tui-editor';
 import { Router, NavigationEnd } from '@angular/router';

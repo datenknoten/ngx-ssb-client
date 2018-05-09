@@ -29,7 +29,6 @@ import {
 } from '../providers';
 
 import { NgxsModule } from '@ngxs/store';
-import { SuiModule } from '@yhnavein/ng2-semantic-ui';
 
 import {
     IdentitiesState,
@@ -78,7 +77,6 @@ import {
             PostingsState,
             VotingsState,
         ]),
-        SuiModule,
     ],
     providers: [
         ElectronService,

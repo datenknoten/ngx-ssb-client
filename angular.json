@@ -30,7 +30,8 @@
                             "node_modules/codemirror/lib/codemirror.css",
                             "node_modules/tui-editor/dist/tui-editor.css",
                             "node_modules/tui-editor/dist/tui-editor-contents.css",
-                            "node_modules/highlight.js/styles/github.css"
+                            "node_modules/highlight.js/styles/github.css",
+                            "node_modules/semantic-ui-css/semantic.css"
                         ],
                         "scripts": []
                     },

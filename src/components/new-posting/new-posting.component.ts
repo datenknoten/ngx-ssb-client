@@ -3,12 +3,6 @@
  */
 
 import {
-    SuiModal,
-    ComponentModalConfig,
-    ModalSize,
-} from '@yhnavein/ng2-semantic-ui';
-
-import {
     Component,
     ViewChild,
     ElementRef,
