@@ -8,7 +8,7 @@ import {
     VotingModel,
 } from '../models';
 
-const md = require('ssb-markdown');
+const md = window.require('ssb-markdown');
 
 const emojiNamedCharacters = require('emoji-named-characters');
 
