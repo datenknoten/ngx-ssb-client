@@ -37,9 +37,19 @@ export class ScuttlebotService {
         }));
     }
 
-    public async publish(message: any) {
+    public async publish(message: PostingModel) {
+        const json = {
+            text: message.content,
+            type: 'post'
+        };
+
+        if (message.rootId) {
+            json['root'] = message.rootId;
+        }
+
         const publish = util.promisify(this.bot.publish);
-        return publish(message);
+
+        await publish(json);
     }
 
     private async init() {

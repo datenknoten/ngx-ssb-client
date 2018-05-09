@@ -15,6 +15,7 @@ import * as Editor from 'tui-editor';
 import {
     ScuttlebotService,
 } from '../../providers';
+import { PostingModel } from '../../models';
 
 @Component({
     selector: 'app-new-posting',
@@ -26,6 +27,9 @@ export class NewPostingComponent {
     @Input()
     public visible: boolean = false;
 
+    @Input()
+    public context?: PostingModel;
+
     @ViewChild('editor')
     private editorContainer: ElementRef;
 
@@ -33,7 +37,7 @@ export class NewPostingComponent {
 
     public constructor(
         public scuttlebot: ScuttlebotService,
-    ) {}
+    ) { }
 
     public setupEditor() {
         this.visible = true;
@@ -56,18 +60,26 @@ export class NewPostingComponent {
     }
 
     public async submit() {
-        const content = this.editor.getMarkdown();
+        const posting = new PostingModel();
 
-        this.editor.setMarkdown('');
+        posting.content = this.editor.getMarkdown();
 
-        await this.scuttlebot.publish({
-            type: 'post',
-            text: content,
-        });
+        if (this.context) {
+            if (this.context.rootId) {
+                posting.rootId = this.context.rootId;
+            } else {
+                posting.rootId = this.context.id;
+            }
+        }
 
-        await this.scuttlebot.updateFeed();
+        console.log('##### posting', posting);
+
+        await this.scuttlebot.publish(posting);
 
         this.cancel();
+
+        this.scuttlebot.updateFeed();
+
 
     }
 }
