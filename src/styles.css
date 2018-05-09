@@ -6,3 +6,7 @@ img.emoji {
     margin: 0 .05em 0 .1em;
     vertical-align: -0.1em;
  }
+
+body {
+    background-color: rgba(0, 0, 0, 0.05) !important;
+}
