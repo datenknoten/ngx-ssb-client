@@ -23,6 +23,9 @@
                     <a class="ui basic green label" (click)="log()">
                         <i class="bug icon"></i>
                     </a>
+                    <a class="ui basic green label">
+                        <i class="hourglass half icon"></i> Needs about {{ posting.readingTime }} Minutes to read
+                    </a>
                 </p>
                 <p *ngIf="posting.primaryChannel">
                     <a class="ui basic green label">

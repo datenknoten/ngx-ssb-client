@@ -47,7 +47,8 @@
         "ssb-ref": "2.11.1",
         "tui-editor": "1.1.0",
         "twemoji": "2.5.1",
-        "zone.js": "^0.8.19"
+        "zone.js": "^0.8.19",
+        "reading-time": "1.1.1"
     },
     "devDependencies": {
         "@angular-devkit/build-angular": "~0.5.11",

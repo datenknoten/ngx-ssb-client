@@ -14,6 +14,8 @@ const emojiNamedCharacters = require('emoji-named-characters');
 
 const twemoji = require('twemoji');
 
+const readingTime = require('reading-time');
+
 export class PostingModel extends BaseModel {
     public author: IdentityModel;
     public authorId: string;
@@ -77,5 +79,19 @@ export class PostingModel extends BaseModel {
             }
         }
         return count;
+    }
+
+    public get totalReadingTime(): number {
+        let text = this.content;
+
+        for (const comment of this.comments) {
+            text += comment.content + '\n';
+        }
+
+        return Math.floor(readingTime(text).time / 1000 / 60);
+    }
+
+    public get readingTime(): number {
+        return Math.floor(readingTime(this.content).time / 1000 / 60);
     }
 }
