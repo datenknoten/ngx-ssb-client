@@ -2,13 +2,15 @@
  * @license MIT
  */
 
-import { BrowserModule } from '@angular/platform-browser';
+import {
+    BrowserModule,
+} from '@angular/platform-browser';
 import {
     NgModule,
 } from '@angular/core';
-
-
-import { AppComponent } from './app.component';
+import {
+    AppComponent,
+} from './app.component';
 import {
     PostingComponent,
     NewPostingComponent,
@@ -16,29 +18,26 @@ import {
     PublicFeedComponent,
 
 } from '../components';
-
 import {
     SafeHtmlPipe,
     HumanReadableDatePipe,
     HumanReadableDurationPipe,
 } from '../pipes';
-
 import {
     ElectronService,
     ScuttlebotService,
 } from '../providers';
-
-import { NgxsModule } from '@ngxs/store';
+import {
+    NgxsModule,
+} from '@ngxs/store';
 
 import {
     IdentitiesState,
     PostingsState,
     VotingsState,
 } from '../states';
-
 import {
     RouterModule,
-    Routes,
 } from '@angular/router';
 
 

@@ -5,16 +5,25 @@
 import {
     Injectable,
 } from '@angular/core';
-
 import {
-    ElectronService,
-} from '../providers';
-import { Store } from '@ngxs/store';
-import { PostingModel, IdentityModel, VotingModel } from '../models';
+    Store,
+} from '@ngxs/store';
+import {
+    PostingModel,
+    IdentityModel,
+    VotingModel,
+} from '../models';
 import * as moment from 'moment';
-import { UpdatePosting, UpdateIdentity, AddVoting, SetContact, SetChannelSubscription } from '../actions';
-import { FeedEndError } from '../errors';
-import { AngularWaitBarrier } from 'blocking-proxy/built/lib/angular_wait_barrier';
+import {
+    UpdatePosting,
+    UpdateIdentity,
+    AddVoting,
+    SetContact,
+    SetChannelSubscription,
+} from '../actions';
+import {
+    FeedEndError,
+} from '../errors';
 const util = window.require('util');
 
 @Injectable()
@@ -23,7 +32,6 @@ export class ScuttlebotService {
     public counter = 0;
     private bot: any;
     public constructor(
-        private electron: ElectronService,
         private store: Store,
     ) {
         // tslint:disable-next-line:no-floating-promises
@@ -38,7 +46,7 @@ export class ScuttlebotService {
     }
 
     public async publish(message: PostingModel) {
-        const json = {
+        const json: any = {
             text: message.content,
             type: 'post'
         };
@@ -73,7 +81,7 @@ export class ScuttlebotService {
     private async getFeedItem(feed: any): Promise<any> {
         const result = await new Promise<any>((resolve, reject) => {
 
-            feed(undefined, (err, _data) => {
+            feed(undefined, (err?: Error, _data?: any) => {
                 if (typeof err === 'boolean' && err) {
                     resolve(new FeedEndError());
                     return;
@@ -287,7 +295,7 @@ export class ScuttlebotService {
             }
         }
     }
-    private async parseFeed(feed: (abort: any, cb: (err, data) => void) => any) {
+    private async parseFeed(feed: (abort: any, cb: (err?: Error, data?: any) => void) => any) {
         try {
             const item = await this.getFeedItem(feed);
             this.parsePacket(item.key, item.value);

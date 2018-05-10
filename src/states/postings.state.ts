@@ -16,7 +16,6 @@ import {
     UpdatePosting,
     SetIdentity,
 } from '../actions';
-import { stat } from 'fs';
 
 @State<PostingModel[]>({
     name: 'postings',
@@ -26,7 +25,7 @@ export class PostingsState {
     @Action(UpdatePosting)
     public updatePosting(ctx: StateContext<PostingModel[]>, action: UpdatePosting) {
         const state = ctx.getState();
-        let posting = state.filter(item => item.id === action.posting.id).pop();
+        let posting = state.filter(item => item.id === action.posting.id)[0];
         let newPosting: boolean = false;
 
         if (!posting) {

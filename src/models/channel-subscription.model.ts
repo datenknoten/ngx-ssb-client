@@ -5,7 +5,7 @@
 import { BaseModel } from '../models';
 
 export class ChannelSubscription extends BaseModel {
-    public channel: string;
+    public channel!: string;
     public isSubscribed: boolean = false;
-    public lastModified: Date;
+    public lastModified!: Date;
 }

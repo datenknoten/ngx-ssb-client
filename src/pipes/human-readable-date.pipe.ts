@@ -2,8 +2,10 @@
  * @license MIT
  */
 
-import { Pipe, PipeTransform } from '@angular/core';
-import { DomSanitizer } from '@angular/platform-browser';
+import {
+    Pipe,
+    PipeTransform,
+} from '@angular/core';
 import * as moment from 'moment';
 
 @Pipe({
@@ -11,9 +13,8 @@ import * as moment from 'moment';
 })
 export class HumanReadableDatePipe implements PipeTransform {
     public constructor(
-        private sanitized: DomSanitizer,
     ) { }
-    public transform(value: any, args?: any): any {
+    public transform(value: any): any {
         return moment(value).fromNow();
     }
 

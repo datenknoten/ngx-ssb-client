@@ -4,45 +4,28 @@
 
 import {
     Component,
-    OnInit,
     Input,
-    ViewEncapsulation,
 } from '@angular/core';
-
-import { PostingModel, IdentityModel } from '../../models';
-
 import {
-    ElectronService,
-} from '../../providers';
-
-import * as moment from 'moment';
+    PostingModel,
+    IdentityModel,
+} from '../../models';
 
 @Component({
     selector: 'app-posting',
     templateUrl: './posting.component.html',
     styleUrls: ['./posting.component.scss'],
 })
-export class PostingComponent implements OnInit {
+export class PostingComponent {
 
     @Input()
-    public posting: PostingModel;
+    public posting?: PostingModel;
 
     @Input()
     public mode: 'condensed' | 'full' = 'condensed';
 
-    public constructor(
-        private electron: ElectronService,
-    ) {}
-
-    public ngOnInit(): void {
-    }
-
-    public get formatedDate() {
-        return moment(this.posting.date).fromNow();
-    }
-
     public convertHtml(html: string) {
-        const cheerio = this.electron.remote.require('cheerio');
+        const cheerio = window.require('cheerio');
         const $ = cheerio.load(html);
 
         $('img:not(.emoji)').addClass('ui fluid image');
@@ -61,10 +44,6 @@ export class PostingComponent implements OnInit {
 
     public get debug() {
         return JSON.stringify(this.posting, undefined, '  ');
-    }
-
-    public get authorLink() {
-        return `ssb://${this.posting.authorId}`;
     }
 
     public log() {

@@ -8,6 +8,10 @@
         "emitDecoratorMetadata": true,
         "experimentalDecorators": true,
         "target": "es6",
+        "strict": true,
+        "noUnusedLocals": true,
+        "noUnusedParameters": true,
+        "noFallthroughCasesInSwitch": true,
         "typeRoots": [
             "node_modules/@types"
         ],

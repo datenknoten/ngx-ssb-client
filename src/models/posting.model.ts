@@ -17,12 +17,12 @@ const twemoji = require('twemoji');
 const readingTime = require('reading-time');
 
 export class PostingModel extends BaseModel {
-    public author: IdentityModel;
-    public authorId: string;
-    public date: Date;
+    public author?: IdentityModel;
+    public authorId!: string;
+    public date!: Date;
     public votes: VotingModel[] = [];
     public comments: PostingModel[] = [];
-    public content: string;
+    public content!: string;
     public rootId?: string;
     public primaryChannel?: string;
 
@@ -45,7 +45,7 @@ export class PostingModel extends BaseModel {
 
     public get html(): string {
         return md.block(this.content, {
-            emoji: (emoji) => {
+            emoji: (emoji: string) => {
                 if (emoji in emojiNamedCharacters) {
                     return twemoji.parse(emojiNamedCharacters[emoji].character, {
                         folder: 'emoji',
@@ -56,7 +56,7 @@ export class PostingModel extends BaseModel {
                     return `:${emoji}:`;
                 }
             },
-            imageLink: (id) => {
+            imageLink: (id: string) => {
                 return `http://localhost:8989/blobs/get/${id}`;
             },
             toUrl: (id: string) => {

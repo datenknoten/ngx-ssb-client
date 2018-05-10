@@ -5,30 +5,25 @@
 import {
     Component,
     OnInit,
-    ApplicationRef,
-    ViewChild,
-    ElementRef,
     ChangeDetectionStrategy,
 } from '@angular/core';
-
 import {
     IdentityModel,
     PostingModel,
 } from '../models';
-
 import {
-    ElectronService,
     ScuttlebotService,
 } from '../providers';
 import {
     Select,
-    Store,
 } from '@ngxs/store';
-import { Observable } from 'rxjs';
-import { PostingsState } from '../states';
-import { NewPostingComponent } from '../components';
-import * as Editor from 'tui-editor';
-import { Router, NavigationEnd } from '@angular/router';
+import {
+    Observable,
+} from 'rxjs';
+import {
+    Router,
+    NavigationEnd,
+} from '@angular/router';
 
 @Component({
     selector: 'app-root',
@@ -39,33 +34,20 @@ import { Router, NavigationEnd } from '@angular/router';
 export class AppComponent implements OnInit {
     public title: string = 'app';
 
-    @Select((state) => state.postings.filter(item => !item.rootId))
-    public postingsObservable: Observable<PostingModel[]>;
+    @Select((state: any) => state.postings.filter((item: PostingModel) => !item.rootId))
+    public postingsObservable!: Observable<PostingModel[]>;
 
-    @Select((state) => state.identities.filter(item => item.isSelf).pop())
-    public self: Observable<IdentityModel>;
-
-    @ViewChild('editor')
-    private editorContainer: ElementRef;
-
-    @ViewChild('editor')
-    private editor: NewPostingComponent;
+    @Select((state: any) => state.identities.filter((item: IdentityModel) => item.isSelf).pop())
+    public self!: Observable<IdentityModel>;
 
     public constructor(
-        private electron: ElectronService,
         private sbot: ScuttlebotService,
-        private store: Store,
-        private app: ApplicationRef,
         private router: Router,
     ) {}
 
     public debug() {
         // tslint:disable-next-line:no-debugger
         debugger;
-    }
-
-    public addPost() {
-        this.editor.visible = true;
     }
 
     public ngOnInit(): void {
@@ -77,7 +59,7 @@ export class AppComponent implements OnInit {
         });
     }
 
-    public log(item) {
+    public log(item: any) {
         // tslint:disable-next-line:no-console
         console.log(item);
     }

@@ -12,5 +12,5 @@ export class VotingModel extends BaseModel {
     public reason?: string;
     public link?: string;
     public author?: IdentityModel;
-    public authorId: string;
+    public authorId!: string;
 }

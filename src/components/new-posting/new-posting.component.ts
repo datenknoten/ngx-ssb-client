@@ -6,12 +6,10 @@ import {
     Component,
     ViewChild,
     ElementRef,
-    OnInit,
-    ViewEncapsulation,
     Input,
 } from '@angular/core';
 
-import * as Editor from 'tui-editor';
+const Editor = require('tui-editor');
 import {
     ScuttlebotService,
 } from '../../providers';
@@ -31,7 +29,7 @@ export class NewPostingComponent {
     public context?: PostingModel;
 
     @ViewChild('editor')
-    private editorContainer: ElementRef;
+    private editorContainer!: ElementRef;
 
     private editor: any;
 
