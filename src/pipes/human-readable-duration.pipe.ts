@@ -14,7 +14,10 @@ const humanizeDuration = require('humanize-duration');
 })
 export class HumanReadableDurationPipe implements PipeTransform {
     public transform(value: number): string {
-        return humanizeDuration(value, { round: true });
+        return humanizeDuration(value, {
+            round: true,
+            units: ['m'],
+        });
     }
 
 }

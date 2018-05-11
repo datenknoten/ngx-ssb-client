@@ -1,80 +1,52 @@
-<div style="margin-top: 1em;" *ngIf="true">
-    <div class="ui posting-info top green attached segment">
+<div class="posting" [ngClass]="{ posting: true, full: mode == 'full' }">
+    <div class="ui green segment">
         <div class="ui grid">
-            <div class="three wide avatar column">
-                <img class="ui fluid rounded green image" [src]="getImage(posting.author)">
+            <div class="thirteen wide column" [innerHtml]="convertHtml(posting.html) | safeHtml">
             </div>
-            <div class="thirteen wide column">
-                <div class="info">
+            <div class="three wide column">
+                <img class="ui fluid rounded green image" [src]="getImage(posting.author)">
+                <div class="item">
                     <a class="ui green image label">
                         <i class="user icon"></i>
                         <div class="detail" *ngIf="posting.author">{{ posting.author.name[0] }}</div>
                         <div class="detail" *ngIf="!posting.author">{{ posting.authorId }}</div>
                     </a>
-                    <a class="ui green image label" [routerLink]="['/posting', posting.id]">
-                        <i class="calendar icon"></i>
-                        <div class="detail">{{ posting.date | humanReadableDate }}</div>
-                    </a>
                 </div>
-                <div class="info">
-                    <a class="ui green image label" *ngIf="posting.primaryChannel">
-                        <i class="hashtag icon"></i>
-                        <div class="detail">{{ posting.primaryChannel }}</div>
-                    </a>
-                    <a class="ui green image label" [title]="formatVotes(posting)">
-                        <i class="heart outline icon"></i>
-                        <div class="detail">{{ posting.voteCount }}</div>
-                    </a>
-                    <a class="ui green image label" [title]="formatComments(posting)" [routerLink]="['/posting', posting.id]">
-                        <i class="comment icon"></i>
-                        <div class="detail">{{ posting.comments.length }}</div>
-                    </a>
-                    <div class="ui green image label" title="The estimated time to read this posting">
-                        <i class="hourglass half icon"></i>
-                        <div class="detail">{{ posting.totalReadingTime | humanReadableDuration }}</div>
-                    </div>
-                    <a class="ui green image label" (click)="log()">
-                        <i class="bug icon"></i>
-                    </a>
-                </div>
+                <div class="item">
+                <a class="ui green image label" [routerLink]="['/posting', posting.id]">
+                    <i class="calendar icon"></i>
+                    <div class="detail">{{ posting.date | humanReadableDate }}</div>
+                </a></div>
+                <div class="item">
+                <a class="ui green image label" *ngIf="posting.primaryChannel">
+                    <i class="hashtag icon"></i>
+                    <div class="detail">{{ posting.primaryChannel }}</div>
+                </a></div>
+                <div class="item">
+                <a class="ui green image label" [title]="formatVotes(posting)">
+                    <i class="heart outline icon"></i>
+                    <div class="detail">{{ posting.voteCount }}</div>
+                </a></div>
+                <div class="item">
+                <a class="ui green image label" [title]="formatComments(posting)" [routerLink]="['/posting', posting.id]">
+                    <i class="comment icon"></i>
+                    <div class="detail">{{ posting.comments.length }}</div>
+                </a></div>
+                <div class="item">
+                <div class="ui green image label" title="The estimated time to read this posting">
+                    <i class="hourglass half icon"></i>
+                    <div class="detail">{{ posting.totalReadingTime | humanReadableDuration }}</div>
+                </div></div>
+                <div class="item">
+                <a class="ui green image label" (click)="log()">
+                    <i class="bug icon"></i>
+                </a></div>
             </div>
-        </div>
-    </div>
-    <div class="ui attached green segment">
-        <div class="sixteen wide column" style="padding-top: 0;" [innerHtml]="convertHtml(posting.html) | safeHtml">
         </div>
     </div>
     <ng-container *ngIf="mode == 'full'">
-        <div class="ui bottom green attached segment" *ngFor="let comment of posting.comments">
-            <div class="ui grid">
-                <div class="two wide column">
-                    <img class="ui fluid rounded green image" [src]="getImage(comment.author)">
-                </div>
-                <div class="fourteen wide column">
-                    <p>
-                        <a class="ui green image label">
-                            <i class="user icon"></i>
-                            <div class="detail" *ngIf="comment.author">{{ comment.author.name[0] }}</div>
-                            <div class="detail" *ngIf="!comment.author">{{ comment.authorId }}</div>
-                        </a>
-                        <a class="ui green image label">
-                            <i class="calendar icon"></i>
-                            <div class="detail">{{ comment.date | humanReadableDate }}</div>
-                        </a>
-                        <a class="ui green image label">
-                            <i class="heart icon"></i>
-                            <div class="detail">{{ comment.voteCount }}</div>
-                        </a>
-                    </p>
-                </div>
-                <div class="sixteen wide column" style="padding-top: 0;">
-                    <div class="ui fitted divider"></div>
-                </div>
-                <div class="sixteen wide column" style="padding-top: 0;" [innerHtml]="convertHtml(comment.html) | safeHtml">
-                </div>
-            </div>
-        </div>
-        <div class="ui bottom green attached segment">
+        <app-posting [posting]="comment" *ngFor="let comment of posting.comments"></app-posting>
+        <div class="ui green segment">
             <app-new-posting [context]="posting"></app-new-posting>
         </div>
     </ng-container>

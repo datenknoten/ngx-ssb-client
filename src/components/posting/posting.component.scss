@@ -2,10 +2,18 @@
     margin-right: 0;
 }
 
-.posting-info .info:first-child {
-    margin-bottom: 0.7rem;
+.posting:not(.full) {
+    margin-top: 1rem;
 }
 
-.avatar.column {
-    max-width: 120px;
+.three.wide.column {
+    max-width: 180px;
+
+    border-left: 1px solid black;
+
+    .item {
+        display: block;
+        margin-top: 0.5rem;
+        margin-bottom: 0.5rem;
+    }
 }

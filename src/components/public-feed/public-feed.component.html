@@ -1,6 +1,6 @@
 <app-new-posting></app-new-posting>
 
-<div *ngIf="postings">
+<div class="feed" *ngIf="postings">
     <div *ngFor="let posting of postings | async">
         <app-posting [posting]="posting"></app-posting>
     </div>
