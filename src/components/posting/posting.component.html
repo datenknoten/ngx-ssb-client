@@ -23,8 +23,8 @@
                     <div class="detail">{{ posting.primaryChannel }}</div>
                 </a></div>
                 <div class="item">
-                <a class="ui green image label" [title]="formatVotes(posting)">
-                    <i class="heart outline icon"></i>
+                <a class="ui green image label" [title]="formatVotes(posting)" (click)="toggleLike()">
+                    <i class="heart outline icon" [ngClass]="{heart: true, outline: !hasSelfLike, icon: true}"></i>
                     <div class="detail">{{ posting.voteCount }}</div>
                 </a></div>
                 <div class="item">

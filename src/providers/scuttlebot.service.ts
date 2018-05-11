@@ -24,6 +24,7 @@ import {
 import {
     FeedEndError,
 } from '../errors';
+import { validate } from 'class-validator';
 const util = window.require('util');
 
 @Injectable()
@@ -45,19 +46,54 @@ export class ScuttlebotService {
         }));
     }
 
-    public async publish(message: PostingModel) {
+    public async publishPosting(posting: PostingModel) {
+        const validationErrors = await validate(posting);
+        if (validationErrors.length > 0) {
+            throw validationErrors[0];
+        }
+
         const json: any = {
-            text: message.content,
+            text: posting.content,
             type: 'post'
         };
 
-        if (message.rootId) {
-            json['root'] = message.rootId;
+        if (posting.rootId) {
+            json['root'] = posting.rootId;
         }
 
         const publish = util.promisify(this.bot.publish);
 
         await publish(json);
+    }
+
+    public async publishVoting(voting: VotingModel) {
+        const validationErrors = await validate(voting);
+        if (validationErrors.length > 0) {
+            throw validationErrors[0];
+        }
+
+        const json = {
+            type: 'vote',
+            vote: {
+                link: voting.link,
+                value: voting.value,
+                reason: voting.reason,
+            }
+        };
+
+        const publish = util.promisify(this.bot.publish);
+
+        await publish(json);
+    }
+
+    public async publish(message: PostingModel | VotingModel) {
+        if (message instanceof PostingModel) {
+            return this.publishPosting(message);
+        } else if (message instanceof VotingModel) {
+            return this.publishVoting(message);
+        } else {
+            throw new Error('Invalid Model');
+        }
     }
 
     private async init() {
@@ -253,6 +289,7 @@ export class ScuttlebotService {
         } else if (packetType === 'vote') {
             const voting = new VotingModel();
             voting.id = id;
+            voting.date = moment(packet.timestamp).toDate();
             voting.value = packet.content.vote.value;
             voting.reason = packet.content.vote.expression;
             voting.link = packet.content.vote.link;

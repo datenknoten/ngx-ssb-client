@@ -7,6 +7,10 @@ import {
     IdentityModel,
     VotingModel,
 } from '../models';
+import {
+    IsString,
+    IsOptional,
+} from 'class-validator';
 
 const md = window.require('ssb-markdown');
 
@@ -18,12 +22,18 @@ const readingTime = require('reading-time');
 
 export class PostingModel extends BaseModel {
     public author?: IdentityModel;
+    @IsString()
     public authorId!: string;
     public date!: Date;
     public votes: VotingModel[] = [];
     public comments: PostingModel[] = [];
+    @IsString()
     public content!: string;
+    @IsString()
+    @IsOptional()
     public rootId?: string;
+    @IsString()
+    @IsOptional()
     public primaryChannel?: string;
 
     public constructor(init?: Partial<PostingModel>) {
@@ -79,6 +89,42 @@ export class PostingModel extends BaseModel {
             }
         }
         return count;
+    }
+
+    public getPositiveVoters(): IdentityModel[] {
+        const result: IdentityModel[] = [];
+
+        if (this.votes.length === 0) {
+            return result;
+        }
+
+        const sortedVotes = [
+            ...this.votes
+        ];
+        sortedVotes.sort((a, b) => {
+            return a.date.getTime() - b.date.getTime();
+        });
+
+        const workingSet: { [index: string]: boolean } = {};
+
+        for (const vote of sortedVotes) {
+            workingSet[vote.authorId] = vote.value === 1;
+        }
+
+        for (const key in workingSet) {
+            if (workingSet[key] === true) {
+                const author = this
+                    .votes
+                    .map(item => item.author)
+                    .filter(item => item && item.id === key)
+                    .pop();
+                if (author) {
+                    result.push(author);
+                }
+            }
+        }
+
+        return result;
     }
 
     public get totalReadingTime(): number {
