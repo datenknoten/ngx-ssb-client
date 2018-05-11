@@ -1,9 +1,9 @@
 <div class="ui fluid input" *ngIf="!visible">
-    <input placeholder="Type in here to compose a new posting…" type="text" (focus)="setupEditor()">
+    <input placeholder="Type in here to compose a new post…" type="text" (focus)="setupEditor()">
 </div>
 <div id="editor" class="ui fluid card" *ngIf="visible">
     <div class="content">
-        <div class="header">New Posting</div>
+        <div class="header">New Post</div>
     </div>
     <div class="content">
         <div style="height: 600px;" #editor></div>

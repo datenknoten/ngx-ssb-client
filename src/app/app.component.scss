@@ -10,3 +10,20 @@
         background-color: rgba(0, 0, 0, 0.03);
     }
 }
+
+.rotating {
+    animation: animationFrames linear 1.5s;
+    animation-iteration-count: infinite;
+    transform-origin: 50% 50%;
+  }
+
+  @keyframes animationFrames{
+    0% {
+      transform:  rotate(-360deg) ;
+    }
+    100% {
+      transform:  rotate(0deg) ;
+    }
+  }
+
+

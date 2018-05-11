@@ -35,6 +35,7 @@ import {
     IdentitiesState,
     PostingsState,
     VotingsState,
+    CurrentFeedSettingState,
 } from '../states';
 import {
     RouterModule,
@@ -75,6 +76,7 @@ import {
             IdentitiesState,
             PostingsState,
             VotingsState,
+            CurrentFeedSettingState,
         ]),
     ],
     providers: [

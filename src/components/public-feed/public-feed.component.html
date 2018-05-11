@@ -4,4 +4,15 @@
     <div *ngFor="let posting of postings | async">
         <app-posting [posting]="posting"></app-posting>
     </div>
+    <div class="ui green bottom fixed menu">
+        <a class="item" (click)="pageBackward()">
+            Previous Page
+        </a>
+        <a class="item">
+            Currently on Page {{ (settings | async).currentPage }}
+        </a>
+        <a class="item" (click)="pageForward()">
+            Next Page
+        </a>
+    </div>
 </div>

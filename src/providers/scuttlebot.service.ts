@@ -20,6 +20,8 @@ import {
     AddVoting,
     SetContact,
     SetChannelSubscription,
+    LoadFeed,
+    UpdateMessageCount,
 } from '../actions';
 import {
     FeedEndError,
@@ -40,10 +42,11 @@ export class ScuttlebotService {
         this.init();
     }
 
-    public async updateFeed() {
+    public async updateFeed(itemCount: number = 500) {
+        this.store.dispatch(new LoadFeed(true));
         await this.parseFeed(this.bot.createFeedStream({
             reverse: true,
-            limit: 500,
+            limit: itemCount,
         }));
     }
 
@@ -146,7 +149,8 @@ export class ScuttlebotService {
             id: whoami.id,
         }));
 
-        await this.updateFeed();
+        this.store.dispatch(new UpdateMessageCount(true));
+        await this.updateFeed(2000);
     }
 
     private async getFeedItem(feed: any): Promise<any> {
@@ -259,6 +263,7 @@ export class ScuttlebotService {
             }
         } catch (error) {
             if (error instanceof FeedEndError) {
+                this.store.dispatch(new LoadFeed(false));
                 return;
             } else {
                 throw error;
@@ -368,6 +373,7 @@ export class ScuttlebotService {
         }
     }
     private async parseFeed(feed: (abort: any, cb: (err?: Error, data?: any) => void) => any) {
+        this.store.dispatch(new UpdateMessageCount());
         try {
             const item = await this.getFeedItem(feed);
             this.parsePacket(item.key, item.value);

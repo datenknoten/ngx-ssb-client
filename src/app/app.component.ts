@@ -24,6 +24,8 @@ import {
     Router,
     NavigationEnd,
 } from '@angular/router';
+import { CurrentFeedSettings } from '../interfaces';
+import { CurrentFeedSettingState } from '../states';
 
 @Component({
     selector: 'app-root',
@@ -39,6 +41,9 @@ export class AppComponent implements OnInit {
 
     @Select((state: any) => state.identities.filter((item: IdentityModel) => item.isSelf).pop())
     public self!: Observable<IdentityModel>;
+
+    @Select(CurrentFeedSettingState)
+    public currentFeedSettings?: Observable<CurrentFeedSettings>;
 
     public constructor(
         private sbot: ScuttlebotService,

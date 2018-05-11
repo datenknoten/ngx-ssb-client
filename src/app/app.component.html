@@ -12,6 +12,11 @@
             </div>
             <div class="results"></div>
         </div>
+        <div class="item" *ngFor="let settings of [(currentFeedSettings | async)]">
+            <div title="Loaded {{ settings.messageCount }} Messages from Feed">
+                <i class="sync alternate icon"></i>
+            </div>
+        </div>
         <a class="item" href="" title="Settings">
             <i class="cogs icon"></i>
         </a>
