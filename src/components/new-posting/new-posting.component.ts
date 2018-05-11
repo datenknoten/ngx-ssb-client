@@ -46,6 +46,12 @@ export class NewPostingComponent {
                 previewStyle: 'tabs',
                 exts: ['colorSyntax'],
                 height: '600px',
+                hooks: {
+                    addImageBlobHook: (file: File, cb: (url: string, text: string) => void) => {
+                        // tslint:disable-next-line:no-floating-promises
+                        this.createBlob(file, cb);
+                    },
+                }
             });
 
             this.editor.focus();
@@ -74,6 +80,11 @@ export class NewPostingComponent {
 
         await this.scuttlebot.publish(posting);
         await this.scuttlebot.updateFeed();
+    }
+
+    private async createBlob(file: File, cb: (url: string, text: string) => void) {
+        const blob = await this.scuttlebot.createBlob(file);
+        cb(blob, file.name);
     }
 }
 

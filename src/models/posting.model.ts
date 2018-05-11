@@ -22,7 +22,6 @@ const readingTime = require('reading-time');
 
 export class PostingModel extends BaseModel {
     public author?: IdentityModel;
-    @IsString()
     public authorId!: string;
     public date!: Date;
     public votes: VotingModel[] = [];

@@ -26,6 +26,7 @@ import {
 } from '../errors';
 import { validate } from 'class-validator';
 const util = window.require('util');
+const split = require('split-buffer');
 
 @Injectable()
 export class ScuttlebotService {
@@ -94,6 +95,40 @@ export class ScuttlebotService {
         } else {
             throw new Error('Invalid Model');
         }
+    }
+
+    public async createBlob(file: File): Promise<string> {
+        if (!file) {
+            throw new Error('Invalid File');
+        }
+
+        if (file.size > (5 * 1024 * 1024)) {
+            throw new Error('FileSize limit at 5MB');
+        }
+
+        const reader = new FileReader();
+        reader.readAsArrayBuffer(file);
+        const parts = await new Promise<Buffer[]>((resolve) => {
+            reader.onload = () => {
+                resolve(split(new Buffer(reader.result), 64 * 1024));
+            };
+        });
+
+        return new Promise<string>((resolve, reject) => {
+            const feed = this.bot.blobs.add((error: any, cb: any) => {
+                if (error) {
+                    reject(error);
+                    return;
+                }
+                resolve(cb);
+            });
+            feed((_abort: any, cb: any) => {
+                for (const part of parts) {
+                    cb(false, part);
+                }
+                cb(true);
+            });
+        });
     }
 
     private async init() {
