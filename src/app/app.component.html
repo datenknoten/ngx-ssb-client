@@ -1,20 +1,20 @@
 <div class="ui top fixed green menu">
     <a class="active item" routerLink="/" (click)="updateFeed()">Public Feed</a>
-    <a (click)="debug()" class="item">Private Feed</a>
+    <!-- <a (click)="debug()" class="item">Private Feed</a>
     <a class="item">Gatherings</a>
     <a class="item">Discover</a>
-    <a class="item">My Network</a>
+    <a class="item">My Network</a> -->
     <div class="right menu">
-        <div class="ui right aligned category search item">
+        <!-- <div class="ui right aligned category search item">
             <div class="ui transparent icon input">
                 <input class="prompt" placeholder="Search animals..." type="text">
                 <i class="search link icon"></i>
             </div>
             <div class="results"></div>
-        </div>
+        </div> -->
         <div class="item" *ngFor="let settings of [(currentFeedSettings | async)]">
             <div title="Loaded {{ settings.messageCount }} Messages from Feed">
-                <i class="sync alternate icon"></i>
+                <i class="sync alternate icon"></i> {{ settings.messageCount }}
             </div>
         </div>
         <a class="item" href="" title="Settings">
