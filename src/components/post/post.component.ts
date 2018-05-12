@@ -14,7 +14,13 @@ import {
 import {
     Store,
 } from '@ngxs/store';
-import { ScuttlebotService } from '../../providers';
+import {
+    ScuttlebotService,
+    ElectronService,
+} from '../../providers';
+import { Router } from '@angular/router';
+
+const ref = window.require('ssb-ref');
 
 @Component({
     selector: 'app-post',
@@ -32,6 +38,8 @@ export class PostComponent {
     public constructor(
         private store: Store,
         private scuttlebot: ScuttlebotService,
+        private electron: ElectronService,
+        private router: Router,
     ) { }
 
     public convertHtml(html: string) {
@@ -124,6 +132,28 @@ export class PostComponent {
 
         await this.scuttlebot.publish(voting);
         await this.scuttlebot.updateFeed();
+    }
+
+    public async click(event: MouseEvent) {
+        if (event.target instanceof HTMLAnchorElement) {
+            event.preventDefault();
+            const anchor: HTMLAnchorElement = event.target;
+            if (anchor.href.startsWith('ssb://')) {
+                const id = ref.extract(anchor.href);
+                const type = ref.type(id);
+
+                if (type === 'msg') {
+                    // tslint:disable-next-line:no-floating-promises
+                    this.scuttlebot.get(id);
+                    // tslint:disable-next-line:no-floating-promises
+                    this.router.navigate(['/post/', id]);
+                }
+            } else if (anchor.href.startsWith('http')) {
+                if (this.electron.remote) {
+                    this.electron.remote.shell.openExternal(anchor.href);
+                }
+            }
+        }
     }
 
 }

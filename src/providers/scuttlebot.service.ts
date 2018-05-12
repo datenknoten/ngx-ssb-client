@@ -134,6 +134,26 @@ export class ScuttlebotService {
         });
     }
 
+    public async get(id: string): Promise<void> {
+        if (!id) {
+            return;
+        }
+        const get = util.promisify(this.bot.get);
+        try {
+            const packet = await get(id);
+            if (packet && packet.value) {
+                if (packet.value.content) {
+                    this.parsePacket(id, packet);
+                }
+            }
+        } catch (error) {
+            if (error.name !== 'NotFoundError') {
+                throw error;
+            } else {
+            }
+        }
+    }
+
     private async init() {
         const ssbClient = util.promisify(window.require('ssb-client'));
 
@@ -353,25 +373,7 @@ export class ScuttlebotService {
             ));
         }
     }
-    private async get(id: string): Promise<void> {
-        if (!id) {
-            return;
-        }
-        const get = util.promisify(this.bot.get);
-        try {
-            const packet = await get(id);
-            if (packet && packet.value) {
-                if (packet.value.content) {
-                    this.parsePacket(id, packet);
-                }
-            }
-        } catch (error) {
-            if (error.name !== 'NotFoundError') {
-                throw error;
-            } else {
-            }
-        }
-    }
+
     private async parseFeed(feed: (abort: any, cb: (err?: Error, data?: any) => void) => any) {
         this.store.dispatch(new UpdateMessageCount());
         try {

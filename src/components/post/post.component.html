@@ -1,7 +1,7 @@
 <div class="post" [ngClass]="{ post: true, full: mode == 'full' }">
     <div class="ui green segment">
         <div class="ui grid">
-            <div class="twelve wide column" [innerHtml]="convertHtml(post.html) | safeHtml">
+            <div class="twelve wide column" [innerHtml]="convertHtml(post.html) | safeHtml" (click)="click($event)">
             </div>
             <div class="four wide column">
                 <img class="ui fluid rounded green image" [src]="getImage(post.author) | safeSSBUrlPipe">
