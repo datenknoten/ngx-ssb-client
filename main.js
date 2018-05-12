@@ -24,9 +24,12 @@ async function createWindow() {
                 return;
             }
             const feed = bot.blobs.get(blobId);
-            pull(feed, pull.collect(function (err, array) {
-                if (err) {
-                    throw err;
+            pull(feed, pull.collect(function (error, array) {
+                if (error) {
+                    // tslint:disable-next-line:no-console
+                    console.dir(`Failed to fetch blob ${blobId}`);
+                    // tslint:disable-next-line:no-console
+                    console.dir({ error });
                 }
                 cb({
                     mimeType: 'image/jpeg',

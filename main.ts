@@ -30,9 +30,12 @@ async function createWindow() {
             const feed = bot.blobs.get(blobId);
             pull(
                 feed,
-                pull.collect(function (err: any, array: Buffer[]) {
-                    if (err) {
-                        throw err;
+                pull.collect(function (error: any, array: Buffer[]) {
+                    if (error) {
+                        // tslint:disable-next-line:no-console
+                        console.dir(`Failed to fetch blob ${blobId}`);
+                        // tslint:disable-next-line:no-console
+                        console.dir({ error });
                     }
                     cb({
                         mimeType: 'image/jpeg',
