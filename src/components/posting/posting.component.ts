@@ -46,7 +46,7 @@ export class PostingComponent {
 
     public getImage(identity?: IdentityModel) {
         if (identity && (identity.image.length > 0)) {
-            return `http://localhost:8989/blobs/get/${identity.primaryImage}`;
+            return `ssb://ssb/${identity.primaryImage}`;
         } else {
             return './assets/img/image.png';
         }

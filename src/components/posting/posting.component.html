@@ -1,10 +1,10 @@
 <div class="posting" [ngClass]="{ posting: true, full: mode == 'full' }">
     <div class="ui green segment">
         <div class="ui grid">
-            <div class="thirteen wide column" [innerHtml]="convertHtml(posting.html) | safeHtml">
+            <div class="twelve wide column" [innerHtml]="convertHtml(posting.html) | safeHtml">
             </div>
-            <div class="three wide column">
-                <img class="ui fluid rounded green image" [src]="getImage(posting.author)">
+            <div class="four wide column">
+                <img class="ui fluid rounded green image" [src]="getImage(posting.author) | safeSSBUrlPipe">
                 <div class="item">
                     <a class="ui green image label">
                         <i class="user icon"></i>

@@ -69,6 +69,10 @@ export class AppComponent implements OnInit {
         console.log(item);
     }
 
+    public formatBlobUrl(id: string) {
+        return `ssb://ssb/${id}`;
+    }
+
     public async updateFeed() {
         await this.sbot.updateFeed();
     }

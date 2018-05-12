@@ -2,28 +2,43 @@
  * @license MIT
  */
 
-import { app, BrowserWindow, screen } from 'electron';
+import { app, BrowserWindow, screen, protocol } from 'electron';
 import * as path from 'path';
 import * as url from 'url';
-
-let win, serve;
-const args = process.argv.slice(1);
-serve = args.some(val => val === '--serve');
-
-try {
-    require('dotenv').config();
-} catch {
-    // tslint:disable-next-line:no-console
-    console.log('asar');
-}
-
 import * as util from 'util';
+const pull = require('pull-stream');
+
+let win: any;
+const args = process.argv.slice(1);
+const serve = args.includes('--serve');
 
 async function createWindow() {
+    const ssbClient = util.promisify(require('ssb-client'));
+
+    const bot = await ssbClient();
 
     const electronScreen = screen;
     const size = electronScreen.getPrimaryDisplay().workAreaSize;
 
+    protocol.registerBufferProtocol('ssb', function (request: any, cb: any) {
+        const _url = url.parse(request.url);
+        if (_url.path) {
+            const blobId = _url.path.slice(1);
+            const feed = bot.blobs.get(blobId);
+            pull(
+                feed,
+                pull.collect(function (err: any, array: Buffer[]) {
+                    if (err) {
+                        throw err;
+                    }
+                    cb({
+                        mimeType: 'image/jpeg',
+                        data: Buffer.concat(array),
+                    });
+                }),
+            );
+        }
+    });
     // Create the browser window.
     win = new BrowserWindow({
         x: 0,
@@ -58,6 +73,7 @@ async function createWindow() {
 
 try {
 
+    protocol.registerStandardSchemes(['ssb']);
     // This method will be called when Electron has finished
     // initialization and is ready to create browser windows.
     // Some APIs can only be used after this event occurs.

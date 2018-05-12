@@ -66,14 +66,10 @@ export class PostingModel extends BaseModel {
                 }
             },
             imageLink: (id: string) => {
-                return `http://localhost:8989/blobs/get/${id}`;
+                return `ssb://ssb/${id}`;
             },
             toUrl: (id: string) => {
-                if (id.startsWith('&')) {
-                    return `http://localhost:8989/blobs/get/${id}`;
-                } else {
-                    return `ssb://${id}`;
-                }
+                return `ssb://ssb/${id}`;
             }
         });
     }

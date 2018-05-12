@@ -22,6 +22,7 @@ import {
     SafeHtmlPipe,
     HumanReadableDatePipe,
     HumanReadableDurationPipe,
+    SafeSSBUrlPipe,
 } from '../pipes';
 import {
     ElectronService,
@@ -52,6 +53,7 @@ import {
         NewPostingComponent,
         PostingDetailComponent,
         PublicFeedComponent,
+        SafeSSBUrlPipe,
     ],
     imports: [
         RouterModule.forRoot([
