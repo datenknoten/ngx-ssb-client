@@ -14,10 +14,11 @@ import {
 import {
     PostingComponent,
     NewPostingComponent,
+} from '../components';
+import {
     PostingDetailComponent,
     PublicFeedComponent,
-
-} from '../components';
+} from '../pages';
 import {
     SafeHtmlPipe,
     HumanReadableDatePipe,
