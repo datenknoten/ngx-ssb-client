@@ -1,3 +1,7 @@
+<ng-container *ngIf="(settings | async).channel !== 'public'">
+    <h1 class="ui dividing header">#{{ (settings | async).channel }}</h1>
+</ng-container>
+
 <app-new-post></app-new-post>
 
 <div class="feed" *ngIf="posts">

@@ -7,4 +7,5 @@ export interface CurrentFeedSettings {
     elementsPerPage: number;
     loadingFeed: boolean;
     messageCount: number;
+    channel: string;
 }

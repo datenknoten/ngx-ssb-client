@@ -19,6 +19,8 @@ import {
 import { CurrentFeedSettings } from '../../interfaces';
 import { CurrentFeedSettingState } from '../../states';
 import { PaginateFeed } from '../../actions';
+import { ActivatedRoute } from '@angular/router';
+import { SwitchChannel } from '../../actions/switch-channel.action';
 
 @Component({
     selector: 'app-public-feed',
@@ -29,6 +31,13 @@ export class PublicFeedComponent {
     @Select((state: { posts: PostModel[], currentFeedSettings: CurrentFeedSettings }) => state
         .posts
         .filter((item: PostModel) => !item.rootId)
+        .filter((item) => {
+            if (state.currentFeedSettings.channel !== 'public') {
+                return item.primaryChannel === state.currentFeedSettings.channel;
+            } else {
+                return true;
+            }
+        })
         .slice(
             (state.currentFeedSettings.currentPage - 1) * state.currentFeedSettings.elementsPerPage,
             state.currentFeedSettings.currentPage * state.currentFeedSettings.elementsPerPage)
@@ -40,7 +49,16 @@ export class PublicFeedComponent {
 
     public constructor(
         private store: Store,
-    ) { }
+        private route: ActivatedRoute,
+    ) {
+        this.route.url.subscribe(() => {
+            const id = this.route.snapshot.paramMap.get('channel');
+            if (!id) {
+                throw new Error('No Such Channel');
+            }
+            this.store.dispatch(new SwitchChannel(id));
+        });
+    }
 
     public pageBackward() {
         this.store.dispatch(new PaginateFeed(-1));

@@ -11,6 +11,7 @@ import {
     CurrentFeedSettings,
 } from '../interfaces';
 import { PaginateFeed } from '../actions';
+import { SwitchChannel } from '../actions/switch-channel.action';
 
 
 @State<CurrentFeedSettings>({
@@ -20,6 +21,7 @@ import { PaginateFeed } from '../actions';
         elementsPerPage: 20,
         loadingFeed: false,
         messageCount: 0,
+        channel: 'public',
     }
 })
 export class CurrentFeedSettingState {
@@ -47,6 +49,16 @@ export class CurrentFeedSettingState {
         ctx.setState({
             ...state,
             messageCount: (action.reset ? 0 : state.messageCount + 1),
+        });
+    }
+
+    @Action(SwitchChannel)
+    public switchChannel(ctx: StateContext<CurrentFeedSettings>, action: SwitchChannel) {
+        const state = ctx.getState();
+        ctx.setState({
+            ...state,
+            channel: action.channel,
+            currentPage: 1,
         });
     }
 }

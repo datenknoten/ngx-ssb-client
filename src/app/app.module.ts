@@ -60,11 +60,11 @@ import {
         RouterModule.forRoot([
             {
                 path: '',
-                redirectTo: 'public',
+                redirectTo: 'feed/public',
                 pathMatch: 'full',
             },
             {
-                path: 'public',
+                path: 'feed/:channel',
                 component: PublicFeedComponent,
             },
             {
