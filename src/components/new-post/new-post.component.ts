@@ -13,20 +13,20 @@ const Editor = require('tui-editor');
 import {
     ScuttlebotService,
 } from '../../providers';
-import { PostingModel } from '../../models';
+import { PostModel } from '../../models';
 
 @Component({
-    selector: 'app-new-posting',
-    templateUrl: './new-posting.component.html',
-    styleUrls: ['./new-posting.component.scss'],
+    selector: 'app-new-post',
+    templateUrl: './new-post.component.html',
+    styleUrls: ['./new-post.component.scss'],
     // encapsulation: ViewEncapsulation.None,
 })
-export class NewPostingComponent {
+export class NewPostComponent {
     @Input()
     public visible: boolean = false;
 
     @Input()
-    public context?: PostingModel;
+    public context?: PostModel;
 
     @ViewChild('editor')
     private editorContainer!: ElementRef;
@@ -64,21 +64,21 @@ export class NewPostingComponent {
     }
 
     public async submit() {
-        const posting = new PostingModel();
+        const post = new PostModel();
 
-        posting.content = this.editor.getMarkdown();
+        post.content = this.editor.getMarkdown();
 
         if (this.context) {
             if (this.context.rootId) {
-                posting.rootId = this.context.rootId;
+                post.rootId = this.context.rootId;
             } else {
-                posting.rootId = this.context.id;
+                post.rootId = this.context.id;
             }
         }
 
         this.cancel();
 
-        await this.scuttlebot.publish(posting);
+        await this.scuttlebot.publish(post);
         await this.scuttlebot.updateFeed();
     }
 

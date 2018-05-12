@@ -18,10 +18,17 @@ async function createWindow() {
     const size = electronScreen.getPrimaryDisplay().workAreaSize;
     electron_1.protocol.registerBufferProtocol('ssb', function (request, cb) {
         const _url = url.parse(request.url);
+        console.log({ request });
         if (_url.path) {
             const blobId = _url.path.slice(1);
+            if (blobId === 'undefined') {
+                return;
+            }
             const feed = bot.blobs.get(blobId);
             pull(feed, pull.collect(function (err, array) {
+                if (err) {
+                    throw err;
+                }
                 cb({
                     mimeType: 'image/jpeg',
                     data: Buffer.concat(array),

@@ -2,5 +2,5 @@
  * @license MIT
  */
 
-export { PostingComponent } from './posting';
-export { NewPostingComponent } from './new-posting';
+export { PostComponent } from './post';
+export { NewPostComponent } from './new-post';

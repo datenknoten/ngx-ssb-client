@@ -20,12 +20,12 @@ const twemoji = require('twemoji');
 
 const readingTime = require('reading-time');
 
-export class PostingModel extends BaseModel {
+export class PostModel extends BaseModel {
     public author?: IdentityModel;
     public authorId!: string;
     public date!: Date;
     public votes: VotingModel[] = [];
-    public comments: PostingModel[] = [];
+    public comments: PostModel[] = [];
     @IsString()
     public content!: string;
     @IsString()
@@ -35,7 +35,7 @@ export class PostingModel extends BaseModel {
     @IsOptional()
     public primaryChannel?: string;
 
-    public constructor(init?: Partial<PostingModel>) {
+    public constructor(init?: Partial<PostModel>) {
         super();
         Object.assign(this, init);
     }

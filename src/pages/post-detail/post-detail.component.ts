@@ -8,7 +8,7 @@ import {
 } from '@angular/core';
 
 import {
-    PostingModel,
+    PostModel,
 } from '../../models';
 
 import {
@@ -22,12 +22,12 @@ import {
 } from '@ngxs/store';
 
 @Component({
-    selector: 'app-posting-detail',
-    templateUrl: './posting-detail.component.html',
-    styleUrls: ['./posting-detail.component.scss'],
+    selector: 'app-post-detail',
+    templateUrl: './post-detail.component.html',
+    styleUrls: ['./post-detail.component.scss'],
 })
-export class PostingDetailComponent implements OnInit {
-    public posting?: Observable<PostingModel>;
+export class PostDetailComponent implements OnInit {
+    public post?: Observable<PostModel>;
     public constructor(
         private route: ActivatedRoute,
         private store: Store,
@@ -36,6 +36,6 @@ export class PostingDetailComponent implements OnInit {
     public ngOnInit() {
         const id = this.route.snapshot.paramMap.get('id');
 
-        this.posting = this.store.select((state) => state.postings.filter((item: PostingModel) => item.id === id).pop());
+        this.post = this.store.select((state) => state.posts.filter((item: PostModel) => item.id === id).pop());
     }
 }

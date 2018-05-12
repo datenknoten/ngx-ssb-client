@@ -9,13 +9,13 @@ import {
     Store,
 } from '@ngxs/store';
 import {
-    PostingModel,
+    PostModel,
     IdentityModel,
     VotingModel,
 } from '../models';
 import * as moment from 'moment';
 import {
-    UpdatePosting,
+    UpdatePost,
     UpdateIdentity,
     AddVoting,
     SetContact,
@@ -50,19 +50,19 @@ export class ScuttlebotService {
         }));
     }
 
-    public async publishPosting(posting: PostingModel) {
-        const validationErrors = await validate(posting);
+    public async publishPost(post: PostModel) {
+        const validationErrors = await validate(post);
         if (validationErrors.length > 0) {
             throw validationErrors[0];
         }
 
         const json: any = {
-            text: posting.content,
+            text: post.content,
             type: 'post'
         };
 
-        if (posting.rootId) {
-            json['root'] = posting.rootId;
+        if (post.rootId) {
+            json['root'] = post.rootId;
         }
 
         const publish = util.promisify(this.bot.publish);
@@ -90,9 +90,9 @@ export class ScuttlebotService {
         await publish(json);
     }
 
-    public async publish(message: PostingModel | VotingModel) {
-        if (message instanceof PostingModel) {
-            return this.publishPosting(message);
+    public async publish(message: PostModel | VotingModel) {
+        if (message instanceof PostModel) {
+            return this.publishPost(message);
         } else if (message instanceof VotingModel) {
             return this.publishVoting(message);
         } else {
@@ -272,28 +272,28 @@ export class ScuttlebotService {
     }
 
     private parsePost(id: string, packet: any) {
-        const posting = new PostingModel();
-        posting.id = id;
-        posting.primaryChannel = packet.content.channel;
-        posting.authorId = packet.author;
-        posting.author = this
+        const post = new PostModel();
+        post.id = id;
+        post.primaryChannel = packet.content.channel;
+        post.authorId = packet.author;
+        post.author = this
             .store
             .selectSnapshot<IdentityModel[]>((state) => state.identities)
             .filter(item => item.id === packet.author)
             .pop();
-        if (!posting.author) {
+        if (!post.author) {
             // tslint:disable-next-line:no-floating-promises
-            this.fetchIdentity(posting.authorId);
+            this.fetchIdentity(post.authorId);
         }
-        posting.votes = this
+        post.votes = this
             .store
             .selectSnapshot<VotingModel[]>((state) => state.votings)
-            .filter(item => item.link === posting.id);
-        posting.date = moment(packet.timestamp).toDate();
-        posting.content = packet.content.text;
-        posting.rootId = packet.content.root;
-        this.store.dispatch(new UpdatePosting(posting));
-        if (posting.rootId) {
+            .filter(item => item.link === post.id);
+        post.date = moment(packet.timestamp).toDate();
+        post.content = packet.content.text;
+        post.rootId = packet.content.root;
+        this.store.dispatch(new UpdatePost(post));
+        if (post.rootId) {
             // got a non root node, fetch the tree
             // tslint:disable-next-line:no-floating-promises
             this.get(packet.content.root);

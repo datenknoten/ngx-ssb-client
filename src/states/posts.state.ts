@@ -9,49 +9,49 @@ import {
 } from '@ngxs/store';
 
 import {
-    PostingModel,
+    PostModel,
 } from '../models';
 
 import {
-    UpdatePosting,
+    UpdatePost,
     SetIdentity,
 } from '../actions';
 
-@State<PostingModel[]>({
-    name: 'postings',
+@State<PostModel[]>({
+    name: 'posts',
     defaults: []
 })
-export class PostingsState {
-    @Action(UpdatePosting)
-    public updatePosting(ctx: StateContext<PostingModel[]>, action: UpdatePosting) {
+export class PostsState {
+    @Action(UpdatePost)
+    public updatePost(ctx: StateContext<PostModel[]>, action: UpdatePost) {
         const state = ctx.getState();
-        let posting = state.filter(item => item.id === action.posting.id)[0];
-        let newPosting: boolean = false;
+        let post = state.filter(item => item.id === action.post.id)[0];
+        let newPost: boolean = false;
 
-        if (!posting) {
-            posting = new PostingModel();
-            Object.assign(posting, action.posting);
-            newPosting = true;
+        if (!post) {
+            post = new PostModel();
+            Object.assign(post, action.post);
+            newPost = true;
         } else {
-            Object.assign(posting, action.posting);
+            Object.assign(post, action.post);
         }
 
-        // first check if the posting is a comment and has a root in the state
-        if (posting.rootId) {
-            const root = state.filter(item => item.id === posting.rootId).pop();
+        // first check if the post is a comment and has a root in the state
+        if (post.rootId) {
+            const root = state.filter(item => item.id === post.rootId).pop();
 
-            if (root && root.comments.filter(item => item.id === posting.id).length === 0) {
-                root.comments.push(posting);
+            if (root && root.comments.filter(item => item.id === post.id).length === 0) {
+                root.comments.push(post);
                 root.comments.sort((a, b) => {
                     return a.date.getTime() - b.date.getTime();
                 });
             }
         } else {
-            // also check if this posting has comments
-            const comments = state.filter(item => item.rootId === posting.id);
+            // also check if this post has comments
+            const comments = state.filter(item => item.rootId === post.id);
 
             if (comments.length > 0) {
-                posting.comments = [
+                post.comments = [
                     ...comments
                 ].sort((a, b) => {
                     return a.date.getTime() - b.date.getTime();
@@ -59,10 +59,10 @@ export class PostingsState {
             }
         }
 
-        if (newPosting) {
+        if (newPost) {
             ctx.setState([
                 ...state,
-                posting,
+                post,
             ].sort((a, b) => {
                 return b.latestActivity.getTime() - a.latestActivity.getTime();
             }));
@@ -76,7 +76,7 @@ export class PostingsState {
     }
 
     @Action(SetIdentity)
-    public setIdentity(ctx: StateContext<PostingModel[]>, action: SetIdentity) {
+    public setIdentity(ctx: StateContext<PostModel[]>, action: SetIdentity) {
         const state = ctx.getState();
         state
             .filter(item => item.authorId === action.identity.id)

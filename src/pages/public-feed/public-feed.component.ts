@@ -7,7 +7,7 @@ import {
 } from '@angular/core';
 
 import {
-    PostingModel,
+    PostModel,
 } from '../../models';
 
 import {
@@ -26,14 +26,14 @@ import { PaginateFeed } from '../../actions';
     styleUrls: ['./public-feed.component.scss'],
 })
 export class PublicFeedComponent {
-    @Select((state: { postings: PostingModel[], currentFeedSettings: CurrentFeedSettings }) => state
-        .postings
-        .filter((item: PostingModel) => !item.rootId)
+    @Select((state: { posts: PostModel[], currentFeedSettings: CurrentFeedSettings }) => state
+        .posts
+        .filter((item: PostModel) => !item.rootId)
         .slice(
             (state.currentFeedSettings.currentPage - 1) * state.currentFeedSettings.elementsPerPage,
             state.currentFeedSettings.currentPage * state.currentFeedSettings.elementsPerPage)
     )
-    public postings?: Observable<PostingModel[]>;
+    public posts?: Observable<PostModel[]>;
 
     @Select(CurrentFeedSettingState)
     public settings?: Observable<CurrentFeedSettings>;

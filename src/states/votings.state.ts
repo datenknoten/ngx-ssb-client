@@ -23,7 +23,7 @@ import {
 })
 export class VotingsState {
     @Action(AddVoting)
-    public updatePosting(ctx: StateContext<VotingModel[]>, action: AddVoting) {
+    public addVoting(ctx: StateContext<VotingModel[]>, action: AddVoting) {
         const state = ctx.getState();
 
         if (state.filter(item => item.id === action.voting.id).length === 0) {

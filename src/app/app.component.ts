@@ -9,7 +9,7 @@ import {
 } from '@angular/core';
 import {
     IdentityModel,
-    PostingModel,
+    PostModel,
 } from '../models';
 import {
     ScuttlebotService,
@@ -36,8 +36,8 @@ import { CurrentFeedSettingState } from '../states';
 export class AppComponent implements OnInit {
     public title: string = 'app';
 
-    @Select((state: any) => state.postings.filter((item: PostingModel) => !item.rootId))
-    public postingsObservable!: Observable<PostingModel[]>;
+    @Select((state: any) => state.posts.filter((item: PostModel) => !item.rootId))
+    public posts!: Observable<PostModel[]>;
 
     @Select((state: any) => state.identities.filter((item: IdentityModel) => item.isSelf).pop())
     public self!: Observable<IdentityModel>;

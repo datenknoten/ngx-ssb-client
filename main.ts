@@ -24,6 +24,9 @@ async function createWindow() {
         const _url = url.parse(request.url);
         if (_url.path) {
             const blobId = _url.path.slice(1);
+            if (blobId === 'undefined') {
+                return;
+            }
             const feed = bot.blobs.get(blobId);
             pull(
                 feed,

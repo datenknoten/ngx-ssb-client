@@ -7,7 +7,7 @@ import {
     Input,
 } from '@angular/core';
 import {
-    PostingModel,
+    PostModel,
     IdentityModel,
     VotingModel,
 } from '../../models';
@@ -17,14 +17,14 @@ import {
 import { ScuttlebotService } from '../../providers';
 
 @Component({
-    selector: 'app-posting',
-    templateUrl: './posting.component.html',
-    styleUrls: ['./posting.component.scss'],
+    selector: 'app-post',
+    templateUrl: './post.component.html',
+    styleUrls: ['./post.component.scss'],
 })
-export class PostingComponent {
+export class PostComponent {
 
     @Input()
-    public posting!: PostingModel;
+    public post!: PostModel;
 
     @Input()
     public mode: 'condensed' | 'full' = 'condensed';
@@ -53,41 +53,41 @@ export class PostingComponent {
     }
 
     public get debug() {
-        return JSON.stringify(this.posting, undefined, '  ');
+        return JSON.stringify(this.post, undefined, '  ');
     }
 
     public log() {
         // tslint:disable-next-line:no-console
-        console.log(this.posting);
+        console.log(this.post);
     }
 
-    public formatVotes(posting: PostingModel): string {
-        if (posting.votes.length === 0) {
+    public formatVotes(post: PostModel): string {
+        if (post.votes.length === 0) {
             return 'No Likes ☹';
         }
 
-        const likers = posting
+        const likers = post
             .getPositiveVoters()
             .map(item => item.primaryName)
             .join(', ');
 
-        return `${likers} liked this posting`;
+        return `${likers} liked this post`;
     }
 
     public get hasSelfLike(): boolean {
-        if (!this.posting) {
+        if (!this.post) {
             return false;
         }
 
-        return this.posting.getPositiveVoters().filter(item => item.isSelf).length === 1;
+        return this.post.getPositiveVoters().filter(item => item.isSelf).length === 1;
     }
 
-    public formatComments(posting: PostingModel): string {
-        if (posting.comments.length === 0) {
+    public formatComments(post: PostModel): string {
+        if (post.comments.length === 0) {
             return 'No comments ☹';
         }
 
-        const commenters = posting
+        const commenters = post
             .comments
             .map(item => item.author ? item.author.primaryName : item.authorId)
             .filter((value, index, self) => self.indexOf(value) === index)
@@ -106,7 +106,7 @@ export class PostingComponent {
             voting.reason = 'Like';
         }
 
-        voting.link = this.posting.id;
+        voting.link = this.post.id;
 
         const author = this
             .store

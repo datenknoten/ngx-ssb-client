@@ -2,6 +2,6 @@
  * @license MIT
  */
 
-export { PostingDetailComponent } from './posting-detail';
+export { PostDetailComponent } from './post-detail';
 export { PublicFeedComponent } from './public-feed';
 

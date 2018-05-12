@@ -12,11 +12,11 @@ import {
     AppComponent,
 } from './app.component';
 import {
-    PostingComponent,
-    NewPostingComponent,
+    PostComponent,
+    NewPostComponent,
 } from '../components';
 import {
-    PostingDetailComponent,
+    PostDetailComponent,
     PublicFeedComponent,
 } from '../pages';
 import {
@@ -35,7 +35,7 @@ import {
 
 import {
     IdentitiesState,
-    PostingsState,
+    PostsState,
     VotingsState,
     CurrentFeedSettingState,
 } from '../states';
@@ -47,12 +47,12 @@ import {
 @NgModule({
     declarations: [
         AppComponent,
-        PostingComponent,
+        PostComponent,
         SafeHtmlPipe,
         HumanReadableDatePipe,
         HumanReadableDurationPipe,
-        NewPostingComponent,
-        PostingDetailComponent,
+        NewPostComponent,
+        PostDetailComponent,
         PublicFeedComponent,
         SafeSSBUrlPipe,
     ],
@@ -68,8 +68,8 @@ import {
                 component: PublicFeedComponent,
             },
             {
-                path: 'posting/:id',
-                component: PostingDetailComponent,
+                path: 'post/:id',
+                component: PostDetailComponent,
             }
         ], {
             enableTracing: false,
@@ -77,7 +77,7 @@ import {
         BrowserModule,
         NgxsModule.forRoot([
             IdentitiesState,
-            PostingsState,
+            PostsState,
             VotingsState,
             CurrentFeedSettingState,
         ]),
@@ -88,7 +88,7 @@ import {
     ],
     bootstrap: [AppComponent],
     entryComponents: [
-        PostingDetailComponent,
+        PostDetailComponent,
         PublicFeedComponent,
     ]
 })
