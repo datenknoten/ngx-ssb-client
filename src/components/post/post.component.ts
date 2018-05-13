@@ -46,7 +46,7 @@ export class PostComponent {
         const cheerio = window.require('cheerio');
         const $ = cheerio.load(html);
 
-        $('img:not(.emoji)').addClass('ui fluid image');
+        $('img:not(.emoji)').addClass('ui rounded image');
         $('h1,h2,h3').addClass('ui dividing header');
 
         return $.html();
