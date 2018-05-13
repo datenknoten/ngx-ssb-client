@@ -33,7 +33,8 @@ export class PublicFeedComponent {
         .filter((item: PostModel) => !item.rootId)
         .filter((item) => {
             if (state.currentFeedSettings.channel !== 'public') {
-                return item.primaryChannel === state.currentFeedSettings.channel;
+                return item.primaryChannel === state.currentFeedSettings.channel ||
+                    item.mentions.filter(_item => _item.link === `#${state.currentFeedSettings.channel}`).length > 0;
             } else {
                 return true;
             }

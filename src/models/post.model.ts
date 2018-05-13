@@ -6,6 +6,7 @@ import {
     BaseModel,
     IdentityModel,
     VotingModel,
+    LinkModel,
 } from '../models';
 import {
     IsString,
@@ -34,6 +35,8 @@ export class PostModel extends BaseModel {
     @IsString()
     @IsOptional()
     public primaryChannel?: string;
+
+    public mentions: LinkModel[] = [];
 
     public constructor(init?: Partial<PostModel>) {
         super();

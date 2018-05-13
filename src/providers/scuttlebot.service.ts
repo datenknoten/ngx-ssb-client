@@ -12,6 +12,7 @@ import {
     PostModel,
     IdentityModel,
     VotingModel,
+    LinkModel,
 } from '../models';
 import * as moment from 'moment';
 import {
@@ -312,6 +313,13 @@ export class ScuttlebotService {
         post.date = moment(packet.timestamp).toDate();
         post.content = packet.content.text;
         post.rootId = packet.content.root;
+        if (packet.content.mentions) {
+            if (Array.isArray(packet.content.mentions)) {
+                for (const mention of packet.content.mentions) {
+                    post.mentions.push(new LinkModel({ link: mention.link }));
+                }
+            }
+        }
         this.store.dispatch(new UpdatePost(post));
         if (post.rootId) {
             // got a non root node, fetch the tree
