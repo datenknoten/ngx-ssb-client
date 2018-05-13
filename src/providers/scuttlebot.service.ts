@@ -179,7 +179,7 @@ export class ScuttlebotService {
         await this.drainFeed(userFeed, this.parsePacket.bind(this));
 
         this.store.dispatch(new UpdateMessageCount(true));
-        await this.updateFeed(2000);
+        await this.updateFeed(6000);
     }
 
     private async getFeedItem(feed: any): Promise<any> {
@@ -381,7 +381,11 @@ export class ScuttlebotService {
         return new Promise<void>((resolve, reject) => {
             pull(
                 feed,
-                pull.drain(callback, (error: any) => {
+                pull.drain((data: any) => {
+                    setImmediate(() => {
+                        callback.bind(this, data)();
+                    });
+                }, (error: any) => {
                     if (error) {
                         reject(error);
                         return;
