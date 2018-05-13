@@ -17,46 +17,44 @@
                 <i class="sync alternate icon"></i> {{ settings.messageCount }}
             </div>
         </div>
-        <a class="item" href="" title="Settings">
-            <i class="cogs icon"></i>
+        <a class="item" (click)="toggleSidebar()" title="Expand Sidebar">
+            <i class="angle left icon"></i>
         </a>
     </div>
 </div>
-<div class="ui grid" style="margin-left: 1em; margin-right: 1em; margin-top: 2em;">
-    <div class="sixteen wide column">
-        <router-outlet></router-outlet>
+<div class="content">
+    <router-outlet></router-outlet>
+</div>
+<div class="ui right sidebar">
+    <div class="ui fluid card" *ngIf="(self | async)">
+        <div class="image">
+            <img [src]="formatBlobUrl((self | async).primaryImage) | safeSSBUrlPipe">
+        </div>
+        <div class="content">
+            <a class="header">{{ (self | async).primaryName }}</a>
+        </div>
     </div>
-    <div style="display: none;" class="four wide sidebar column">
-        <div class="ui fluid card" *ngIf="(self | async)">
-            <div class="image">
-                <img [src]="formatBlobUrl((self | async).primaryImage) | safeSSBUrlPipe">
-            </div>
-            <div class="content">
-                <a class="header">{{ (self | async).primaryName }}</a>
+    <div class="ui vertical fluid green following menu" style="margin-top: 1em;" *ngIf="(self | async)">
+        <div class="item">
+            <i class="hashtag icon"></i>
+            Channels
+            <div class="menu">
+                <ng-container *ngFor="let channel of (self | async).channels">
+                    <a class="item" *ngIf="channel.isSubscribed" (click)="goToChannel($event, channel)">
+                        {{ channel.channel }}
+                    </a>
+                </ng-container>
             </div>
         </div>
-        <div class="ui vertical fluid green following menu" style="margin-top: 1em;" *ngIf="(self | async)">
-            <div class="item">
-                <i class="hashtag icon"></i>
-                Channels
-                <div class="menu">
-                    <a class="item" href="" *ngFor="let channel of (self | async).channels">
-                        <span *ngIf="channel.isSubscribed">
-                            {{ channel.channel }}
-                        </span>
-                    </a>
-                </div>
-            </div>
-            <div class="item">
-                <i class="users icon"></i>
-                Following
-                <div class="menu">
-                    <a class="item" (click)="log(followee)" *ngFor="let followee of (self | async).following">
-                        <img class="ui left spaced mini image" src="./assets/img/image.png" *ngIf="!followee.primaryImage">
-                        <img class="ui left spaced mini image" [src]="formatBlobUrl(followee.primaryImage) | safeSSBUrlPipe" *ngIf="followee.primaryImage"> {{ followee.primaryName }}
-                        <!-- <div class="horizontal ui label" title="3 new messages">3</div> -->
-                    </a>
-                </div>
+        <div class="item">
+            <i class="users icon"></i>
+            Following
+            <div class="menu">
+                <a class="item" (click)="log(followee)" *ngFor="let followee of (self | async).following">
+                    <img class="ui left spaced mini image" src="./assets/img/image.png" *ngIf="!followee.primaryImage">
+                    <img class="ui left spaced mini image" [src]="formatBlobUrl(followee.primaryImage) | safeSSBUrlPipe" *ngIf="followee.primaryImage"> {{ followee.primaryName }}
+                    <!-- <div class="horizontal ui label" title="3 new messages">3</div> -->
+                </a>
             </div>
         </div>
     </div>

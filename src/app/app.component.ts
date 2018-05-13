@@ -10,6 +10,7 @@ import {
 import {
     IdentityModel,
     PostModel,
+    ChannelSubscription,
 } from '../models';
 import {
     ScuttlebotService,
@@ -26,6 +27,10 @@ import {
 } from '@angular/router';
 import { CurrentFeedSettings } from '../interfaces';
 import { CurrentFeedSettingState } from '../states';
+
+import * as jq from 'jquery';
+window['jQuery'] = jq;
+require('semantic-ui-css');
 
 @Component({
     selector: 'app-root',
@@ -45,10 +50,12 @@ export class AppComponent implements OnInit {
     @Select(CurrentFeedSettingState)
     public currentFeedSettings?: Observable<CurrentFeedSettings>;
 
+    public sidebar: any;
+
     public constructor(
         private sbot: ScuttlebotService,
         private router: Router,
-    ) {}
+    ) { }
 
     public debug() {
         // tslint:disable-next-line:no-debugger
@@ -61,6 +68,10 @@ export class AppComponent implements OnInit {
                 return;
             }
             window.scrollTo(0, 0);
+        });
+        this.sidebar = jq('.ui.sidebar');
+        this.sidebar.sidebar({
+            dimPage: false,
         });
     }
 
@@ -75,5 +86,16 @@ export class AppComponent implements OnInit {
 
     public async updateFeed() {
         await this.sbot.updateFeed();
+    }
+
+    public toggleSidebar() {
+        this.sidebar.sidebar('toggle');
+    }
+
+    public goToChannel(event: MouseEvent, channel: ChannelSubscription) {
+        event.preventDefault();
+        this.sidebar.sidebar('toggle');
+        // tslint:disable-next-line:no-floating-promises
+        this.router.navigate(['/feed/', channel.channel]);
     }
 }

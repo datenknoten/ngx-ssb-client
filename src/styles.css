@@ -7,8 +7,17 @@ img.emoji {
     vertical-align: -0.1em;
  }
 
-body {
+.ui.sidebar {
+    background-color: transparent !important;
+}
+
+body, body.pushable, html body.pushable {
+    color: black !important;
     background-color: rgba(0, 0, 0, 0.05) !important;
+}
+
+body.pushable > .pusher {
+    background-color: transparent !important;
 }
 
 .sidebar.column {
@@ -26,4 +35,9 @@ blockquote {
 
 .post img.ui.image {
     display: inline-block;
+}
+
+.ui.sidebar {
+    padding-left: 1rem;
+    padding-right: 1rem;
 }

@@ -51,6 +51,10 @@
         "ssb-ref": "2.11.1",
         "tui-editor": "1.1.0",
         "twemoji": "2.5.1",
+        "jquery": "3.1.1",
+        "@types/jquery": "3.3.1",
+        "@types/semantic-ui": "2.2.6",
+        "@types/semantic-ui-sidebar": "2.2.2",
         "zone.js": "0.8.26"
     },
     "devDependencies": {
