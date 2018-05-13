@@ -29,6 +29,7 @@ import {
 import { validate } from 'class-validator';
 const util = window.require('util');
 const split = require('split-buffer');
+const pull = window.require('pull-stream');
 
 @Injectable()
 export class ScuttlebotService {
@@ -44,10 +45,13 @@ export class ScuttlebotService {
 
     public async updateFeed(itemCount: number = 500) {
         this.store.dispatch(new LoadFeed(true));
-        await this.parseFeed(this.bot.createFeedStream({
+        const feed = this.bot.createFeedStream({
             reverse: true,
             limit: itemCount,
-        }));
+        });
+
+        return this.drainFeed(feed, this.parsePacket.bind(this));
+
     }
 
     public async publishPost(post: PostModel) {
@@ -143,7 +147,10 @@ export class ScuttlebotService {
             const packet = await get(id);
             if (packet && packet.value) {
                 if (packet.value.content) {
-                    this.parsePacket(id, packet);
+                    this.parsePacket({
+                        key: id,
+                        value: packet,
+                    });
                 }
             }
         } catch (error) {
@@ -165,9 +172,11 @@ export class ScuttlebotService {
 
         await this.fetchContacts(whoami.id);
 
-        await this.parseFeed(this.bot.createUserStream({
+        const userFeed = this.bot.createUserStream({
             id: whoami.id,
-        }));
+        });
+
+        await this.drainFeed(userFeed, this.parsePacket.bind(this));
 
         this.store.dispatch(new UpdateMessageCount(true));
         await this.updateFeed(2000);
@@ -256,39 +265,30 @@ export class ScuttlebotService {
         if (!id.startsWith('@')) {
             return;
         }
-
-        try {
-            const feed = this.bot.links({ dest: id, rel: 'about', values: true, live: true });
-            while (true) {
-                const data = await this.getFeedItem(feed);
-
-                if (!(data && data.value && data.value.content)) {
-                    break;
-                }
-
-                let imageId;
-
-                if (typeof data.value.content.image === 'object') {
-                    imageId = data.value.content.image.link;
-                } else {
-                    imageId = data.value.content.image;
-                }
-                this.store.dispatch(new UpdateIdentity(
-                    data.value.content.about,
-                    data.value.content.name,
-                    data.value.content.description,
-                    imageId,
-                    isSelf,
-                ));
-            }
-        } catch (error) {
-            if (error instanceof FeedEndError) {
-                this.store.dispatch(new LoadFeed(false));
+        const feed = this.bot.links({ dest: id, rel: 'about', values: true });
+        return this.drainFeed(feed, (data: any) => {
+            this.store.dispatch(new UpdateMessageCount());
+            if (!(data && data.value && data.value.content)) {
                 return;
-            } else {
-                throw error;
             }
-        }
+
+            let imageId;
+
+            if (typeof data.value.content.image === 'object') {
+                imageId = data.value.content.image.link;
+            } else {
+                imageId = data.value.content.image;
+            }
+            this.store.dispatch(new UpdateIdentity(
+                data.value.content.about,
+                data.value.content.name,
+                data.value.content.description,
+                imageId,
+                isSelf,
+            ));
+        });
+
+
     }
 
     private parsePost(id: string, packet: any) {
@@ -330,7 +330,10 @@ export class ScuttlebotService {
         }
     }
 
-    private parsePacket(id: string, packet: any) {
+    private parsePacket(_packet: any) {
+        this.store.dispatch(new UpdateMessageCount());
+        const id = _packet.key;
+        const packet = _packet.value;
         if (!(typeof packet.content === 'object')) {
             return;
         }
@@ -374,19 +377,18 @@ export class ScuttlebotService {
         }
     }
 
-    private async parseFeed(feed: (abort: any, cb: (err?: Error, data?: any) => void) => any) {
-        this.store.dispatch(new UpdateMessageCount());
-        try {
-            const item = await this.getFeedItem(feed);
-            this.parsePacket(item.key, item.value);
-
-            setImmediate(this.parseFeed.bind(this, feed));
-        } catch (error) {
-            if (error instanceof FeedEndError) {
-                return;
-            } else {
-                throw error;
-            }
-        }
+    private async drainFeed(feed: any, callback: Function): Promise<void> {
+        return new Promise<void>((resolve, reject) => {
+            pull(
+                feed,
+                pull.drain(callback, (error: any) => {
+                    if (error) {
+                        reject(error);
+                        return;
+                    }
+                    resolve();
+                }),
+            );
+        });
     }
 }
