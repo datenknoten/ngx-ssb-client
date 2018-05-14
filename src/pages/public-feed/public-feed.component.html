@@ -2,7 +2,7 @@
     <h1 class="ui dividing header">#{{ (settings | async).channel }}</h1>
 </ng-container>
 
-<app-new-post></app-new-post>
+<app-new-post [context]="(settings | async)?.channel"></app-new-post>
 
 <div class="feed" *ngIf="posts">
     <div *ngFor="let post of posts | async">

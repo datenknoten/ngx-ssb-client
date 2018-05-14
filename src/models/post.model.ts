@@ -38,6 +38,8 @@ export class PostModel extends BaseModel {
 
     public mentions: LinkModel[] = [];
 
+    public raw?: object;
+
     public constructor(init?: Partial<PostModel>) {
         super();
         Object.assign(this, init);
@@ -126,7 +128,7 @@ export class PostModel extends BaseModel {
     }
 
     public get totalReadingTime(): number {
-        let text = this.content;
+        let text = this.content || '';
 
         for (const comment of this.comments) {
             text += comment.content + '\n';

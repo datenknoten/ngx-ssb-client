@@ -13,3 +13,21 @@
         <button class="ui green button" (click)="submit()">Post</button>
     </div>
 </div>
+<div class="ui modal" *ngIf="previewPost">
+    <i class="close icon"></i>
+    <div class="header">
+        Preview Post
+    </div>
+    <div class="description">
+        <app-post [post]="previewPost" mode="draft"></app-post>
+    </div>
+    <div class="actions">
+        <div class="ui black deny button">
+            Not yet
+        </div>
+        <div class="ui positive right labeled icon button">
+            Publish forever
+            <i class="checkmark icon"></i>
+        </div>
+    </div>
+</div>

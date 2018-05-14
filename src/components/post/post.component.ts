@@ -33,7 +33,7 @@ export class PostComponent {
     public post!: PostModel;
 
     @Input()
-    public mode: 'condensed' | 'full' = 'condensed';
+    public mode: 'condensed' | 'full' | 'draft' = 'condensed';
 
     public constructor(
         private store: Store,

@@ -12,35 +12,43 @@
                         <div class="detail" *ngIf="!post.author">{{ post.authorId }}</div>
                     </a>
                 </div>
-                <div class="item">
-                <a class="ui green image label" [routerLink]="['/post', post.id]">
-                    <i class="calendar icon"></i>
-                    <div class="detail">{{ post.date | humanReadableDate }}</div>
-                </a></div>
-                <div class="item">
-                <a class="ui green image label" *ngIf="post.primaryChannel" [routerLink]="['/feed', post.primaryChannel]">
-                    <i class="hashtag icon"></i>
-                    <div class="detail">{{ post.primaryChannel }}</div>
-                </a></div>
-                <div class="item">
-                <a class="ui green image label" [title]="formatVotes(post)" (click)="toggleLike()">
-                    <i class="heart outline icon" [ngClass]="{heart: true, outline: !hasSelfLike, icon: true}"></i>
-                    <div class="detail">{{ post.voteCount }}</div>
-                </a></div>
-                <div class="item">
-                <a class="ui green image label" [title]="formatComments(post)" [routerLink]="['/post', post.id]">
-                    <i class="comment icon"></i>
-                    <div class="detail">{{ post.comments.length }}</div>
-                </a></div>
-                <div class="item">
-                <div class="ui green image label" title="The estimated time to read this post">
-                    <i class="hourglass half icon"></i>
-                    <div class="detail">{{ post.totalReadingTime | humanReadableDuration }}</div>
-                </div></div>
-                <div class="item">
-                <a class="ui green image label" (click)="log()">
-                    <i class="bug icon"></i>
-                </a></div>
+                <ng-container *ngIf="mode != 'draft'">
+                    <div class="item">
+                        <a class="ui green image label" [routerLink]="['/post', post.id]">
+                            <i class="calendar icon"></i>
+                            <div class="detail">{{ post.date | humanReadableDate }}</div>
+                        </a>
+                    </div>
+                    <div class="item">
+                        <a class="ui green image label" *ngIf="post.primaryChannel" [routerLink]="['/feed', post.primaryChannel]">
+                            <i class="hashtag icon"></i>
+                            <div class="detail">{{ post.primaryChannel }}</div>
+                        </a>
+                    </div>
+                    <div class="item">
+                        <a class="ui green image label" [title]="formatVotes(post)" (click)="toggleLike()">
+                            <i class="heart outline icon" [ngClass]="{heart: true, outline: !hasSelfLike, icon: true}"></i>
+                            <div class="detail">{{ post.voteCount }}</div>
+                        </a>
+                    </div>
+                    <div class="item">
+                        <a class="ui green image label" [title]="formatComments(post)" [routerLink]="['/post', post.id]">
+                            <i class="comment icon"></i>
+                            <div class="detail">{{ post.comments.length }}</div>
+                        </a>
+                    </div>
+                    <div class="item">
+                        <div class="ui green image label" title="The estimated time to read this post">
+                            <i class="hourglass half icon"></i>
+                            <div class="detail">{{ post.totalReadingTime | humanReadableDuration }}</div>
+                        </div>
+                    </div>
+                    <div class="item">
+                        <a class="ui green image label" (click)="log()">
+                            <i class="bug icon"></i>
+                        </a>
+                    </div>
+                </ng-container>
             </div>
         </div>
     </div>

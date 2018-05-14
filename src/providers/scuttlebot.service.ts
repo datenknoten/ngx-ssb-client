@@ -70,6 +70,10 @@ export class ScuttlebotService {
             json['root'] = post.rootId;
         }
 
+        if (post.primaryChannel) {
+            json['channel'] = post.primaryChannel;
+        }
+
         const publish = util.promisify(this.bot.publish);
 
         await publish(json);
@@ -295,6 +299,7 @@ export class ScuttlebotService {
     private parsePost(id: string, packet: any) {
         const post = new PostModel();
         post.id = id;
+        post.raw = packet;
         post.primaryChannel = packet.content.channel;
         post.authorId = packet.author;
         post.author = this

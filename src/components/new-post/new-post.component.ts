@@ -13,7 +13,11 @@ const Editor = require('tui-editor');
 import {
     ScuttlebotService,
 } from '../../providers';
-import { PostModel } from '../../models';
+import { PostModel, IdentityModel } from '../../models';
+import * as jq from 'jquery';
+import { Store } from '@ngxs/store';
+window['jQuery'] = jq;
+require('semantic-ui-css');
 
 @Component({
     selector: 'app-new-post',
@@ -26,7 +30,9 @@ export class NewPostComponent {
     public visible: boolean = false;
 
     @Input()
-    public context?: PostModel;
+    public context?: PostModel | string;
+
+    public previewPost?: PostModel;
 
     @ViewChild('editor')
     private editorContainer!: ElementRef;
@@ -35,9 +41,11 @@ export class NewPostComponent {
 
     public constructor(
         public scuttlebot: ScuttlebotService,
+        public store: Store,
     ) { }
 
     public setupEditor() {
+        this.previewPost = new PostModel();
         this.visible = true;
         setImmediate(() => {
             this.editor = new Editor({
@@ -69,17 +77,41 @@ export class NewPostComponent {
         post.content = this.editor.getMarkdown();
 
         if (this.context) {
-            if (this.context.rootId) {
-                post.rootId = this.context.rootId;
-            } else {
-                post.rootId = this.context.id;
+            if (this.context instanceof PostModel) {
+                if (this.context.rootId) {
+                    post.rootId = this.context.rootId;
+                } else {
+                    post.rootId = this.context.id;
+                }
+            } else if ((typeof this.context === 'string') && (this.context !== 'public')) {
+                post.primaryChannel = this.context;
             }
         }
 
-        this.cancel();
+        post.author = this
+            .store
+            .selectSnapshot((state: any) => state.identities.filter((item: IdentityModel) => item.isSelf).pop());
 
-        await this.scuttlebot.publish(post);
-        await this.scuttlebot.updateFeed();
+        this.previewPost = post;
+
+        const that = this;
+
+        const modal: any = jq('.ui.modal');
+        modal
+            .modal({
+                onApprove: function () {
+                    that.cancel();
+
+                    // tslint:disable-next-line:no-floating-promises
+                    that
+                        .scuttlebot
+                        .publish(post)
+                        .then(async () => {
+                            return that.scuttlebot.updateFeed();
+                        });
+                }
+            })
+            .modal('show');
     }
 
     private async createBlob(file: File, cb: (url: string, text: string) => void) {
