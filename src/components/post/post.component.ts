@@ -45,9 +45,34 @@ export class PostComponent {
     public convertHtml(html: string) {
         const cheerio = window.require('cheerio');
         const $ = cheerio.load(html);
+        const store = this.store;
 
         $('img:not(.emoji)').addClass('ui rounded image');
         $('h1,h2,h3').addClass('ui dividing header');
+        $('a').each(function (this: any) {
+            const item = $(this);
+            if (item.attr('href').startsWith('ssb://ssb/@')) {
+                item.addClass('ui image label');
+                const text = item.text();
+                const id = ref.extract(item.attr('href'));
+                const identity = store
+                    .selectSnapshot((state: any) =>
+                        state
+                            .identities
+                            .filter((_item: IdentityModel) => _item.id === id)
+                            .pop());
+                item.text('');
+                if (identity) {
+                    item.append($('<img>').attr('src', `ssb://ssb/${identity.primaryImage}`));
+                    item.append($('<span>').text(text));
+                    if (text.replace('@', '') !== identity.primaryName) {
+                        item.attr('title', `Known to you as ${identity.primaryName}`);
+                    }
+                } else {
+                    item.append($('<span>').text(text));
+                }
+            }
+        });
 
         return $.html();
     }
