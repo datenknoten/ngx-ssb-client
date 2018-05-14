@@ -13,8 +13,8 @@
             <div class="results"></div>
         </div> -->
         <div class="item" *ngFor="let settings of [(currentFeedSettings | async)]">
-            <div title="Loaded {{ settings.messageCount }} Messages from Feed">
-                <i class="sync alternate icon"></i> {{ settings.messageCount }}
+            <div title="Loaded {{ settings?.messageCount }} Messages from Feed">
+                <i class="sync alternate icon"></i> {{ settings?.messageCount }}
             </div>
         </div>
         <a class="item" (click)="toggleSidebar()" title="Expand Sidebar">
@@ -28,10 +28,10 @@
 <div class="ui right sidebar">
     <div class="ui fluid card" *ngIf="(self | async)">
         <div class="image">
-            <img [src]="formatBlobUrl((self | async).primaryImage) | safeSSBUrlPipe">
+            <img [src]="formatBlobUrl((self | async)?.primaryImage) | safeSSBUrlPipe">
         </div>
         <div class="content">
-            <a class="header">{{ (self | async).primaryName }}</a>
+            <div class="header">{{ (self | async)?.primaryName }}</div>
         </div>
     </div>
     <div class="ui vertical fluid green following menu" style="margin-top: 1em;" *ngIf="(self | async)">
@@ -39,7 +39,7 @@
             <i class="hashtag icon"></i>
             Channels
             <div class="menu">
-                <ng-container *ngFor="let channel of (self | async).channels">
+                <ng-container *ngFor="let channel of (self | async)?.channels">
                     <a class="item" *ngIf="channel.isSubscribed" (click)="goToChannel($event, channel)">
                         {{ channel.channel }}
                     </a>
@@ -50,7 +50,7 @@
             <i class="users icon"></i>
             Following
             <div class="menu">
-                <a class="item" (click)="log(followee)" *ngFor="let followee of (self | async).following">
+                <a class="item" (click)="log(followee)" *ngFor="let followee of (self | async)?.following">
                     <img class="ui left spaced mini image" src="./assets/img/image.png" *ngIf="!followee.primaryImage">
                     <img class="ui left spaced mini image" [src]="formatBlobUrl(followee.primaryImage) | safeSSBUrlPipe" *ngIf="followee.primaryImage"> {{ followee.primaryName }}
                     <!-- <div class="horizontal ui label" title="3 new messages">3</div> -->

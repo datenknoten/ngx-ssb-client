@@ -28,22 +28,7 @@ import { SwitchChannel } from '../../actions/switch-channel.action';
     styleUrls: ['./public-feed.component.scss'],
 })
 export class PublicFeedComponent {
-    @Select((state: { posts: PostModel[], currentFeedSettings: CurrentFeedSettings }) => state
-        .posts
-        .filter((item: PostModel) => !item.rootId)
-        .filter((item) => {
-            if (state.currentFeedSettings.channel !== 'public') {
-                return item.primaryChannel === state.currentFeedSettings.channel ||
-                    item.mentions.filter(_item => _item.link === `#${state.currentFeedSettings.channel}`).length > 0;
-            } else {
-                return true;
-            }
-        })
-        .slice(
-            (state.currentFeedSettings.currentPage - 1) * state.currentFeedSettings.elementsPerPage,
-            state.currentFeedSettings.currentPage * state.currentFeedSettings.elementsPerPage)
-    )
-    public posts?: Observable<PostModel[]>;
+    public posts: Observable<PostModel[]>;
 
     @Select(CurrentFeedSettingState)
     public settings?: Observable<CurrentFeedSettings>;
@@ -52,6 +37,7 @@ export class PublicFeedComponent {
         private store: Store,
         private route: ActivatedRoute,
     ) {
+        this.posts = this.store.select(PublicFeedComponent.feedSelector);
         this.route.url.subscribe(() => {
             const id = this.route.snapshot.paramMap.get('channel');
             if (!id) {
@@ -61,11 +47,28 @@ export class PublicFeedComponent {
         });
     }
 
-    public pageBackward() {
-        this.store.dispatch(new PaginateFeed(-1));
+    public static feedSelector(state: { posts: PostModel[], currentFeedSettings: CurrentFeedSettings }): PostModel[] {
+        return state
+            .posts
+            .filter((item: PostModel) => !item.rootId)
+            .filter((item) => {
+                if (state.currentFeedSettings.channel !== 'public') {
+                    return item.primaryChannel === state.currentFeedSettings.channel ||
+                        item.mentions.filter(_item => _item.link === `#${state.currentFeedSettings.channel}`).length > 0;
+                } else {
+                    return true;
+                }
+            })
+            .slice(
+                (state.currentFeedSettings.currentPage - 1) * state.currentFeedSettings.elementsPerPage,
+                state.currentFeedSettings.currentPage * state.currentFeedSettings.elementsPerPage);
     }
 
+    public pageBackward() {
+    this.store.dispatch(new PaginateFeed(-1));
+}
+
     public pageForward() {
-        this.store.dispatch(new PaginateFeed(1));
-    }
+    this.store.dispatch(new PaginateFeed(1));
+}
 }

@@ -9,17 +9,17 @@ import {
 } from '@angular/core';
 import {
     IdentityModel,
-    PostModel,
     ChannelSubscription,
 } from '../models';
 import {
     ScuttlebotService,
 } from '../providers';
 import {
-    Select,
+    Store,
 } from '@ngxs/store';
 import {
     Observable,
+    // timer,
 } from 'rxjs';
 import {
     Router,
@@ -41,21 +41,28 @@ require('semantic-ui-css');
 export class AppComponent implements OnInit {
     public title: string = 'app';
 
-    @Select((state: any) => state.posts.filter((item: PostModel) => !item.rootId))
-    public posts!: Observable<PostModel[]>;
+    // @Select()
+    public self: Observable<IdentityModel>;
 
-    @Select((state: any) => state.identities.filter((item: IdentityModel) => item.isSelf).pop())
-    public self!: Observable<IdentityModel>;
-
-    @Select(CurrentFeedSettingState)
-    public currentFeedSettings?: Observable<CurrentFeedSettings>;
+    // @Select(CurrentFeedSettingState)
+    public currentFeedSettings: Observable<CurrentFeedSettings>;
 
     public sidebar: any;
 
     public constructor(
         private sbot: ScuttlebotService,
         private router: Router,
-    ) { }
+        private store: Store,
+    ) {
+        this.currentFeedSettings = this
+            .store
+            .select(CurrentFeedSettingState);
+            // .pipe(debounce(() => timer(20)));
+        this.self = this
+            .store
+            .select((state: any) => state.identities.filter((item: IdentityModel) => item.isSelf).pop());
+            // .pipe(debounce(() => timer(20)));
+     }
 
     public debug() {
         // tslint:disable-next-line:no-debugger
