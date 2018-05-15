@@ -237,9 +237,11 @@ export class ScuttlebotService {
 
         const following = [];
 
-        for (const key of Object.keys(data[id])) {
-            if (data[id][key]) {
-                following.push(key);
+        if (data[id]) {
+            for (const key of Object.keys(data[id])) {
+                if (data[id][key]) {
+                    following.push(key);
+                }
             }
         }
 
