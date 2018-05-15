@@ -70,6 +70,8 @@ export class NewPostComponent {
                     }
                 }
             });
+
+            this.editorContainer.nativeElement.scrollIntoView();
             this.editor.focus();
         });
     }
