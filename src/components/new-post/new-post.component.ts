@@ -62,6 +62,14 @@ export class NewPostComponent {
                 }
             });
 
+            this.editor.mdEditor.eventManager.listen('keyup', (event: { data: KeyboardEvent }) => {
+                if (event.data.keyCode === 27) {
+                    const button = window.document.querySelector<HTMLButtonElement>('app-new-post .ui.red.button');
+                    if (button) {
+                        button.click();
+                    }
+                }
+            });
             this.editor.focus();
         });
     }
