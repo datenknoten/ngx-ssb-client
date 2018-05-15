@@ -140,9 +140,13 @@ export class PostComponent {
     }
 
     public async click(event: MouseEvent) {
-        if (event.target instanceof HTMLAnchorElement) {
+        let anchor = event.target;
+        if ((anchor instanceof HTMLSpanElement || anchor instanceof HTMLElement) && (anchor.parentElement instanceof HTMLAnchorElement)) {
+            anchor = anchor.parentElement;
+        }
+
+        if (anchor instanceof HTMLAnchorElement) {
             event.preventDefault();
-            const anchor: HTMLAnchorElement = event.target;
             if (anchor.href.startsWith('ssb://')) {
                 const id = ref.extract(anchor.href);
                 const type = ref.type(id);
@@ -154,9 +158,7 @@ export class PostComponent {
                     this.router.navigate(['/post/', id]);
                 }
             } else if (anchor.href.startsWith('http')) {
-                if (this.electron.remote) {
-                    this.electron.remote.shell.openExternal(anchor.href);
-                }
+                this.electron.remote.shell.openExternal(anchor.href);
             }
         }
     }
