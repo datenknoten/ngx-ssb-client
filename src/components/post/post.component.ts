@@ -21,6 +21,7 @@ import {
 import { Router } from '@angular/router';
 
 const ref = window.require('ssb-ref');
+const cheerio = window.require('cheerio');
 
 @Component({
     selector: 'app-post',
@@ -43,35 +44,14 @@ export class PostComponent {
     ) { }
 
     public convertHtml(html: string) {
-        const cheerio = window.require('cheerio');
         const $ = cheerio.load(html);
-        const store = this.store;
+        const that = this;
 
         $('img:not(.emoji)').addClass('ui rounded image');
         $('h1,h2,h3').addClass('ui dividing header');
         $('a').each(function (this: any) {
             const item = $(this);
-            if (item.attr('href').startsWith('ssb://ssb/@')) {
-                item.addClass('ui image label');
-                const text = item.text();
-                const id = ref.extract(item.attr('href'));
-                const identity = store
-                    .selectSnapshot((state: any) =>
-                        state
-                            .identities
-                            .filter((_item: IdentityModel) => _item.id === id)
-                            .pop());
-                item.text('');
-                if (identity) {
-                    item.append($('<img>').attr('src', `ssb://ssb/${identity.primaryImage}`));
-                    item.append($('<span>').text(text));
-                    if (text.replace('@', '') !== identity.primaryName) {
-                        item.attr('title', `Known to you as ${identity.primaryName}`);
-                    }
-                } else {
-                    item.append($('<span>').text(text));
-                }
-            }
+            that.parseLink(item, $);
         });
 
         return $.html();
@@ -178,6 +158,83 @@ export class PostComponent {
                     this.electron.remote.shell.openExternal(anchor.href);
                 }
             }
+        }
+    }
+
+    private parseIdentityLink(item: any, $: any) {
+        const href = item.attr('href');
+        if (href.startsWith('ssb://ssb/@')) {
+            item.addClass('ui image label');
+            const text = item.text();
+            const id = ref.extract(item.attr('href'));
+            const identity = this.store
+                .selectSnapshot((state: any) =>
+                    state
+                        .identities
+                        .filter((_item: IdentityModel) => _item.id === id)
+                        .pop());
+            item.text('');
+            if (identity) {
+                item.append($('<img>').attr('src', `ssb://ssb/${identity.primaryImage}`));
+                item.append($('<span>').text(text));
+                if (text.replace('@', '') !== identity.primaryName) {
+                    item.attr('title', `Known to you as ${identity.primaryName}`);
+                }
+            } else {
+                item.append($('<span>').text(text));
+            }
+        }
+    }
+
+    private parseHTTPLink(item: any, $: any) {
+        const href = item.attr('href');
+
+        if (href.startsWith('http')) {
+            const map = [
+                {
+                    pattern: /^https:\/\/.*\.wikipedia\.org/,
+                    icon: 'wikipedia w',
+                },
+                {
+                    pattern: /^https:\/\/github\.com/,
+                    icon: 'github',
+                },
+                {
+                    pattern: /^https:\/\/git\.scuttlebot\.io/,
+                    icon: 'git',
+                },
+                {
+                    pattern: /^http:\/\//,
+                    icon: 'lock open',
+                },
+                {
+                    pattern: /.*/,
+                    icon: 'globe',
+                },
+            ];
+
+            for (const mapItem of map) {
+                if (href.match(mapItem.pattern)) {
+                    const text = item.text().trim();
+                    if (text !== href) {
+                        item.addClass('ui image label');
+                        item.text('');
+                        item.append($(`<i class="${mapItem.icon} icon"></i>`));
+                        item.append($('<span>').text(text));
+                        item.attr('title', href);
+                    }
+                    return;
+                }
+            }
+        }
+    }
+
+    private parseLink(item: any, $: any) {
+        const href = item.attr('href');
+        if (href.startsWith('ssb://ssb/@')) {
+            this.parseIdentityLink(item, $);
+        } else if (href.startsWith('http')) {
+            this.parseHTTPLink(item, $);
         }
     }
 
