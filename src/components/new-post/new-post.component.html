@@ -9,8 +9,10 @@
         <div style="height: 600px;" #editor></div>
     </div>
     <div class="extra content">
-        <button class="ui red button" (click)="cancel()">Cancel</button>
-        <button class="ui green button" (click)="submit()">Post</button>
+        <div class="right aligned">
+            <button class="ui red button" (click)="cancel()">Cancel</button>
+            <button class="ui green button" (click)="submit()">Post</button>
+        </div>
     </div>
 </div>
 <div class="ui modal" *ngIf="previewPost">
