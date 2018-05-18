@@ -3,11 +3,15 @@
  * @license MIT
  */
 Object.defineProperty(exports, "__esModule", { value: true });
+process.on('uncaughtException', function (error) {
+    console.error(error);
+    process.exit();
+});
 const electron_1 = require("electron");
 const path = require("path");
 const url = require("url");
 const util = require("util");
-const pull = require('pull-stream');
+const electron_2 = require("./electron");
 let win;
 const args = process.argv.slice(1);
 const serve = args.includes('--serve');
@@ -16,28 +20,7 @@ async function createWindow() {
     const bot = await ssbClient();
     const electronScreen = electron_1.screen;
     const size = electronScreen.getPrimaryDisplay().workAreaSize;
-    electron_1.protocol.registerBufferProtocol('ssb', function (request, cb) {
-        const _url = url.parse(request.url);
-        if (_url.path) {
-            const blobId = _url.path.slice(1);
-            if (blobId === 'undefined') {
-                return;
-            }
-            const feed = bot.blobs.get(blobId);
-            pull(feed, pull.collect(function (error, array) {
-                if (error) {
-                    // tslint:disable-next-line:no-console
-                    console.dir(`Failed to fetch blob ${blobId}`);
-                    // tslint:disable-next-line:no-console
-                    console.dir({ error });
-                }
-                cb({
-                    mimeType: 'image/jpeg',
-                    data: Buffer.concat(array),
-                });
-            }));
-        }
-    });
+    electron_1.protocol.registerBufferProtocol('ssb', electron_2.createBlobHandler(bot));
     // Create the browser window.
     win = new electron_1.BrowserWindow({
         x: 0,

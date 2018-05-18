@@ -2,11 +2,18 @@
  * @license MIT
  */
 
+process.on('uncaughtException', function (error) {
+    console.error(error);
+    process.exit();
+});
+
 import { app, BrowserWindow, screen, protocol } from 'electron';
 import * as path from 'path';
 import * as url from 'url';
 import * as util from 'util';
-const pull = require('pull-stream');
+import {
+    createBlobHandler,
+} from './electron';
 
 let win: any;
 const args = process.argv.slice(1);
@@ -20,31 +27,7 @@ async function createWindow() {
     const electronScreen = screen;
     const size = electronScreen.getPrimaryDisplay().workAreaSize;
 
-    protocol.registerBufferProtocol('ssb', function (request: any, cb: any) {
-        const _url = url.parse(request.url);
-        if (_url.path) {
-            const blobId = _url.path.slice(1);
-            if (blobId === 'undefined') {
-                return;
-            }
-            const feed = bot.blobs.get(blobId);
-            pull(
-                feed,
-                pull.collect(function (error: any, array: Buffer[]) {
-                    if (error) {
-                        // tslint:disable-next-line:no-console
-                        console.dir(`Failed to fetch blob ${blobId}`);
-                        // tslint:disable-next-line:no-console
-                        console.dir({ error });
-                    }
-                    cb({
-                        mimeType: 'image/jpeg',
-                        data: Buffer.concat(array),
-                    });
-                }),
-            );
-        }
-    });
+    protocol.registerBufferProtocol('ssb', createBlobHandler(bot));
     // Create the browser window.
     win = new BrowserWindow({
         x: 0,
