@@ -1,6 +1,7 @@
 {
     "compileOnSave": false,
     "compilerOptions": {
+        "outDir": "",
         "declaration": false,
         "moduleResolution": "node",
         "emitDecoratorMetadata": true,
@@ -16,6 +17,6 @@
         ]
     },
     "include": [
-        "main.ts"
+        "electron"
     ]
 }
