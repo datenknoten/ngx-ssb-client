@@ -9,7 +9,7 @@ import {
 } from '@ngxs/store';
 
 import {
-    IdentityModel, ChannelSubscription,
+    IdentityModel, ChannelSubscription, IdentityImageModel, IdentityNameModel,
 } from '../models';
 
 import {
@@ -38,16 +38,22 @@ export class IdentitiesState {
             ]);
         }
 
-        if (action.about && identity.about.indexOf(action.about) === -1) {
-            identity.about.push(action.about);
+        if (typeof action.payload === 'string' && identity.about.indexOf(action.payload) === -1) {
+            identity.about.push(action.payload);
         }
 
-        if (action.image && identity.image.indexOf(action.image) === -1) {
-            identity.image.push(action.image);
+        if ((action.payload instanceof IdentityImageModel)) {
+            const image = action.payload;
+            if (identity.image.filter(item => item.blobId === image.blobId).length === 0) {
+                identity.image.push(action.payload);
+            }
         }
 
-        if (action.name && identity.name.indexOf(action.name) === -1) {
-            identity.name.push(action.name);
+        if ((action.payload instanceof IdentityNameModel)) {
+            const name = action.payload;
+            if (identity.name.filter(item => item.name === name.name).length === 0) {
+                identity.name.push(action.payload);
+            }
         }
 
         ctx.dispatch(new SetIdentity(identity));

@@ -2,16 +2,15 @@
  * @license MIT
  */
 
-const PrettyError = require('pretty-error');
-const pe = new PrettyError();
+const signale = require('signale');
 
 process.on('uncaughtException', function (error) {
-    console.error(pe.render(error));
+    signale.error(error);
     process.exit();
 });
 
 process.on('unhandledRejection', function (error) {
-    console.error(pe.render(error));
+    signale.error(error);
     process.exit();
 });
 
@@ -26,68 +25,68 @@ import * as url from 'url';
 import * as util from 'util';
 import {
     createBlobHandler,
+    openWindow,
+    setupContext,
 } from '../electron';
+const debug = require('debug')('ngx:ssb:init');
 
-let win: BrowserWindow | undefined | null;
-const args = process.argv.slice(1);
-const serve = args.includes('--serve');
+// tslint:disable-next-line:no-floating-promises
+(async function () {
+    let win: BrowserWindow | undefined | null;
+    const args = process.argv.slice(1);
+    const serve = args.includes('--serve');
 
-async function createWindow() {
-    const ssbClient = util.promisify(require('ssb-client'));
-
-    const bot = await ssbClient();
-
-    const electronScreen = screen;
-    const size = electronScreen.getPrimaryDisplay().workAreaSize;
-
-    protocol.registerBufferProtocol('ssb', createBlobHandler(bot));
-    // Create the browser window.
-    win = new BrowserWindow({
-        x: 0,
-        y: 0,
-        width: size.width,
-        height: size.height,
-    });
-
-    win.maximize();
-
-    if (serve) {
-        require('electron-reload')(__dirname, {
-            electron: require(`${__dirname}/../node_modules/electron`)
+    async function createWindow() {
+        const config = await setupContext('ssb', {
+            setup: true,
         });
-        win.loadURL('http://localhost:4200');
-    } else {
-        win.loadURL(url.format({
-            pathname: path.join(__dirname, 'dist/index.html'),
-            protocol: 'file:',
-            slashes: true
-        }));
+
+        debug('Initial config', config);
+
+        const electronScreen = screen;
+        const size = electronScreen.getPrimaryDisplay().workAreaSize;
+
+
+        const windowOptions = {
+            x: 0,
+            y: 0,
+            width: size.width,
+            height: size.height,
+        };
+
+        if (serve) {
+            require('electron-reload')(__dirname, {
+                electron: require(`${__dirname}/../node_modules/electron`)
+            });
+            win = openWindow('http://localhost:4200', windowOptions);
+        } else {
+            win = openWindow(url.format({
+                pathname: path.join(__dirname, 'dist/index.html'),
+                protocol: 'file:',
+                slashes: true
+            }), windowOptions);
+        }
+
+        win.maximize();
+
+        win.webContents.openDevTools();
+
+        win.on('closed', () => {
+            win = null;
+        });
+
+        const ssbClient = util.promisify(require('ssb-client'));
+
+        const bot = await ssbClient();
+
+        protocol.registerBufferProtocol('ssb', createBlobHandler(bot));
     }
 
-    win.webContents.openDevTools();
+    protocol.registerStandardSchemes(['ssb']);
+    app.on('ready', createWindow);
 
-    win.on('closed', () => {
-        win = null;
-    });
-}
-
-protocol.registerStandardSchemes(['ssb']);
-app.on('ready', createWindow);
-
-app.on('window-all-closed', () => {
-    // On OS X it is common for applications and their menu bar
-    // to stay active until the user quits explicitly with Cmd + Q
-    if (process.platform !== 'darwin') {
+    app.on('window-all-closed', () => {
         app.quit();
-    }
-});
-
-app.on('activate', () => {
-    // On OS X it's common to re-create a window in the app when the
-    // dock icon is clicked and there are no other windows open.
-    if (win === null) {
-        // tslint:disable-next-line:no-floating-promises
-        createWindow();
-    }
-});
+    });
+})();
 

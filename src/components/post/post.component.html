@@ -8,7 +8,7 @@
                 <div class="item">
                     <a class="ui green image label">
                         <i class="user icon"></i>
-                        <div class="detail" *ngIf="post.author">{{ post.author.name[0] }}</div>
+                        <div class="detail" *ngIf="post.author">{{ post.author.primaryName }}</div>
                         <div class="detail" *ngIf="!post.author">{{ post.authorId }}</div>
                     </a>
                 </div>

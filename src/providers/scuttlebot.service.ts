@@ -13,6 +13,8 @@ import {
     IdentityModel,
     VotingModel,
     LinkModel,
+    IdentityNameModel,
+    IdentityImageModel,
 } from '../models';
 import * as moment from 'moment';
 import {
@@ -184,7 +186,7 @@ export class ScuttlebotService {
         await this.drainFeed(userFeed, this.parsePacket.bind(this));
 
         this.store.dispatch(new UpdateMessageCount(true));
-        await this.updateFeed(6000);
+        await this.updateFeed(4000);
     }
 
     private async getFeedItem(feed: any): Promise<any> {
@@ -264,6 +266,46 @@ export class ScuttlebotService {
         }
     }
 
+    private async fetchIdentityNames(id: string, isSelf: boolean = false) {
+        const names = await new Promise<any>((resolve, _reject) => {
+            this.bot.names.getSignifier(id, (_err: any, _names: any) => {
+                resolve(_names);
+            });
+        });
+
+        if (typeof names === 'string') {
+            const _name = new IdentityNameModel();
+            _name.name = names;
+            _name.weight = 1;
+
+            this.store.dispatch(new UpdateIdentity(
+                id,
+                _name,
+                isSelf,
+            ));
+        }
+    }
+
+    private async fetchIdentityImages(id: string, isSelf: boolean = false) {
+        const images = await new Promise<any>((resolve, _reject) => {
+            this.bot.names.getImageFor(id, (_err: any, _images: any) => {
+                resolve(_images);
+            });
+        });
+
+        if (typeof images === 'string') {
+            const _image = new IdentityImageModel();
+            _image.blobId = images;
+            _image.weight = 1;
+
+            this.store.dispatch(new UpdateIdentity(
+                id,
+                _image,
+                isSelf,
+            ));
+        }
+    }
+
     private async fetchIdentity(id: string, isSelf: boolean = false) {
         if (!id) {
             return;
@@ -272,6 +314,11 @@ export class ScuttlebotService {
         if (!id.startsWith('@')) {
             return;
         }
+
+        await this.fetchIdentityNames(id, isSelf);
+
+        await this.fetchIdentityImages(id, isSelf);
+
         const feed = this.bot.links({ dest: id, rel: 'about', values: true });
         return this.drainFeed(feed, (data: any) => {
             this.store.dispatch(new UpdateMessageCount());
@@ -286,16 +333,37 @@ export class ScuttlebotService {
             } else {
                 imageId = data.value.content.image;
             }
-            this.store.dispatch(new UpdateIdentity(
-                data.value.content.about,
-                data.value.content.name,
-                data.value.content.description,
-                imageId,
-                isSelf,
-            ));
+
+            if (imageId) {
+                const image = new IdentityImageModel();
+                image.blobId = imageId;
+                image.weight = 0;
+                this.store.dispatch(new UpdateIdentity(
+                    data.value.content.about,
+                    image,
+                    isSelf,
+                ));
+            }
+
+            if (data.value.content.name) {
+                const name = new IdentityNameModel();
+                name.name = data.value.content.name;
+                name.weight = 0;
+                this.store.dispatch(new UpdateIdentity(
+                    data.value.content.about,
+                    name,
+                    isSelf,
+                ));
+            }
+
+            if (data.value.content.description) {
+                this.store.dispatch(new UpdateIdentity(
+                    data.value.content.about,
+                    data.value.content.description,
+                    isSelf,
+                ));
+            }
         });
-
-
     }
 
     private parsePost(id: string, packet: any) {
@@ -357,13 +425,13 @@ export class ScuttlebotService {
 
         if (packetType === 'post') {
             this.parsePost(id, packet);
-        } else if (packetType === 'about') {
-            this.store.dispatch(new UpdateIdentity(
-                packet.content.about,
-                packet.content.name,
-                packet.content.description,
-                packet.content.image,
-            ));
+            // } else if (packetType === 'about') {
+            //     this.store.dispatch(new UpdateIdentity(
+            //         packet.content.about,
+            //         packet.content.name,
+            //         packet.content.description,
+            //         packet.content.image,
+            //     ));
         } else if (packetType === 'vote') {
             const voting = new VotingModel();
             voting.id = id;

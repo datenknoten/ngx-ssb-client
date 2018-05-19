@@ -5,12 +5,14 @@
 import {
     BaseModel,
     ChannelSubscription,
+    IdentityNameModel,
+    IdentityImageModel,
 } from '../models';
 
 export class IdentityModel extends BaseModel {
     public isSelf: boolean = false;
-    public name: string[] = [];
-    public image: string[] = [];
+    public name: IdentityNameModel[] = [];
+    public image: IdentityImageModel[] = [];
     public about: string[] = [];
     public following: IdentityModel[] = [];
     public blocking: IdentityModel[] = [];
@@ -25,13 +27,24 @@ export class IdentityModel extends BaseModel {
 
     public get primaryImage() {
         if (this.image.length > 0) {
-            return this.image[0];
+            const primary = this.image.reduce(this.primaryReducer);
+            return primary.blobId;
         }
     }
 
     public get primaryName() {
         if (this.name.length > 0) {
-            return this.name[0];
+            const primary = this.name.reduce(this.primaryReducer);
+            return primary.name;
+        }
+        return this.id;
+    }
+
+    private primaryReducer(previous: any, current: any) {
+        if (current.weight > previous.weight) {
+            return current;
+        } else {
+            return previous;
         }
     }
 }

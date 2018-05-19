@@ -16,6 +16,7 @@ import {
 import { PostModel, IdentityModel } from '../../models';
 import * as jq from 'jquery';
 import { Store } from '@ngxs/store';
+import '../../util/tui-editor-completion.extention';
 window['jQuery'] = jq;
 require('semantic-ui-css');
 
@@ -53,7 +54,7 @@ export class NewPostComponent {
                 initialEditType: 'markdown',
                 previewStyle: 'tabs',
                 exts: ['colorSyntax'],
-                height: '600px',
+                height: '400px',
                 hooks: {
                     addImageBlobHook: (file: File, cb: (url: string, text: string) => void) => {
                         // tslint:disable-next-line:no-floating-promises

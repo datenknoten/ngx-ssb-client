@@ -1,7 +1,7 @@
 {
     "compileOnSave": false,
     "compilerOptions": {
-        "outDir": "",
+        "outDir": "dist-electron",
         "declaration": false,
         "moduleResolution": "node",
         "emitDecoratorMetadata": true,
