@@ -22,7 +22,6 @@ import {
 } from 'electron';
 import * as path from 'path';
 import * as url from 'url';
-import * as util from 'util';
 import {
     createBlobHandler,
     openWindow,
@@ -75,11 +74,7 @@ const debug = require('debug')('ngx:ssb:init');
             win = null;
         });
 
-        const ssbClient = util.promisify(require('ssb-client'));
-
-        const bot = await ssbClient();
-
-        protocol.registerBufferProtocol('ssb', createBlobHandler(bot));
+        protocol.registerBufferProtocol('ssb', createBlobHandler());
     }
 
     protocol.registerStandardSchemes(['ssb']);

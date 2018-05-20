@@ -40,14 +40,16 @@ function drainFunc(blobId: string, magic: any, cb: requestCallback) {
     };
 }
 
-export function createBlobHandler(sbot: any) {
-    const hasBlob = util.promisify(sbot.blobs.has);
-    const wantsBlob = util.promisify(sbot.blobs.want);
-    const magic = new Magic(MAGIC_MIME_TYPE);
-
-
+export function createBlobHandler() {
     return async function (request: RegisterBufferProtocolRequest, cb: requestCallback) {
+        const ssbClient = util.promisify(require('ssb-client'));
+        const sbot = await ssbClient();
+        const hasBlob = util.promisify(sbot.blobs.has);
+        const wantsBlob = util.promisify(sbot.blobs.want);
+        const magic = new Magic(MAGIC_MIME_TYPE);
+
         try {
+
             const blobId = ref.extract(request.url);
             const type = ref.type(blobId);
 
