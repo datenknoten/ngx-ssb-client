@@ -1,11 +1,11 @@
 <div class="post" [ngClass]="{ post: true, full: mode == 'full' }">
     <div class="ui green segment">
         <div class="ui grid">
-            <div class="twelve wide column" [innerHtml]="convertHtml(post.html) | safeHtml" (click)="click($event)">
+            <div class="twelve wide content column" [innerHtml]="convertHtml(post.html) | safeHtml" (click)="click($event)">
             </div>
-            <div class="four wide column">
+            <div class="four wide details column">
                 <img class="ui fluid rounded green image" [src]="getImage(post.author) | safeSSBUrlPipe">
-                <div class="item">
+                <div class="author item">
                     <a class="ui green image label">
                         <i class="user icon"></i>
                         <div class="detail" *ngIf="post.author">{{ post.author.primaryName }}</div>
@@ -16,7 +16,7 @@
                     <div class="item">
                         <a class="ui green image label" [routerLink]="['/post', post.id]">
                             <i class="calendar icon"></i>
-                            <div class="detail">{{ post.date | humanReadableDate }}</div>
+                            <div title="First posted {{ post.date | humanReadableDate   }}" class="detail">{{ post.latestActivity | humanReadableDate }}</div>
                         </a>
                     </div>
                     <div class="item">
