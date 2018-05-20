@@ -49,6 +49,7 @@ export class PostComponent {
 
         $('img:not(.emoji)').addClass('ui rounded image');
         $('h1,h2,h3').addClass('ui dividing header');
+        $('table').addClass('ui green compact celled table');
         $('a').each(function (this: any) {
             const item = $(this);
             that.parseLink(item, $);
