@@ -233,6 +233,9 @@ export class PostComponent {
 
     private parseLink(item: any, $: any) {
         const href = item.attr('href');
+        if (!href) {
+            return;
+        }
         if (href.startsWith('ssb://ssb/@')) {
             this.parseIdentityLink(item, $);
         } else if (href.startsWith('http')) {
