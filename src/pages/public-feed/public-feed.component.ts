@@ -54,7 +54,16 @@ export class PublicFeedComponent {
             .filter((item) => {
                 if (state.currentFeedSettings.channel !== 'public') {
                     return item.primaryChannel === state.currentFeedSettings.channel ||
-                        item.mentions.filter(_item => _item.link === `#${state.currentFeedSettings.channel}`).length > 0;
+                        item
+                            .mentions
+                            .map(_item => _item.link)
+                            .includes(`#${state.currentFeedSettings.channel}`) ||
+                        item
+                            .comments
+                            .map(_item => _item.mentions)
+                            .reduce((previous, current) => previous.concat(current), [])
+                            .map(_item => _item.link)
+                            .includes(`#${state.currentFeedSettings.channel}`);
                 } else {
                     return true;
                 }
