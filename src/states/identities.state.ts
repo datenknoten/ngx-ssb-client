@@ -120,5 +120,7 @@ export class IdentitiesState {
                 subscription,
             ];
         }
+
+        identity.channels.sort();
     }
 }
