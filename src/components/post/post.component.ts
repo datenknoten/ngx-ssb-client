@@ -207,6 +207,10 @@ export class PostComponent {
                     icon: 'git',
                 },
                 {
+                    pattern: /^https:\/\/www\.youtube\.com/,
+                    icon: 'youtube',
+                },
+                {
                     pattern: /^http:\/\//,
                     icon: 'lock open',
                 },
