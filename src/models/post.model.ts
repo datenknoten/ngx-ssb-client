@@ -134,7 +134,9 @@ export class PostModel extends BaseModel {
             text += comment.content + '\n';
         }
 
-        return readingTime(text).time;
+        const time: number = readingTime(text).time;
+
+        return time + (this.comments.length * 20000);
     }
 
     public get readingTime(): number {
