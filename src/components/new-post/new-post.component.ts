@@ -73,7 +73,11 @@ export class NewPostComponent {
                 }
             });
 
-            this.editorContainer.nativeElement.scrollIntoView();
+            if (this.context instanceof PostModel) {
+                this.editorContainer.nativeElement.scrollIntoView(true);
+            } else {
+                this.editorContainer.nativeElement.scrollIntoView(false);
+            }
             this.editor.focus();
         });
     }
