@@ -1,5 +1,152 @@
 /* You can add global styles to this file, and also import other style files */
 
+@font-face {
+    font-family: 'Titillium';
+    src: local('Titillium Semibold Upright'), local('Titillium-SemiboldUpright'),
+        url('./assets/fonts/Titillium-SemiboldUpright.woff2') format('woff2'),
+        url('./assets/fonts/Titillium-SemiboldUpright.woff') format('woff');
+    font-weight: 600;
+    font-style: italic;
+}
+
+@font-face {
+    font-family: 'Titillium';
+    src: local('Titillium Thin'), local('Titillium-Thin'),
+        url('./assets/fonts/Titillium-Thin.woff2') format('woff2'),
+        url('./assets/fonts/Titillium-Thin.woff') format('woff');
+    font-weight: 100;
+    font-style: normal;
+}
+
+@font-face {
+    font-family: 'Titillium';
+    src: local('Titillium Regular Upright'), local('Titillium-RegularUpright'),
+        url('./assets/fonts/Titillium-RegularUpright.woff2') format('woff2'),
+        url('./assets/fonts/Titillium-RegularUpright.woff') format('woff');
+    font-weight: normal;
+    font-style: italic;
+}
+
+@font-face {
+    font-family: 'Titillium';
+    src: local('Titillium Bold Upright'), local('Titillium-BoldUpright'),
+        url('./assets/fonts/Titillium-BoldUpright.woff2') format('woff2'),
+        url('./assets/fonts/Titillium-BoldUpright.woff') format('woff');
+    font-weight: bold;
+    font-style: italic;
+}
+
+@font-face {
+    font-family: 'Titillium';
+    src: local('Titillium Regular'), local('Titillium-Regular'),
+        url('./assets/fonts/Titillium-Regular.woff2') format('woff2'),
+        url('./assets/fonts/Titillium-Regular.woff') format('woff');
+    font-weight: normal;
+    font-style: normal;
+}
+
+@font-face {
+    font-family: 'Titillium';
+    src: local('Titillium Regular Italic'), local('Titillium-RegularItalic'),
+        url('./assets/fonts/Titillium-RegularItalic.woff2') format('woff2'),
+        url('./assets/fonts/Titillium-RegularItalic.woff') format('woff');
+    font-weight: normal;
+    font-style: italic;
+}
+
+@font-face {
+    font-family: 'Titillium';
+    src: local('Titillium Light Italic'), local('Titillium-LightItalic'),
+        url('./assets/fonts/Titillium-LightItalic.woff2') format('woff2'),
+        url('./assets/fonts/Titillium-LightItalic.woff') format('woff');
+    font-weight: 300;
+    font-style: italic;
+}
+
+@font-face {
+    font-family: 'Titillium';
+    src: local('Titillium'), local('Titillium-Black'),
+        url('./assets/fonts/Titillium-Black.woff2') format('woff2'),
+        url('./assets/fonts/Titillium-Black.woff') format('woff');
+    font-weight: 900;
+    font-style: normal;
+}
+
+@font-face {
+    font-family: 'Titillium';
+    src: local('Titillium Light'), local('Titillium-Light'),
+        url('./assets/fonts/Titillium-Light.woff2') format('woff2'),
+        url('./assets/fonts/Titillium-Light.woff') format('woff');
+    font-weight: 300;
+    font-style: normal;
+}
+
+@font-face {
+    font-family: 'Titillium';
+    src: local('Titillium Bold Italic'), local('Titillium-BoldItalic'),
+        url('./assets/fonts/Titillium-BoldItalic.woff2') format('woff2'),
+        url('./assets/fonts/Titillium-BoldItalic.woff') format('woff');
+    font-weight: bold;
+    font-style: italic;
+}
+
+@font-face {
+    font-family: 'Titillium';
+    src: local('Titillium Bold'), local('Titillium-Bold'),
+        url('./assets/fonts/Titillium-Bold.woff2') format('woff2'),
+        url('./assets/fonts/Titillium-Bold.woff') format('woff');
+    font-weight: bold;
+    font-style: normal;
+}
+
+@font-face {
+    font-family: 'Titillium';
+    src: local('Titillium Semibold Italic'), local('Titillium-SemiboldItalic'),
+        url('./assets/fonts/Titillium-SemiboldItalic.woff2') format('woff2'),
+        url('./assets/fonts/Titillium-SemiboldItalic.woff') format('woff');
+    font-weight: 600;
+    font-style: italic;
+}
+
+@font-face {
+    font-family: 'Titillium';
+    src: local('Titillium Semibold'), local('Titillium-Semibold'),
+        url('./assets/fonts/Titillium-Semibold.woff2') format('woff2'),
+        url('./assets/fonts/Titillium-Semibold.woff') format('woff');
+    font-weight: 600;
+    font-style: normal;
+}
+
+@font-face {
+    font-family: 'Titillium';
+    src: local('Titillium Light Upright'), local('Titillium-LightUpright'),
+        url('./assets/fonts/Titillium-LightUpright.woff2') format('woff2'),
+        url('./assets/fonts/Titillium-LightUpright.woff') format('woff');
+    font-weight: 300;
+    font-style: italic;
+}
+
+@font-face {
+    font-family: 'Titillium';
+    src: local('Titillium Thin Italic'), local('Titillium-ThinItalic'),
+        url('./assets/fonts/Titillium-ThinItalic.woff2') format('woff2'),
+        url('./assets/fonts/Titillium-ThinItalic.woff') format('woff');
+    font-weight: 100;
+    font-style: italic;
+}
+
+@font-face {
+    font-family: 'Titillium';
+    src: local('Titillium Thin Upright'), local('Titillium-ThinUpright'),
+        url('./assets/fonts/Titillium-ThinUpright.woff2') format('woff2'),
+        url('./assets/fonts/Titillium-ThinUpright.woff') format('woff');
+    font-weight: 100;
+    font-style: italic;
+}
+
+
+
+
 img.emoji {
     height: 1.1em;
     width: 1.1em;
@@ -9,6 +156,10 @@ img.emoji {
 
 .ui.sidebar {
     background-color: transparent !important;
+}
+
+body, .ui.button, header .ui.text.container, .ui.menu {
+    font-family: 'Titillium', sans-serif !important;
 }
 
 body, body.pushable, html body.pushable {
