@@ -38,6 +38,8 @@ export class IdentitiesState {
             ]);
         }
 
+        identity.isMissing = false;
+
         if (typeof action.payload === 'string' && identity.about.indexOf(action.payload) === -1) {
             identity.about.push(action.payload);
         }

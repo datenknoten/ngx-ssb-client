@@ -377,7 +377,7 @@ export class ScuttlebotService {
             .selectSnapshot<IdentityModel[]>((state) => state.identities)
             .filter(item => item.id === packet.author)
             .pop();
-        if (!post.author) {
+        if (!post.author || (post.author && post.author.isMissing)) {
             // tslint:disable-next-line:no-floating-promises
             this.fetchIdentity(post.authorId);
         }

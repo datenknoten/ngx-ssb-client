@@ -22,6 +22,7 @@ export class IdentityModel extends BaseModel {
 
     public constructor(init?: Partial<IdentityModel>) {
         super();
+        this.isMissing = true;
         Object.assign(this, init);
     }
 
