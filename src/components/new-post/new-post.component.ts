@@ -13,12 +13,17 @@ const Editor = require('tui-editor');
 import {
     ScuttlebotService,
 } from '../../providers';
-import { PostModel, IdentityModel } from '../../models';
+import {
+    PostModel,
+    IdentityModel,
+    LinkModel,
+} from '../../models';
 import * as jq from 'jquery';
 import { Store } from '@ngxs/store';
 import '../../util/tui-editor-completion.extention';
 window['jQuery'] = jq;
 require('semantic-ui-css');
+const mentions = window.require('ssb-mentions');
 
 @Component({
     selector: 'app-new-post',
@@ -107,6 +112,23 @@ export class NewPostComponent {
         post.author = this
             .store
             .selectSnapshot((state: any) => state.identities.filter((item: IdentityModel) => item.isSelf).pop());
+
+        const _mentions = mentions(post.content);
+
+        for (const item of _mentions) {
+            if (item.link.startsWith('@')) {
+                const ment = new LinkModel({
+                    link: item.link,
+                    name: item.name,
+                });
+                post.mentions.push(ment);
+            } else {
+                const ment = new LinkModel({
+                    link: item.link,
+                });
+                post.mentions.push(ment);
+            }
+        }
 
         this.previewPost = post;
 

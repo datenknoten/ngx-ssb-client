@@ -76,6 +76,13 @@ export class ScuttlebotService {
             json['channel'] = post.primaryChannel;
         }
 
+        if (post.mentions.length > 0) {
+            json['mentions'] = [];
+            for (const item of post.mentions) {
+                json['mentions'].push(JSON.parse(JSON.stringify(item)));
+            }
+        }
+
         const publish = util.promisify(this.bot.publish);
 
         await publish(json);
