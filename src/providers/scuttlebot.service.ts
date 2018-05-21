@@ -388,11 +388,9 @@ export class ScuttlebotService {
         post.date = moment(packet.timestamp).toDate();
         post.content = packet.content.text;
         post.rootId = packet.content.root;
-        if (packet.content.mentions) {
-            if (Array.isArray(packet.content.mentions)) {
-                for (const mention of packet.content.mentions) {
-                    post.mentions.push(new LinkModel({ link: mention.link }));
-                }
+        if (Array.isArray(packet.content.mentions)) {
+            for (const mention of packet.content.mentions) {
+                post.mentions.push(new LinkModel({ link: mention.link }));
             }
         }
         this.store.dispatch(new UpdatePost(post));
