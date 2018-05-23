@@ -177,6 +177,26 @@ export class ScuttlebotService {
         }
     }
 
+    private async fetchThread(id: string) {
+        await this.get(id);
+
+        const feed = this.bot.links({
+            rel: 'root',
+            dest: id,
+            values: true,
+            keys: true,
+        });
+
+        await this.drainFeed(feed, async (data: any) => {
+            const _id = data.key;
+            const post = this.store.selectSnapshot((state: { posts: PostModel[]}) => state.posts.filter(item => item.id === _id));
+            if ((post instanceof PostModel) && !post.isMissing) {
+                return;
+            }
+            this.parsePost(_id, data.value);
+        });
+    }
+
     private async init() {
         const ssbClient = util.promisify(window.require('ssb-client'));
 
@@ -404,19 +424,13 @@ export class ScuttlebotService {
         }
         this.store.dispatch(new UpdatePost(post));
         if (post.rootId) {
-            // got a non root node, fetch the tree
+            // got a non root node, fetch the root
             // tslint:disable-next-line:no-floating-promises
             this.get(packet.content.root);
-            const branch = packet.content.branch;
-            if (Array.isArray(branch)) {
-                for (const item of branch) {
-                    // tslint:disable-next-line:no-floating-promises
-                    this.get(item);
-                }
-            } else {
-                // tslint:disable-next-line:no-floating-promises
-                this.get(branch);
-            }
+        } else {
+            // got a root node, fetch the whole thread
+            // tslint:disable-next-line:no-floating-promises
+            this.fetchThread(post.id);
         }
     }
 
