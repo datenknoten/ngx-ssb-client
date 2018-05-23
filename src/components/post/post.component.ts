@@ -151,12 +151,9 @@ export class PostComponent {
             if (anchor.href.startsWith('ssb://')) {
                 const id = ref.extract(anchor.href);
                 const type = ref.type(id);
-
                 if (type === 'msg') {
-                    // tslint:disable-next-line:no-floating-promises
-                    this.scuttlebot.get(id);
-                    // tslint:disable-next-line:no-floating-promises
-                    this.router.navigate(['/post/', id]);
+                    await this.scuttlebot.get(id);
+                    await this.router.navigate(['/post/', id]);
                 }
             } else if (anchor.href.startsWith('http')) {
                 this.electron.remote.shell.openExternal(anchor.href);

@@ -156,16 +156,18 @@ export class ScuttlebotService {
         if (!id) {
             return;
         }
+        const count = this.store.selectSnapshot((state: { posts: PostModel[] }) => state.posts.filter(item => item.id === id).length);
+        if (count > 0) {
+            return;
+        }
         const get = util.promisify(this.bot.get);
         try {
             const packet = await get(id);
-            if (packet && packet.value) {
-                if (packet.value.content) {
-                    this.parsePacket({
-                        key: id,
-                        value: packet,
-                    });
-                }
+            if (packet && packet.content) {
+                this.parsePacket({
+                    key: id,
+                    value: packet,
+                });
             }
         } catch (error) {
             if (error.name !== 'NotFoundError') {

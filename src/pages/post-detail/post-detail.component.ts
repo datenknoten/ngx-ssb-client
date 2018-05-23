@@ -28,14 +28,18 @@ import {
 })
 export class PostDetailComponent implements OnInit {
     public post?: Observable<PostModel>;
+
     public constructor(
         private route: ActivatedRoute,
         private store: Store,
-    ) { }
+    ) {
+        this.route.url.subscribe(() => {
+            const id = this.route.snapshot.paramMap.get('id');
+
+            this.post = this.store.select((state) => state.posts.filter((item: PostModel) => item.id === id).pop());
+        });
+    }
 
     public ngOnInit() {
-        const id = this.route.snapshot.paramMap.get('id');
-
-        this.post = this.store.select((state) => state.posts.filter((item: PostModel) => item.id === id).pop());
     }
 }
