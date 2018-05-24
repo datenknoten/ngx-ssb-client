@@ -22,6 +22,8 @@ import { PaginateFeed } from '../../actions';
 import { ActivatedRoute } from '@angular/router';
 import { SwitchChannel } from '../../actions/switch-channel.action';
 
+const ref = window.require('ssb-ref');
+
 @Component({
     selector: 'app-public-feed',
     templateUrl: './public-feed.component.html',
@@ -52,18 +54,24 @@ export class PublicFeedComponent {
             .posts
             .filter((item: PostModel) => !item.rootId)
             .filter((item) => {
-                if (state.currentFeedSettings.channel !== 'public') {
-                    return item.primaryChannel === state.currentFeedSettings.channel ||
-                        item
-                            .mentions
-                            .map(_item => _item.link)
-                            .includes(`#${state.currentFeedSettings.channel}`) ||
-                        item
-                            .comments
-                            .map(_item => _item.mentions)
-                            .reduce((previous, current) => previous.concat(current), [])
-                            .map(_item => _item.link)
-                            .includes(`#${state.currentFeedSettings.channel}`);
+                const channel = state.currentFeedSettings.channel;
+                if (channel !== 'public') {
+                    const type = ref.type(channel);
+                    if (type === 'feed') {
+                        return (item.author && item.author.id === channel);
+                    } else {
+                        return item.primaryChannel === state.currentFeedSettings.channel ||
+                            item
+                                .mentions
+                                .map(_item => _item.link)
+                                .includes(`#${state.currentFeedSettings.channel}`) ||
+                            item
+                                .comments
+                                .map(_item => _item.mentions)
+                                .reduce((previous, current) => previous.concat(current), [])
+                                .map(_item => _item.link)
+                                .includes(`#${state.currentFeedSettings.channel}`);
+                    }
                 } else {
                     return true;
                 }
@@ -74,10 +82,10 @@ export class PublicFeedComponent {
     }
 
     public pageBackward() {
-    this.store.dispatch(new PaginateFeed(-1));
-}
+        this.store.dispatch(new PaginateFeed(-1));
+    }
 
     public pageForward() {
-    this.store.dispatch(new PaginateFeed(1));
-}
+        this.store.dispatch(new PaginateFeed(1));
+    }
 }

@@ -154,6 +154,8 @@ export class PostComponent {
                 if (type === 'msg') {
                     await this.scuttlebot.get(id);
                     await this.router.navigate(['/post/', id]);
+                } else if (type === 'feed') {
+                    await this.router.navigate(['/feed/', id]);
                 }
             } else if (anchor.href.startsWith('http')) {
                 this.electron.remote.shell.openExternal(anchor.href);
