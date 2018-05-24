@@ -40,7 +40,8 @@
                     <div class="item">
                         <div class="ui green image label" title="The estimated time to read this post">
                             <i class="hourglass half icon"></i>
-                            <div class="detail">{{ post.totalReadingTime | humanReadableDuration }}</div>
+                            <div *ngIf="mode == 'full'" class="detail">{{ post.readingTime | humanReadableDuration }}</div>
+                            <div *ngIf="mode != 'full'" class="detail">{{ post.totalReadingTime | humanReadableDuration }}</div>
                         </div>
                     </div>
                     <div class="item">
