@@ -43,6 +43,9 @@ export class NewPostComponent {
     @ViewChild('editor')
     private editorContainer!: ElementRef;
 
+    @ViewChild('preview')
+    private preview!: ElementRef;
+
     private editor: any;
 
     public constructor(
@@ -134,7 +137,7 @@ export class NewPostComponent {
 
         const that = this;
 
-        const modal: any = jq('.ui.modal');
+        const modal: any = jq(this.preview.nativeElement);
         modal
             .modal({
                 onApprove: function () {
