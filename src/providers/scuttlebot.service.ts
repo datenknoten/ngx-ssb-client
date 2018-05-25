@@ -234,12 +234,12 @@ export class ScuttlebotService {
     private async getFeedItem(feed: any): Promise<any> {
         const result = await new Promise<any>((resolve, reject) => {
 
-            feed(undefined, (err?: Error | boolean, _data?: any) => {
+            feed(undefined, (err?: Error | boolean | null, _data?: any) => {
                 if (typeof err === 'boolean') {
                     resolve(new FeedEndError());
                     return;
                 }
-                if (!(typeof err === 'undefined')) {
+                if (!(typeof err === 'undefined' || err === null)) {
                     reject(err);
                     return;
                 }

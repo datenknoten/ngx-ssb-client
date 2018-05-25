@@ -19,7 +19,6 @@ import {
 import {
     ScuttlebotService,
 } from '../../providers';
-import '../../util/tui-editor-completion.extention';
 
 window['jQuery'] = jq;
 require('semantic-ui-css');
