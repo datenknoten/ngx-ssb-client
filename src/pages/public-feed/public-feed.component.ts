@@ -17,14 +17,13 @@ import {
 
 import {
     PaginateFeed,
-} from '../../actions';
-import {
     SwitchChannel,
-} from '../../actions/switch-channel.action';
+} from '../../actions';
 import {
     CurrentFeedSettings,
 } from '../../interfaces';
 import {
+    IdentityModel,
     PostModel,
 } from '../../models';
 import {
@@ -75,7 +74,7 @@ export class PublicFeedComponent {
                 if (channel !== 'public') {
                     const type = ref.type(channel);
                     if (type === 'feed') {
-                        return (item.author && item.author.id === channel);
+                        return (item.author instanceof IdentityModel && item.author.id === channel);
                     } else {
                         return item.primaryChannel === state.currentFeedSettings.channel ||
                             item
