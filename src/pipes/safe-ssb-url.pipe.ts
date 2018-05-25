@@ -6,7 +6,7 @@ import { Pipe, PipeTransform } from '@angular/core';
 import { DomSanitizer } from '@angular/platform-browser';
 
 @Pipe({
-    name: 'safeSSBUrlPipe'
+    name: 'safeSSBUrlPipe',
 })
 export class SafeSSBUrlPipe implements PipeTransform {
     public constructor(

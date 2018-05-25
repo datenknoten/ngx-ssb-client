@@ -11,3 +11,4 @@ export { SetChannelSubscription } from './set-channel-subscription.action';
 export { PaginateFeed } from './paginate-feed.action';
 export { LoadFeed } from './load-feed.action';
 export { UpdateMessageCount } from './update-message-count.action';
+export { SwitchChannel } from './switch-channel.action';

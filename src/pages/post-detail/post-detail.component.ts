@@ -4,29 +4,27 @@
 
 import {
     Component,
-    OnInit,
 } from '@angular/core';
-
-import {
-    PostModel,
-} from '../../models';
-
 import {
     ActivatedRoute,
 } from '@angular/router';
 import {
-    Observable,
-} from 'rxjs';
-import {
     Store,
 } from '@ngxs/store';
+import {
+    Observable,
+} from 'rxjs';
+
+import {
+    PostModel,
+} from '../../models';
 
 @Component({
     selector: 'app-post-detail',
     templateUrl: './post-detail.component.html',
     styleUrls: ['./post-detail.component.scss'],
 })
-export class PostDetailComponent implements OnInit {
+export class PostDetailComponent {
     public post?: Observable<PostModel>;
 
     public constructor(
@@ -36,10 +34,13 @@ export class PostDetailComponent implements OnInit {
         this.route.url.subscribe(() => {
             const id = this.route.snapshot.paramMap.get('id');
 
-            this.post = this.store.select((state) => state.posts.filter((item: PostModel) => item.id === id).pop());
+            this.post = this
+                .store
+                .select((state) => state
+                    .posts
+                    .filter((item: PostModel) => item.id === id)
+                    .pop(),
+                );
         });
-    }
-
-    public ngOnInit() {
     }
 }

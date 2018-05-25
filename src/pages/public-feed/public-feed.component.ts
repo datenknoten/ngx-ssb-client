@@ -5,22 +5,31 @@
 import {
     Component,
 } from '@angular/core';
-
 import {
-    PostModel,
-} from '../../models';
-
-import {
-    Observable,
-} from 'rxjs';
+    ActivatedRoute,
+} from '@angular/router';
 import {
     Select, Store,
 } from '@ngxs/store';
-import { CurrentFeedSettings } from '../../interfaces';
-import { CurrentFeedSettingState } from '../../states';
-import { PaginateFeed } from '../../actions';
-import { ActivatedRoute } from '@angular/router';
-import { SwitchChannel } from '../../actions/switch-channel.action';
+import {
+    Observable,
+} from 'rxjs';
+
+import {
+    PaginateFeed,
+} from '../../actions';
+import {
+    SwitchChannel,
+} from '../../actions/switch-channel.action';
+import {
+    CurrentFeedSettings,
+} from '../../interfaces';
+import {
+    PostModel,
+} from '../../models';
+import {
+    CurrentFeedSettingState,
+} from '../../states';
 
 @Component({
     selector: 'app-public-feed',
@@ -40,17 +49,25 @@ export class PublicFeedComponent {
         this.posts = this.store.select(PublicFeedComponent.feedSelector);
         this.route.url.subscribe(() => {
             const id = this.route.snapshot.paramMap.get('channel');
-            if (!id) {
+            if (!(typeof id === 'string')) {
                 throw new Error('No Such Channel');
             }
             this.store.dispatch(new SwitchChannel(id));
         });
     }
 
+    public pageBackward() {
+        this.store.dispatch(new PaginateFeed(-1));
+    }
+
+    public pageForward() {
+        this.store.dispatch(new PaginateFeed(1));
+    }
+
     public static feedSelector(state: { posts: PostModel[], currentFeedSettings: CurrentFeedSettings }): PostModel[] {
         return state
             .posts
-            .filter((item: PostModel) => !item.rootId)
+            .filter((item: PostModel) => !(typeof item.rootId === 'string'))
             .filter((item) => {
                 if (state.currentFeedSettings.channel !== 'public') {
                     return item.primaryChannel === state.currentFeedSettings.channel ||
@@ -72,12 +89,4 @@ export class PublicFeedComponent {
                 (state.currentFeedSettings.currentPage - 1) * state.currentFeedSettings.elementsPerPage,
                 state.currentFeedSettings.currentPage * state.currentFeedSettings.elementsPerPage);
     }
-
-    public pageBackward() {
-    this.store.dispatch(new PaginateFeed(-1));
-}
-
-    public pageForward() {
-    this.store.dispatch(new PaginateFeed(1));
-}
 }

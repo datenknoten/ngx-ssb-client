@@ -2,12 +2,15 @@
  * @license MIT
  */
 
-import * as util from 'util';
 import {
-    MAGIC_MIME_TYPE,
+    MimeTypedBuffer,
+    RegisterBufferProtocolRequest,
+} from 'electron';
+import {
     Magic,
+    MAGIC_MIME_TYPE,
 } from 'mmmagic';
-import { RegisterBufferProtocolRequest, MimeTypedBuffer } from 'electron';
+import * as util from 'util';
 const pull = require('pull-stream');
 const ref = require('ssb-ref');
 const debug = require('debug')('ngx:ssb:blob');
@@ -16,7 +19,7 @@ const signale = require('signale');
 type requestCallback = (buffer?: Buffer | MimeTypedBuffer) => void;
 
 function drainFunc(blobId: string, magic: any, cb: requestCallback) {
-    return async function (error: any, array: Buffer[]) {
+    return async function(error: any, array: Buffer[]) {
         if (error) {
             signale.error(`Failed to fetch blob ${blobId}`);
             signale.error(error);
@@ -41,7 +44,7 @@ function drainFunc(blobId: string, magic: any, cb: requestCallback) {
 }
 
 export function createBlobHandler() {
-    return async function (request: RegisterBufferProtocolRequest, cb: requestCallback) {
+    return async function(request: RegisterBufferProtocolRequest, cb: requestCallback) {
         const ssbClient = util.promisify(require('ssb-client'));
         const sbot = await ssbClient();
         const hasBlob = util.promisify(sbot.blobs.has);

@@ -3,32 +3,39 @@
  */
 
 import {
-    State,
     Action,
+    State,
     StateContext,
 } from '@ngxs/store';
 
 import {
-    IdentityModel, ChannelSubscription, IdentityImageModel, IdentityNameModel,
-} from '../models';
-
-import {
-    UpdateIdentity, SetIdentity, SetContact, SetChannelSubscription,
+    SetChannelSubscription,
+    SetContact,
+    SetIdentity,
+    UpdateIdentity,
 } from '../actions';
+import {
+    ChannelSubscription,
+    IdentityImageModel,
+    IdentityModel,
+    IdentityNameModel,
+} from '../models';
 
 const normalizeChannel = window.require('ssb-ref').normalizeChannel;
 
 @State<IdentityModel[]>({
     name: 'identities',
-    defaults: []
+    defaults: [],
 })
 export class IdentitiesState {
     @Action(UpdateIdentity)
     public updateIdentity(ctx: StateContext<IdentityModel[]>, action: UpdateIdentity) {
         const state = ctx.getState();
-        let identity = state.filter(item => item.id === action.id).pop();
+        let identity = state
+            .filter(item => item.id === action.id)
+            .pop();
 
-        if (!identity) {
+        if (typeof identity === 'undefined') {
             identity = new IdentityModel();
             identity.isSelf = action.isSelf;
             identity.id = action.id;
@@ -64,10 +71,14 @@ export class IdentitiesState {
     @Action(SetContact)
     public setContact(ctx: StateContext<IdentityModel[]>, action: SetContact) {
         const state = ctx.getState();
-        let from = state.filter(item => item.id === action.from).pop();
-        let to = state.filter(item => item.id === action.to).pop();
+        let from = state
+            .filter(item => item.id === action.from)
+            .pop();
+        let to = state
+            .filter(item => item.id === action.to)
+            .pop();
 
-        if (!from) {
+        if (typeof from === 'undefined') {
             from = new IdentityModel();
             from.id = action.from;
             ctx.setState([
@@ -76,7 +87,7 @@ export class IdentitiesState {
             ]);
         }
 
-        if (!to) {
+        if (typeof to === 'undefined') {
             to = new IdentityModel();
             to.id = action.to;
             ctx.setState([
@@ -92,9 +103,11 @@ export class IdentitiesState {
     @Action(SetChannelSubscription)
     public setChannelSubscription(ctx: StateContext<IdentityModel[]>, action: SetChannelSubscription) {
         const state = ctx.getState();
-        let identity = state.filter(item => item.id === action.id).pop();
+        let identity = state
+            .filter(item => item.id === action.id)
+            .pop();
 
-        if (!identity) {
+        if (typeof identity === 'undefined') {
             identity = new IdentityModel();
             identity.id = action.id;
             ctx.setState([
@@ -105,9 +118,12 @@ export class IdentitiesState {
 
         const channel = normalizeChannel(action.channel);
 
-        const channelSubscription = identity.channels.filter(item => item.channel === channel).pop();
+        const channelSubscription = identity
+            .channels
+            .filter(item => item.channel === channel)
+            .pop();
 
-        if (channelSubscription) {
+        if (channelSubscription instanceof ChannelSubscription) {
             if (action.date > channelSubscription.lastModified) {
                 channelSubscription.isSubscribed = action.isSubscribed;
                 channelSubscription.lastModified = action.date;

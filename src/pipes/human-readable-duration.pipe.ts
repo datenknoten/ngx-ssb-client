@@ -10,7 +10,7 @@ import {
 const humanizeDuration = require('humanize-duration');
 
 @Pipe({
-    name: 'humanReadableDuration'
+    name: 'humanReadableDuration',
 })
 export class HumanReadableDurationPipe implements PipeTransform {
     public transform(value: number): string {

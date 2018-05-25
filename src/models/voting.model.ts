@@ -3,15 +3,16 @@
  */
 
 import {
+    IsIn,
+    IsInstance,
+    IsOptional,
+    IsString,
+} from 'class-validator';
+
+import {
     BaseModel,
     IdentityModel,
 } from '../models';
-import {
-    IsString,
-    IsInstance,
-    IsOptional,
-    IsIn,
-} from 'class-validator';
 
 export class VotingModel extends BaseModel {
     @IsIn([1, 0, -1])

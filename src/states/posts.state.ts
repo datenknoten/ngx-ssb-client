@@ -3,44 +3,51 @@
  */
 
 import {
-    State,
     Action,
+    State,
     StateContext,
 } from '@ngxs/store';
 
 import {
+    SetIdentity,
+    UpdatePost,
+} from '../actions';
+import {
     PostModel,
 } from '../models';
 
-import {
-    UpdatePost,
-    SetIdentity,
-} from '../actions';
-
 @State<PostModel[]>({
     name: 'posts',
-    defaults: []
+    defaults: [],
 })
 export class PostsState {
     @Action(UpdatePost)
     public updatePost(ctx: StateContext<PostModel[]>, action: UpdatePost) {
         const state = ctx.getState();
-        let post = state.filter(item => item.id === action.post.id)[0];
+        let post: PostModel;
+        const postExists = state
+            .filter(item => item.id === action.post.id)
+            .length > 0;
         let newPost: boolean = false;
 
-        if (!post) {
+        if (!postExists) {
             post = new PostModel();
             Object.assign(post, action.post);
             newPost = true;
         } else {
+            post = state
+                .filter(item => item.id === action.post.id)[0];
+
             Object.assign(post, action.post);
         }
 
         // first check if the post is a comment and has a root in the state
-        if (post.rootId) {
-            const root = state.filter(item => item.id === post.rootId).pop();
+        if (typeof post.rootId === 'string') {
+            const root = state
+                .filter(item => item.id === post.rootId)
+                .pop();
 
-            if (root && root.comments.filter(item => item.id === post.id).length === 0) {
+            if (root instanceof PostModel && root.comments.filter(item => item.id === post.id).length === 0) {
                 root.comments.push(post);
                 root.comments.sort((a, b) => {
                     return a.date.getTime() - b.date.getTime();
@@ -52,7 +59,7 @@ export class PostsState {
 
             if (comments.length > 0) {
                 post.comments = [
-                    ...comments
+                    ...comments,
                 ].sort((a, b) => {
                     return a.date.getTime() - b.date.getTime();
                 });

@@ -30,10 +30,11 @@ const createSbot = window.require('scuttlebot')
     .use(window.require('ssb-names'))
     .use(window.require('ssb-ws'));
 
+// tslint:disable-next-line:no-default-export
 export default function startSbot(ssbConfig: any) {
     const context = {
         sbot: createSbot(ssbConfig),
-        config: ssbConfig
+        config: ssbConfig,
     };
     ssbConfig.manifest = context.sbot.getManifest();
     fs.writeFileSync(path.join(ssbConfig.path, 'manifest.json'), JSON.stringify(ssbConfig.manifest));

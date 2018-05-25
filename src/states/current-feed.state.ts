@@ -3,15 +3,20 @@
  */
 
 import {
-    State, Action, StateContext,
+    Action,
+    State,
+    StateContext,
 } from '@ngxs/store';
-import { LoadFeed, UpdateMessageCount } from '../actions';
 
+import {
+    LoadFeed,
+    PaginateFeed,
+    SwitchChannel,
+    UpdateMessageCount,
+} from '../actions';
 import {
     CurrentFeedSettings,
 } from '../interfaces';
-import { PaginateFeed } from '../actions';
-import { SwitchChannel } from '../actions/switch-channel.action';
 
 
 @State<CurrentFeedSettings>({
@@ -22,7 +27,7 @@ import { SwitchChannel } from '../actions/switch-channel.action';
         loadingFeed: false,
         messageCount: 0,
         channel: 'public',
-    }
+    },
 })
 export class CurrentFeedSettingState {
     @Action(PaginateFeed)
