@@ -3,32 +3,34 @@
  */
 
 import {
+    ChangeDetectionStrategy,
     Component,
     OnInit,
-    ChangeDetectionStrategy,
 } from '@angular/core';
 import {
-    IdentityModel,
-    ChannelSubscription,
-} from '../models';
-import {
-    ScuttlebotService,
-} from '../providers';
+    NavigationEnd,
+    Router,
+} from '@angular/router';
 import {
     Store,
 } from '@ngxs/store';
+import * as jq from 'jquery';
 import {
     Observable,
     // timer,
 } from 'rxjs';
-import {
-    Router,
-    NavigationEnd,
-} from '@angular/router';
-import { CurrentFeedSettings } from '../interfaces';
-import { CurrentFeedSettingState } from '../states';
 
-import * as jq from 'jquery';
+import {
+    CurrentFeedSettings,
+} from '../interfaces';
+import {
+    ChannelSubscription,
+    IdentityModel,
+} from '../models';
+import {
+    ScuttlebotService,
+} from '../providers';
+import { CurrentFeedSettingState } from '../states';
 window['jQuery'] = jq;
 require('semantic-ui-css');
 
@@ -57,12 +59,15 @@ export class AppComponent implements OnInit {
         this.currentFeedSettings = this
             .store
             .select(CurrentFeedSettingState);
-            // .pipe(debounce(() => timer(20)));
+
         this.self = this
             .store
-            .select((state: any) => state.identities.filter((item: IdentityModel) => item.isSelf).pop());
-            // .pipe(debounce(() => timer(20)));
-     }
+            .select((state: any) => state
+                .identities
+                .filter((item: IdentityModel) => item.isSelf)
+                .pop(),
+            );
+    }
 
     public debug() {
         // tslint:disable-next-line:no-debugger

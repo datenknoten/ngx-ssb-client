@@ -3,23 +3,22 @@
  */
 
 import {
-    State,
     Action,
+    State,
     StateContext,
 } from '@ngxs/store';
-
-import {
-    VotingModel,
-} from '../models';
 
 import {
     AddVoting,
     SetIdentity,
 } from '../actions';
+import {
+    VotingModel,
+} from '../models';
 
 @State<VotingModel[]>({
     name: 'votings',
-    defaults: []
+    defaults: [],
 })
 export class VotingsState {
     @Action(AddVoting)

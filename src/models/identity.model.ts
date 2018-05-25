@@ -5,8 +5,8 @@
 import {
     BaseModel,
     ChannelSubscription,
-    IdentityNameModel,
     IdentityImageModel,
+    IdentityNameModel,
 } from '../models';
 
 export class IdentityModel extends BaseModel {

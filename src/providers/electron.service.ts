@@ -7,8 +7,8 @@ import { Injectable } from '@angular/core';
 
 // If you import a module but never use any of the imported values other than as TypeScript types,
 // the resulting javascript file will look as if you never imported the module at all.
-import { ipcRenderer, webFrame, remote } from 'electron';
 import * as childProcess from 'child_process';
+import { ipcRenderer, remote, webFrame } from 'electron';
 import * as fs from 'fs';
 
 @Injectable()
@@ -33,6 +33,7 @@ export class ElectronService {
     }
 
     public isElectron = () => {
+        // tslint:disable-next-line:strict-boolean-expressions
         return window && window.process && window.process.type;
     }
 

@@ -3,26 +3,30 @@
  */
 
 import {
-    BrowserModule,
-} from '@angular/platform-browser';
-import {
     NgModule,
 } from '@angular/core';
 import {
-    AppComponent,
-} from './app.component';
+    BrowserModule,
+} from '@angular/platform-browser';
 import {
-    PostComponent,
+    RouterModule,
+} from '@angular/router';
+import {
+    NgxsModule,
+} from '@ngxs/store';
+
+import {
     NewPostComponent,
+    PostComponent,
 } from '../components';
 import {
     PostDetailComponent,
     PublicFeedComponent,
 } from '../pages';
 import {
-    SafeHtmlPipe,
     HumanReadableDatePipe,
     HumanReadableDurationPipe,
+    SafeHtmlPipe,
     SafeSSBUrlPipe,
 } from '../pipes';
 import {
@@ -30,18 +34,15 @@ import {
     ScuttlebotService,
 } from '../providers';
 import {
-    NgxsModule,
-} from '@ngxs/store';
-
-import {
+    CurrentFeedSettingState,
     IdentitiesState,
     PostsState,
     VotingsState,
-    CurrentFeedSettingState,
 } from '../states';
+
 import {
-    RouterModule,
-} from '@angular/router';
+    AppComponent,
+} from './app.component';
 
 
 @NgModule({
@@ -70,7 +71,7 @@ import {
             {
                 path: 'post/:id',
                 component: PostDetailComponent,
-            }
+            },
         ], {
             enableTracing: false,
         }),
@@ -90,6 +91,6 @@ import {
     entryComponents: [
         PostDetailComponent,
         PublicFeedComponent,
-    ]
+    ],
 })
 export class AppModule { }

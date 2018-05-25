@@ -8,28 +8,30 @@ import {
 import {
     Store,
 } from '@ngxs/store';
-import {
-    PostModel,
-    IdentityModel,
-    VotingModel,
-    LinkModel,
-    IdentityNameModel,
-    IdentityImageModel,
-} from '../models';
+import { validate } from 'class-validator';
 import * as moment from 'moment';
+
 import {
-    UpdatePost,
-    UpdateIdentity,
     AddVoting,
-    SetContact,
-    SetChannelSubscription,
     LoadFeed,
+    SetChannelSubscription,
+    SetContact,
+    UpdateIdentity,
     UpdateMessageCount,
+    UpdatePost,
 } from '../actions';
 import {
     FeedEndError,
 } from '../errors';
-import { validate } from 'class-validator';
+import {
+    IdentityImageModel,
+    IdentityModel,
+    IdentityNameModel,
+    LinkModel,
+    PostModel,
+    VotingModel,
+} from '../models';
+
 const util = window.require('util');
 const split = require('split-buffer');
 const pull = window.require('pull-stream');
@@ -65,14 +67,15 @@ export class ScuttlebotService {
 
         const json: any = {
             text: post.content,
-            type: 'post'
+            type: 'post',
         };
 
-        if (post.rootId) {
+        // TODO validate proper
+        if (typeof post.rootId === 'string') {
             json['root'] = post.rootId;
         }
 
-        if (post.primaryChannel) {
+        if (typeof post.primaryChannel === 'string') {
             json['channel'] = post.primaryChannel;
         }
 
@@ -100,7 +103,7 @@ export class ScuttlebotService {
                 link: voting.link,
                 value: voting.value,
                 reason: voting.reason,
-            }
+            },
         };
 
         const publish = util.promisify(this.bot.publish);
@@ -119,7 +122,7 @@ export class ScuttlebotService {
     }
 
     public async createBlob(file: File): Promise<string> {
-        if (!file) {
+        if (!(file instanceof File)) {
             throw new Error('Invalid File');
         }
 
@@ -152,11 +155,17 @@ export class ScuttlebotService {
         });
     }
 
-    public async get(id: string): Promise<void> {
-        if (!id) {
+    public async get(id?: string): Promise<void> {
+        if (!(typeof id === 'string')) {
             return;
         }
-        const count = this.store.selectSnapshot((state: { posts: PostModel[] }) => state.posts.filter(item => item.id === id).length);
+        const count = this
+            .store
+            .selectSnapshot((state: { posts: PostModel[] }) => state
+                .posts
+                .filter(item => item.id === id)
+                .length,
+            );
         if (count > 0) {
             return;
         }
@@ -172,7 +181,6 @@ export class ScuttlebotService {
         } catch (error) {
             if (error.name !== 'NotFoundError') {
                 throw error;
-            } else {
             }
         }
     }
@@ -189,7 +197,12 @@ export class ScuttlebotService {
 
         await this.drainFeed(feed, async (data: any) => {
             const _id = data.key;
-            const post = this.store.selectSnapshot((state: { posts: PostModel[]}) => state.posts.filter(item => item.id === _id));
+            const post = this
+                .store
+                .selectSnapshot((state: { posts: PostModel[]}) => state
+                    .posts
+                    .filter(item => item.id === _id),
+                );
             if ((post instanceof PostModel) && !post.isMissing) {
                 return;
             }
@@ -221,12 +234,12 @@ export class ScuttlebotService {
     private async getFeedItem(feed: any): Promise<any> {
         const result = await new Promise<any>((resolve, reject) => {
 
-            feed(undefined, (err?: Error, _data?: any) => {
-                if (typeof err === 'boolean' && err) {
+            feed(undefined, (err?: Error | boolean, _data?: any) => {
+                if (typeof err === 'boolean') {
                     resolve(new FeedEndError());
                     return;
                 }
-                if (err) {
+                if (!(typeof err === 'undefined')) {
                     reject(err);
                     return;
                 }
@@ -241,8 +254,37 @@ export class ScuttlebotService {
         }
     }
 
-    private async fetchContacts(id: string) {
-        if (!id) {
+    private extractFollowers(id: string, data: any) {
+        const followers = [];
+        for (const key of Object.keys(data)) {
+            const _id = Object
+                .keys(data[key])
+                .indexOf(id);
+
+            if ((_id >= 0) && (data[key][id])) {
+                followers.push(key);
+            }
+        }
+
+        return followers;
+    }
+
+    private extractFollowing(id: string, data: any) {
+        const following = [];
+
+        if (data[id]) {
+            for (const key of Object.keys(data[id])) {
+                if (data[id][key]) {
+                    following.push(key);
+                }
+            }
+        }
+
+        return following;
+    }
+
+    private async fetchContacts(id?: string) {
+        if (!(typeof id === 'string')) {
             return;
         }
 
@@ -258,23 +300,9 @@ export class ScuttlebotService {
             return;
         }
 
-        const followers = [];
+        const followers = this.extractFollowers(id, data);
 
-        for (const key of Object.keys(data)) {
-            if ((Object.keys(data[key]).indexOf(id) >= 0) && (data[key][id])) {
-                followers.push(key);
-            }
-        }
-
-        const following = [];
-
-        if (data[id]) {
-            for (const key of Object.keys(data[id])) {
-                if (data[id][key]) {
-                    following.push(key);
-                }
-            }
-        }
+        const following = this.extractFollowing(id, data);
 
         for (const follower of followers) {
             // tslint:disable-next-line:no-floating-promises
@@ -335,8 +363,8 @@ export class ScuttlebotService {
         }
     }
 
-    private async fetchIdentity(id: string, isSelf: boolean = false) {
-        if (!id) {
+    private async fetchIdentity(id?: string, isSelf: boolean = false) {
+        if (!(typeof id === 'string')) {
             return;
         }
 
@@ -406,7 +434,8 @@ export class ScuttlebotService {
             .selectSnapshot<IdentityModel[]>((state) => state.identities)
             .filter(item => item.id === packet.author)
             .pop();
-        if (!post.author || (post.author && post.author.isMissing)) {
+        if (!(post.author instanceof IdentityModel) ||
+            ((post.author instanceof IdentityModel) && post.author.isMissing)) {
             // tslint:disable-next-line:no-floating-promises
             this.fetchIdentity(post.authorId);
         }
@@ -414,7 +443,8 @@ export class ScuttlebotService {
             .store
             .selectSnapshot<VotingModel[]>((state) => state.votings)
             .filter(item => item.link === post.id);
-        post.date = moment(packet.timestamp).toDate();
+        post.date = moment(packet.timestamp)
+            .toDate();
         post.content = packet.content.text;
         post.rootId = packet.content.root;
         if (Array.isArray(packet.content.mentions)) {
@@ -423,7 +453,7 @@ export class ScuttlebotService {
             }
         }
         this.store.dispatch(new UpdatePost(post));
-        if (post.rootId) {
+        if (typeof post.rootId === 'string') {
             // got a non root node, fetch the root
             // tslint:disable-next-line:no-floating-promises
             this.get(packet.content.root);
@@ -456,7 +486,8 @@ export class ScuttlebotService {
         } else if (packetType === 'vote') {
             const voting = new VotingModel();
             voting.id = id;
-            voting.date = moment(packet.timestamp).toDate();
+            voting.date = moment(packet.timestamp)
+                .toDate();
             voting.value = packet.content.vote.value;
             voting.reason = packet.content.vote.expression;
             voting.link = packet.content.vote.link;
@@ -466,7 +497,7 @@ export class ScuttlebotService {
                 .selectSnapshot<IdentityModel[]>((state) => state.identities)
                 .filter(item => item.id === packet.author)
                 .pop();
-            if (!voting.author) {
+            if (!(voting.author instanceof IdentityModel)) {
                 // tslint:disable-next-line:no-floating-promises
                 this.fetchIdentity(voting.authorId);
             }
@@ -476,7 +507,8 @@ export class ScuttlebotService {
                 packet.author,
                 packet.content.channel,
                 packet.content.subscribed,
-                moment(packet.timestamp).toDate(),
+                moment(packet.timestamp)
+                    .toDate(),
             ));
         }
     }

@@ -3,22 +3,20 @@
  */
 
 import {
-    BaseModel,
-    IdentityModel,
-    VotingModel,
-    LinkModel,
-} from '../models';
-import {
-    IsString,
     IsOptional,
+    IsString,
 } from 'class-validator';
 
+import {
+    BaseModel,
+    IdentityModel,
+    LinkModel,
+    VotingModel,
+} from '../models';
+
 const md = window.require('ssb-markdown');
-
 const emojiNamedCharacters = require('emoji-named-characters');
-
 const twemoji = require('twemoji');
-
 const readingTime = require('reading-time');
 
 export class PostModel extends BaseModel {
@@ -64,7 +62,7 @@ export class PostModel extends BaseModel {
                     return twemoji.parse(emojiNamedCharacters[emoji].character, {
                         folder: 'emoji',
                         ext: '.svg',
-                        base: '/assets/'
+                        base: '/assets/',
                     });
                 } else {
                     return `:${emoji}:`;
@@ -75,7 +73,7 @@ export class PostModel extends BaseModel {
             },
             toUrl: (id: string) => {
                 return `ssb://ssb/${id}`;
-            }
+            },
         });
     }
 
@@ -99,7 +97,7 @@ export class PostModel extends BaseModel {
         }
 
         const sortedVotes = [
-            ...this.votes
+            ...this.votes,
         ];
         sortedVotes.sort((a, b) => {
             return a.date.getTime() - b.date.getTime();
@@ -116,9 +114,9 @@ export class PostModel extends BaseModel {
                 const author = this
                     .votes
                     .map(item => item.author)
-                    .filter(item => item && item.id === key)
+                    .filter(item => item instanceof IdentityModel && item.id === key)
                     .pop();
-                if (author) {
+                if (author instanceof IdentityModel) {
                     result.push(author);
                 }
             }
@@ -128,18 +126,15 @@ export class PostModel extends BaseModel {
     }
 
     public get totalReadingTime(): number {
-        let text = this.content || '';
-
+        let time = this.readingTime;
         for (const comment of this.comments) {
-            text += comment.content + '\n';
+            time += comment.readingTime;
         }
 
-        const time: number = readingTime(text).time;
-
-        return time + (this.comments.length * 20000);
+        return time;
     }
 
     public get readingTime(): number {
-        return readingTime(this.content).time;
+        return readingTime(this.content).time + 20000;
     }
 }

@@ -4,12 +4,12 @@
 
 const signale = require('signale');
 
-process.on('uncaughtException', function (error) {
+process.on('uncaughtException', function(error) {
     signale.error(error);
     process.exit();
 });
 
-process.on('unhandledRejection', function (error) {
+process.on('unhandledRejection', function(error) {
     signale.error(error);
     process.exit();
 });
@@ -17,20 +17,22 @@ process.on('unhandledRejection', function (error) {
 import {
     app,
     BrowserWindow,
-    screen,
     protocol,
+    screen,
 } from 'electron';
 import * as path from 'path';
 import * as url from 'url';
+
 import {
     createBlobHandler,
     openWindow,
     setupContext,
 } from '../electron';
+
 const debug = require('debug')('ngx:ssb:init');
 
 // tslint:disable-next-line:no-floating-promises
-(async function () {
+(async function() {
     let win: BrowserWindow | undefined | null;
     const args = process.argv.slice(1);
     const serve = args.includes('--serve');
@@ -55,14 +57,14 @@ const debug = require('debug')('ngx:ssb:init');
 
         if (serve) {
             require('electron-reload')(__dirname, {
-                electron: require(`${__dirname}/../node_modules/electron`)
+                electron: require(`${__dirname}/../node_modules/electron`),
             });
             win = openWindow('http://localhost:4200', windowOptions);
         } else {
             win = openWindow(url.format({
                 pathname: path.join(__dirname, 'dist/index.html'),
                 protocol: 'file:',
-                slashes: true
+                slashes: true,
             }), windowOptions);
         }
 

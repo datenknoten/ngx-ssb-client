@@ -3,8 +3,8 @@
  */
 
 import {
-    IdentityNameModel,
     IdentityImageModel,
+    IdentityNameModel,
 } from '../models';
 
 export class UpdateIdentity {

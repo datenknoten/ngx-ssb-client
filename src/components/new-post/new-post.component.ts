@@ -4,26 +4,28 @@
 
 import {
     Component,
-    ViewChild,
     ElementRef,
     Input,
+    ViewChild,
 } from '@angular/core';
+import { Store } from '@ngxs/store';
+import * as jq from 'jquery';
 
-const Editor = require('tui-editor');
+import {
+    IdentityModel,
+    LinkModel,
+    PostModel,
+} from '../../models';
 import {
     ScuttlebotService,
 } from '../../providers';
-import {
-    PostModel,
-    IdentityModel,
-    LinkModel,
-} from '../../models';
-import * as jq from 'jquery';
-import { Store } from '@ngxs/store';
 import '../../util/tui-editor-completion.extention';
+
 window['jQuery'] = jq;
 require('semantic-ui-css');
+
 const mentions = window.require('ssb-mentions');
+const editorModule = require('tui-editor');
 
 @Component({
     selector: 'app-new-post',
@@ -57,7 +59,7 @@ export class NewPostComponent {
         this.previewPost = new PostModel();
         this.visible = true;
         setImmediate(() => {
-            this.editor = new Editor({
+            this.editor = new editorModule({
                 el: this.editorContainer.nativeElement,
                 initialEditType: 'markdown',
                 previewStyle: 'tabs',
@@ -69,13 +71,13 @@ export class NewPostComponent {
                         // tslint:disable-next-line:no-floating-promises
                         this.createBlob(file, cb);
                     },
-                }
+                },
             });
 
             this.editor.mdEditor.eventManager.listen('keyup', (event: { data: KeyboardEvent }) => {
                 if (event.data.keyCode === 27) {
                     const button = window.document.querySelector<HTMLButtonElement>('app-new-post .ui.red.button');
-                    if (button) {
+                    if (button instanceof HTMLButtonElement) {
                         button.click();
                     }
                 }
@@ -100,21 +102,25 @@ export class NewPostComponent {
 
         post.content = this.editor.getMarkdown();
 
-        if (this.context) {
+        if (!(typeof this.context === 'undefined')) {
             if (this.context instanceof PostModel) {
-                if (this.context.rootId) {
+                if (typeof this.context.rootId === 'string') {
                     post.rootId = this.context.rootId;
                 } else {
                     post.rootId = this.context.id;
                 }
-            } else if ((typeof this.context === 'string') && (this.context !== 'public')) {
+            } else if (this.context !== 'public') {
                 post.primaryChannel = this.context;
             }
         }
 
         post.author = this
             .store
-            .selectSnapshot((state: any) => state.identities.filter((item: IdentityModel) => item.isSelf).pop());
+            .selectSnapshot((state: any) => state
+                .identities
+                .filter((item: IdentityModel) => item.isSelf)
+                .pop(),
+        );
 
         const _mentions = mentions(post.content);
 
@@ -140,7 +146,7 @@ export class NewPostComponent {
         const modal: any = jq(this.preview.nativeElement);
         modal
             .modal({
-                onApprove: function () {
+                onApprove: function() {
                     that.cancel();
 
                     // tslint:disable-next-line:no-floating-promises
@@ -150,7 +156,7 @@ export class NewPostComponent {
                         .then(async () => {
                             return that.scuttlebot.updateFeed();
                         });
-                }
+                },
             })
             .modal('show');
     }

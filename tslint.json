@@ -6,6 +6,7 @@
         "@datenknoten/tslint-config"
     ],
     "rules": {
+        "no-any": false,
         "completed-docs": false,
         "directive-selector": [
             true,

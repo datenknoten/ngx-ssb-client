@@ -6,19 +6,20 @@ import {
     Component,
     Input,
 } from '@angular/core';
-import {
-    PostModel,
-    IdentityModel,
-    VotingModel,
-} from '../../models';
+import { Router } from '@angular/router';
 import {
     Store,
 } from '@ngxs/store';
+
 import {
-    ScuttlebotService,
+    IdentityModel,
+    PostModel,
+    VotingModel,
+} from '../../models';
+import {
     ElectronService,
+    ScuttlebotService,
 } from '../../providers';
-import { Router } from '@angular/router';
 
 const ref = window.require('ssb-ref');
 const cheerio = window.require('cheerio');
@@ -47,19 +48,23 @@ export class PostComponent {
         const $ = cheerio.load(html);
         const that = this;
 
-        $('img:not(.emoji)').addClass('ui rounded image');
-        $('h1,h2,h3').addClass('ui dividing header');
-        $('table').addClass('ui green compact celled table');
-        $('a').each(function (this: any) {
-            const item = $(this);
-            that.parseLink(item, $);
-        });
+        $('img:not(.emoji)')
+            .addClass('ui rounded image');
+        $('h1,h2,h3')
+            .addClass('ui dividing header');
+        $('table')
+            .addClass('ui green compact celled table');
+        $('a')
+            .each(function(this: any) {
+                const item = $(this);
+                that.parseLink(item, $);
+            });
 
         return $.html();
     }
 
     public getImage(identity?: IdentityModel) {
-        if (identity && (identity.image.length > 0)) {
+        if ((identity instanceof IdentityModel) && (identity.image.length > 0)) {
             return `ssb://ssb/${identity.primaryImage}`;
         } else {
             return './assets/img/image.png';
@@ -89,11 +94,14 @@ export class PostComponent {
     }
 
     public get hasSelfLike(): boolean {
-        if (!this.post) {
+        if (!(this.post instanceof PostModel)) {
             return false;
         }
 
-        return this.post.getPositiveVoters().filter(item => item.isSelf).length === 1;
+        return this
+            .post
+            .getPositiveVoters()
+            .filter(item => item.isSelf).length === 1;
     }
 
     public formatComments(post: PostModel): string {
@@ -103,7 +111,7 @@ export class PostComponent {
 
         const commenters = post
             .comments
-            .map(item => item.author ? item.author.primaryName : item.authorId)
+            .map(item => item.author instanceof IdentityModel ? item.author.primaryName : item.authorId)
             .filter((value, index, self) => self.indexOf(value) === index)
             .join(',');
 
@@ -125,11 +133,11 @@ export class PostComponent {
         const author = this
             .store
             .selectSnapshot<IdentityModel[]>((state) => state.identities)
-            .filter(item => item.isSelf
-            )
+            .filter(item => item.isSelf,
+        )
             .pop();
 
-        if (author) {
+        if (author instanceof IdentityModel) {
             voting.author = author;
             voting.authorId = author.id;
         } else {
@@ -142,7 +150,8 @@ export class PostComponent {
 
     public async click(event: MouseEvent) {
         let anchor = event.target;
-        if ((anchor instanceof HTMLSpanElement || anchor instanceof HTMLElement) && (anchor.parentElement instanceof HTMLAnchorElement)) {
+        if ((anchor instanceof HTMLSpanElement || anchor instanceof HTMLElement) &&
+            (anchor.parentElement instanceof HTMLAnchorElement)) {
             anchor = anchor.parentElement;
         }
 
@@ -177,13 +186,19 @@ export class PostComponent {
                         .pop());
             item.text('');
             if (identity) {
-                item.append($('<img>').attr('src', `ssb://ssb/${identity.primaryImage}`));
-                item.append($('<span>').text(text));
+                item
+                    .append($('<img>')
+                    .attr('src', `ssb://ssb/${identity.primaryImage}`));
+                item
+                    .append($('<span>')
+                    .text(text));
                 if (text.replace('@', '') !== identity.primaryName) {
                     item.attr('title', `Known to you as ${identity.primaryName}`);
                 }
             } else {
-                item.append($('<span>').text(text));
+                item
+                    .append($('<span>')
+                    .text(text));
             }
         }
     }
@@ -221,12 +236,16 @@ export class PostComponent {
 
             for (const mapItem of map) {
                 if (href.match(mapItem.pattern)) {
-                    const text = item.text().trim();
+                    const text = item
+                        .text()
+                        .trim();
                     if (text !== href) {
                         item.addClass('ui image label');
                         item.text('');
                         item.append($(`<i class="${mapItem.icon} icon"></i>`));
-                        item.append($('<span>').text(text));
+                        item
+                            .append($('<span>')
+                            .text(text));
                         item.attr('title', href);
                     }
                     return;
