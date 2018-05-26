@@ -18,6 +18,8 @@ import {
     CurrentFeedSettings,
 } from '../interfaces';
 
+const ref = window.require('ssb-ref');
+
 
 @State<CurrentFeedSettings>({
     name: 'currentFeedSettings',
@@ -27,6 +29,7 @@ import {
         loadingFeed: false,
         messageCount: 0,
         channel: 'public',
+        channelType: 'public',
     },
 })
 export class CurrentFeedSettingState {
@@ -63,6 +66,7 @@ export class CurrentFeedSettingState {
         ctx.setState({
             ...state,
             channel: action.channel,
+            channelType: ref.type(action.channel),
             currentPage: 1,
         });
     }

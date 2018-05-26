@@ -24,6 +24,7 @@ import {
     FeedEndError,
 } from '../errors';
 import {
+    IdentityDescriptionModel,
     IdentityImageModel,
     IdentityModel,
     IdentityNameModel,
@@ -414,9 +415,13 @@ export class ScuttlebotService {
             }
 
             if (data.value.content.description) {
+                const description = new IdentityDescriptionModel();
+                description.description = data.value.content.description;
+                description.date = moment(data.value.timestamp).toDate();
+
                 this.store.dispatch(new UpdateIdentity(
                     data.value.content.about,
-                    data.value.content.description,
+                    description,
                     isSelf,
                 ));
             }

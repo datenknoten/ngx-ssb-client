@@ -23,10 +23,15 @@ import {
     CurrentFeedSettings,
 } from '../../interfaces';
 import {
+    IdentityDescriptionModel,
     IdentityModel,
     PostModel,
 } from '../../models';
 import {
+    HelperService,
+} from '../../providers';
+import {
+    AppState,
     CurrentFeedSettingState,
 } from '../../states';
 
@@ -39,13 +44,17 @@ const ref = window.require('ssb-ref');
 })
 export class PublicFeedComponent {
     public posts: Observable<PostModel[]>;
+    @Select(PublicFeedComponent.identitySelector)
+    public identity!: Observable<IdentityModel>;
 
     @Select(CurrentFeedSettingState)
     public settings?: Observable<CurrentFeedSettings>;
 
+
     public constructor(
         private store: Store,
         private route: ActivatedRoute,
+        private helper: HelperService,
     ) {
         this.posts = this.store.select(PublicFeedComponent.feedSelector);
         this.route.url.subscribe(() => {
@@ -65,7 +74,28 @@ export class PublicFeedComponent {
         this.store.dispatch(new PaginateFeed(1));
     }
 
-    public static feedSelector(state: { posts: PostModel[], currentFeedSettings: CurrentFeedSettings }): PostModel[] {
+    public getImage(identity?: IdentityModel) {
+        return this.helper.formatIdentityImageUrl(identity);
+    }
+
+    public getDescription(identity?: IdentityModel) {
+        if (identity instanceof IdentityModel && identity.about instanceof IdentityDescriptionModel) {
+            return this.helper.convertHtml(identity.about.html);
+        }
+    }
+
+    private static identitySelector(state: AppState): IdentityModel | undefined {
+        if (state.currentFeedSettings.channelType === 'feed') {
+            return state
+                .identities
+                .filter(item => item.id === state.currentFeedSettings.channel)
+                .pop();
+        } else {
+            return undefined;
+        }
+    }
+
+    private static feedSelector(state: { posts: PostModel[], currentFeedSettings: CurrentFeedSettings }): PostModel[] {
         return state
             .posts
             .filter((item: PostModel) => !(typeof item.rootId === 'string'))
