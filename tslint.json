@@ -7,6 +7,7 @@
     ],
     "rules": {
         "no-any": false,
+        "newline-per-chained-call": false,
         "completed-docs": false,
         "directive-selector": [
             true,
