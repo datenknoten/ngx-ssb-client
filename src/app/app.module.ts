@@ -31,6 +31,7 @@ import {
 } from '../pipes';
 import {
     ElectronService,
+    HelperService,
     ScuttlebotService,
 } from '../providers';
 import {
@@ -86,6 +87,7 @@ import {
     providers: [
         ElectronService,
         ScuttlebotService,
+        HelperService,
     ],
     bootstrap: [AppComponent],
     entryComponents: [

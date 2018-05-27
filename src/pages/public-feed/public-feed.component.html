@@ -1,8 +1,26 @@
-<ng-container *ngIf="(settings | async).channel !== 'public'">
-    <h1 class="ui dividing header">#{{ (settings | async).channel }}</h1>
+<ng-container *ngIf="(settings | async).channelType === false">
+    <ng-container *ngIf="(settings | async).channel !== 'public'">
+        <h1 class="ui dividing header">#{{ (settings | async).channel }}</h1>
+    </ng-container>
+
+    <app-new-post [context]="(settings | async)?.channel"></app-new-post>
 </ng-container>
 
-<app-new-post [context]="(settings | async)?.channel"></app-new-post>
+<ng-container *ngIf="(settings | async).channelType === 'feed'">
+    <div class="ui green segment" *ngIf="(identity | async)">
+        <div class="identity grid">
+            <div class="text column">
+                <h1 class="ui dividing header">{{ (identity | async).primaryName }}</h1>
+                <p *ngIf="(identity | async ).about" [innerHtml]="getDescription(identity | async) | safeHtml"></p>
+            </div>
+            <div class="image column" *ngIf="(identity | async).primaryImage">
+                <img [src]="getImage(identity | async) | safeSSBUrlPipe" class="ui fluid rounded image">
+            </div>
+        </div>
+
+    </div>
+</ng-container>
+
 
 <div class="feed" *ngIf="posts">
     <div *ngFor="let post of posts | async">

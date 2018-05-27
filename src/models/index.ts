@@ -10,3 +10,4 @@ export { ChannelSubscription } from './channel-subscription.model';
 export { LinkModel } from './link.model';
 export { IdentityNameModel } from './identity-name.model';
 export { IdentityImageModel } from './identity-image.model';
+export { IdentityDescriptionModel } from './identity-description.model';

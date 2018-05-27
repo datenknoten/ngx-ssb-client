@@ -1,0 +1,24 @@
+.identity.grid {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: nowrap;
+    justify-content: flex-start;
+    align-content: stretch;
+    align-items: stretch;
+
+    .column {
+        order: 0;
+        align-self: auto;
+        padding: 0.7rem;
+    }
+
+    .text.column {
+        flex: 1 1 auto;
+    }
+
+    .image.column {
+        flex: 0 1 auto;
+        width: 200px;
+        min-width: 200px;
+    }
+}
