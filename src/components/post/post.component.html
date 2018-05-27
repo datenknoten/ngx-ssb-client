@@ -6,7 +6,7 @@
             <div class="four wide details column">
                 <img class="ui fluid rounded green image" [src]="getImage(post.author) | safeSSBUrlPipe">
                 <div class="author item">
-                    <a class="ui green image label">
+                    <a class="ui green image label" [routerLink]="['/feed', post.authorId]">
                         <i class="user icon"></i>
                         <div class="detail" *ngIf="post.author">{{ post.author.primaryName }}</div>
                         <div class="detail" *ngIf="!post.author">{{ post.authorId }}</div>

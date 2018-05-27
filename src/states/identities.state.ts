@@ -16,6 +16,7 @@ import {
 } from '../actions';
 import {
     ChannelSubscription,
+    IdentityDescriptionModel,
     IdentityImageModel,
     IdentityModel,
     IdentityNameModel,
@@ -47,8 +48,14 @@ export class IdentitiesState {
 
         identity.isMissing = false;
 
-        if (typeof action.payload === 'string' && identity.about.indexOf(action.payload) === -1) {
-            identity.about.push(action.payload);
+        if (action.payload instanceof IdentityDescriptionModel) {
+            if (identity.about instanceof IdentityDescriptionModel) {
+                if (action.payload.date > identity.about.date) {
+                    identity.about = action.payload;
+                }
+            } else {
+                identity.about = action.payload;
+            }
         }
 
         if ((action.payload instanceof IdentityImageModel)) {

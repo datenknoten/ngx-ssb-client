@@ -8,4 +8,5 @@ export interface CurrentFeedSettings {
     loadingFeed: boolean;
     messageCount: number;
     channel: string;
+    channelType: string;
 }

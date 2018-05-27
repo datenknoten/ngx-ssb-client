@@ -5,6 +5,7 @@
 import {
     BaseModel,
     ChannelSubscription,
+    IdentityDescriptionModel,
     IdentityImageModel,
     IdentityNameModel,
 } from '../models';
@@ -13,7 +14,7 @@ export class IdentityModel extends BaseModel {
     public isSelf: boolean = false;
     public name: IdentityNameModel[] = [];
     public image: IdentityImageModel[] = [];
-    public about: string[] = [];
+    public about?: IdentityDescriptionModel;
     public following: IdentityModel[] = [];
     public blocking: IdentityModel[] = [];
     public followers: IdentityModel[] = [];
