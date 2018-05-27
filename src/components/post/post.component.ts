@@ -4,6 +4,7 @@
 
 import {
     Component,
+    ElementRef,
     Input,
 } from '@angular/core';
 import { Router } from '@angular/router';
@@ -37,12 +38,16 @@ export class PostComponent {
     @Input()
     public mode: 'condensed' | 'full' | 'draft' = 'condensed';
 
+    @Input()
+    public active: boolean = false;
+
     public constructor(
         private store: Store,
         private scuttlebot: ScuttlebotService,
         private electron: ElectronService,
         private router: Router,
         private helper: HelperService,
+        public elementRef: ElementRef,
     ) { }
 
     public convertHtml(html: string) {

@@ -14,6 +14,7 @@ import {
 import {
     NgxsModule,
 } from '@ngxs/store';
+import { ScrollToModule } from '@nicky-lenaers/ngx-scroll-to';
 
 import {
     NewPostComponent,
@@ -83,6 +84,7 @@ import {
             VotingsState,
             CurrentFeedSettingState,
         ]),
+        ScrollToModule.forRoot(),
     ],
     providers: [
         ElectronService,

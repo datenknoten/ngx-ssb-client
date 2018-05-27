@@ -192,3 +192,13 @@ blockquote {
     padding-left: 1rem;
     padding-right: 1rem;
 }
+
+.ui.crosshatch.segment {
+    background: repeating-linear-gradient(
+        135deg,
+        rgba(255,255,255, 1),
+        rgba(255,255,255, 1) 10px,
+        rgba(253,253,253, 1) 10px,
+        rgba(253,253,253, 1) 20px
+    );
+}

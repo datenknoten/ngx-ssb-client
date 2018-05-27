@@ -3,6 +3,7 @@
  */
 
 import {
+    ChangeDetectorRef,
     Component,
 } from '@angular/core';
 import {
@@ -30,6 +31,7 @@ export class PostDetailComponent {
     public constructor(
         private route: ActivatedRoute,
         private store: Store,
+        private cref: ChangeDetectorRef,
     ) {
         this.route.url.subscribe(() => {
             const id = this.route.snapshot.paramMap.get('id');
@@ -40,7 +42,13 @@ export class PostDetailComponent {
                     .posts
                     .filter((item: PostModel) => item.id === id)
                     .pop(),
-                );
+            );
+
+            this.post.subscribe((item?: PostModel) => {
+                if (item instanceof PostModel) {
+                    this.cref.detectChanges();
+                }
+            });
         });
     }
 }

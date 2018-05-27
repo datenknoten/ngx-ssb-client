@@ -22,7 +22,7 @@
 </ng-container>
 
 
-<div class="feed" *ngIf="posts">
+<div #feedContainer class="feed" *ngIf="posts">
     <div *ngFor="let post of posts | async">
         <app-post [post]="post"></app-post>
     </div>
