@@ -1,4 +1,4 @@
-image: node:10.2
+image: node:9.11
 
 before_script:
     - npm install
