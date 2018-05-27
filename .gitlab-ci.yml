@@ -1,0 +1,10 @@
+image: node:10.2
+
+before_script:
+    - npm install
+
+lint sources:
+    - npm run lint
+
+build app:
+    - npm run build -- --prod
