@@ -7,7 +7,7 @@
         "ng": "ng",
         "test": "jest",
         "test:watch": "jest --watch",
-        "test:ci": "jest --ci",
+        "test:ci": "jest --ci --coverage",
         "lint": "npm run lint:electron && npm run lint:angular",
         "lint:electron": "tslint -p tsconfig.electron.json",
         "lint:angular": "tslint -p src/tsconfig.app.json",
