@@ -1,12 +1,14 @@
 version: "2"
 checks:
-  method-complexity:
-    enabled: true
-    config:
-      threshold: 15
-  method-lines:
-    enabled: true
-    config:
-        threshold: 60
+    method-complexity:
+        enabled: true
+        config:
+            threshold: 15
+    method-lines:
+        enabled: true
+        config:
+            threshold: 60
+    file-lines:
+        enabled: false
 exclude_patterns:
 - "**/*.spec.ts"
