@@ -1,12 +1,22 @@
 image: node:9.11
 
+stages:
+    - lint
+    - build
+
+cache:
+    paths:
+        - node_modules
+
 before_script:
     - npm install
 
 lint sources:
+    stage: lint
     script:
         - npm run lint
 
 build app:
+    stage: build
     script:
         - npm run build -- --prod
