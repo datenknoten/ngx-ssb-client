@@ -4,7 +4,9 @@ before_script:
     - npm install
 
 lint sources:
-    - npm run lint
+    script:
+        - npm run lint
 
 build app:
-    - npm run build -- --prod
+    script:
+        - npm run build -- --prod
