@@ -19,4 +19,4 @@ lint sources:
 build app:
     stage: build
     script:
-        - npm run build -- --prod
+        - npm run ng -- build --prod --progress=false
