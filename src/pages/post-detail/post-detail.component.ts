@@ -3,7 +3,6 @@
  */
 
 import {
-    ChangeDetectorRef,
     Component,
 } from '@angular/core';
 import {
@@ -31,24 +30,26 @@ export class PostDetailComponent {
     public constructor(
         private route: ActivatedRoute,
         private store: Store,
-        private cref: ChangeDetectorRef,
     ) {
-        this.route.url.subscribe(() => {
-            const id = this.route.snapshot.paramMap.get('id');
+        this.postChange();
+        this.route.url.subscribe(this.postChange.bind(this));
+    }
 
-            this.post = this
-                .store
-                .select((state) => state
-                    .posts
-                    .filter((item: PostModel) => item.id === id)
-                    .pop(),
-            );
+    private postChange() {
+        const id = this.route.snapshot.paramMap.get('id');
 
-            this.post.subscribe((item?: PostModel) => {
-                if (item instanceof PostModel) {
-                    this.cref.detectChanges();
-                }
-            });
+        this.post = this
+            .store
+            .select((state) => state
+                .posts
+                .filter((item: PostModel) => item.id === id)
+                .pop(),
+        );
+
+        this.post.subscribe((item?: PostModel) => {
+            if (item instanceof PostModel) {
+                window.scrollTo(0, 0);
+            }
         });
     }
 }

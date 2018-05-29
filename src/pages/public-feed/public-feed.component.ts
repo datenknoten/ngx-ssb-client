@@ -3,22 +3,25 @@
  */
 
 import {
-    AfterViewInit,
     ChangeDetectorRef,
     Component,
     ElementRef,
+    OnDestroy,
     QueryList,
     ViewChild,
     ViewChildren,
 } from '@angular/core';
 import {
-    ActivatedRoute, Router,
+    ActivatedRoute,
 } from '@angular/router';
 import {
     Select, Store,
 } from '@ngxs/store';
 import { ScrollToService } from '@nicky-lenaers/ngx-scroll-to';
-import * as mousetrap from 'mousetrap';
+import {
+    Hotkey,
+    HotkeysService,
+} from 'angular2-hotkeys';
 import {
     Observable,
 } from 'rxjs';
@@ -39,7 +42,7 @@ import {
     PostModel,
 } from '../../models';
 import {
-    HelperService, ScuttlebotService,
+    HelperService,
 } from '../../providers';
 import {
     AppState,
@@ -53,7 +56,7 @@ const ref = window.require('ssb-ref');
     templateUrl: './public-feed.component.html',
     styleUrls: ['./public-feed.component.scss'],
 })
-export class PublicFeedComponent implements AfterViewInit {
+export class PublicFeedComponent implements OnDestroy {
     public posts: Observable<PostModel[]>;
     @Select(PublicFeedComponent.identitySelector)
     public identity!: Observable<IdentityModel>;
@@ -69,6 +72,7 @@ export class PublicFeedComponent implements AfterViewInit {
 
     public activeFeedItem?: PostComponent;
 
+    private hotkeys: Hotkey[] = [];
 
     public constructor(
         private store: Store,
@@ -76,8 +80,7 @@ export class PublicFeedComponent implements AfterViewInit {
         private helper: HelperService,
         private _scrollService: ScrollToService,
         private changeDetectorRef: ChangeDetectorRef,
-        private router: Router,
-        private scuttlebot: ScuttlebotService,
+        private _hotkeysService: HotkeysService,
     ) {
         this.posts = this.store.select(PublicFeedComponent.feedSelector);
         this.route.url.subscribe(() => {
@@ -87,6 +90,57 @@ export class PublicFeedComponent implements AfterViewInit {
             }
             this.store.dispatch(new SwitchChannel(id));
         });
+
+        this.hotkeys.push(
+            new Hotkey(
+                'N',
+                this.pageBackward.bind(this),
+                undefined,
+                'Switches to the next page.',
+            ),
+        );
+        this.hotkeys.push(
+            new Hotkey(
+                'P',
+                this.pageBackward.bind(this),
+                undefined,
+                'Switches to the previous page.',
+            ),
+        );
+        this.hotkeys.push(
+            new Hotkey(
+                'n',
+                this.shortcutHandler.bind(this),
+                undefined,
+                'Scrolls to the next post. If you are at the end, go to the next page.',
+            ),
+        );
+        this.hotkeys.push(
+            new Hotkey(
+                'p',
+                this.shortcutHandler.bind(this),
+                undefined,
+                'Scrolls to the previous post. If you are at the beginning, go to the previous page.',
+            ),
+        );
+        this.hotkeys.push(
+            new Hotkey(
+                'return',
+                this.openActiveItem.bind(this),
+                undefined,
+                'Opens the active item',
+            ),
+        );
+
+        for (const key of this.hotkeys) {
+            this._hotkeysService.add(key);
+        }
+    }
+
+    public ngOnDestroy() {
+        for (const key of this.hotkeys) {
+            this._hotkeysService.remove(key);
+        }
     }
 
     public pageBackward() {
@@ -94,6 +148,7 @@ export class PublicFeedComponent implements AfterViewInit {
             window.scrollTo(0, document.body.scrollHeight);
         });
         this.changeDetectorRef.detectChanges();
+        return false;
     }
 
     public pageForward() {
@@ -101,6 +156,7 @@ export class PublicFeedComponent implements AfterViewInit {
             window.scroll(0, 0);
         });
         this.changeDetectorRef.detectChanges();
+        return false;
     }
 
     public getImage(identity?: IdentityModel) {
@@ -113,24 +169,19 @@ export class PublicFeedComponent implements AfterViewInit {
         }
     }
 
-    public ngAfterViewInit() {
-        mousetrap.bind('N', this.pageForward.bind(this));
-        mousetrap.bind('P', this.pageBackward.bind(this));
-        mousetrap.bind('n', this.shortcutHandler.bind(this));
-        mousetrap.bind('p', this.shortcutHandler.bind(this));
-        mousetrap.bind('return', async () => {
-            if (this.activeFeedItem instanceof PostComponent) {
-                await this.scuttlebot.get(this.activeFeedItem.post.id);
-                await this.router.navigate(['/post', this.activeFeedItem.post.id]);
-            }
-        });
+    private openActiveItem() {
+        if (this.activeFeedItem instanceof PostComponent) {
+            // tslint:disable-next-line:no-floating-promises
+            this.activeFeedItem.openDetail(this.activeFeedItem.post.id);
+        }
+        return false;
     }
 
     private shortcutHandler(_event: ExtendedKeyboardEvent, combo: string) {
         const isForward = (combo === 'n');
 
         if (!(this.feedItems instanceof QueryList)) {
-            return;
+            return false;
         }
 
         if (typeof this.activeFeedItem === 'undefined') {
@@ -159,6 +210,7 @@ export class PublicFeedComponent implements AfterViewInit {
             });
         }
         this.changeDetectorRef.detectChanges();
+        return false;
     }
 
     private static identitySelector(state: AppState): IdentityModel | undefined {

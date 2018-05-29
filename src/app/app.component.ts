@@ -2,22 +2,25 @@
  * @license MIT
  */
 
+import { Location } from '@angular/common';
 import {
     ChangeDetectionStrategy,
     Component,
     OnInit,
 } from '@angular/core';
 import {
-    NavigationEnd,
     Router,
 } from '@angular/router';
 import {
     Store,
 } from '@ngxs/store';
+import {
+    Hotkey,
+    HotkeysService,
+} from 'angular2-hotkeys';
 import * as jq from 'jquery';
 import {
     Observable,
-    // timer,
 } from 'rxjs';
 
 import {
@@ -55,6 +58,8 @@ export class AppComponent implements OnInit {
         private sbot: ScuttlebotService,
         private router: Router,
         private store: Store,
+        private _hotkeysService: HotkeysService,
+        private _location: Location,
     ) {
         this.currentFeedSettings = this
             .store
@@ -66,7 +71,42 @@ export class AppComponent implements OnInit {
                 .identities
                 .filter((item: IdentityModel) => item.isSelf)
                 .pop(),
-            );
+        );
+
+        this._hotkeysService.add(
+            new Hotkey(
+                'alt+left',
+                () => {
+                    this._location.back();
+                    return false;
+                },
+                undefined,
+                'Go back a step in the history',
+            ),
+        );
+        this._hotkeysService.add(
+            new Hotkey(
+                'alt+right',
+                () => {
+                    this._location.forward();
+                    return false;
+                },
+                undefined,
+                'Go back a step in the history',
+            ),
+        );
+        this._hotkeysService.add(
+            new Hotkey(
+                'ctrl+f ctrl+u',
+                () => {
+                    // tslint:disable-next-line:no-floating-promises
+                    this.router.navigate(['/feed/public']);
+                    return false;
+                },
+                undefined,
+                'Open the public feed',
+            ),
+        );
     }
 
     public debug() {
@@ -75,12 +115,6 @@ export class AppComponent implements OnInit {
     }
 
     public ngOnInit(): void {
-        this.router.events.subscribe((evt) => {
-            if (!(evt instanceof NavigationEnd)) {
-                return;
-            }
-            window.scrollTo(0, 0);
-        });
         this.sidebar = jq('.ui.sidebar');
         this.sidebar.sidebar({
             dimPage: false,
