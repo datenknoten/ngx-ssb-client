@@ -4,6 +4,7 @@
 
 import {
     Component,
+    ElementRef,
     Input,
 } from '@angular/core';
 import { Router } from '@angular/router';
@@ -37,12 +38,16 @@ export class PostComponent {
     @Input()
     public mode: 'condensed' | 'full' | 'draft' = 'condensed';
 
+    @Input()
+    public active: boolean = false;
+
     public constructor(
         private store: Store,
         private scuttlebot: ScuttlebotService,
         private electron: ElectronService,
         private router: Router,
         private helper: HelperService,
+        public elementRef: ElementRef,
     ) { }
 
     public convertHtml(html: string) {
@@ -144,8 +149,7 @@ export class PostComponent {
                 const id = ref.extract(target);
                 const type = ref.type(id);
                 if (type === 'msg') {
-                    await this.scuttlebot.get(id);
-                    await this.router.navigate(['/post/', id]);
+                    await this.openDetail(id);
                 } else if (type === 'feed') {
                     await this.router.navigate(['/feed/', id]);
                 } else if (target.startsWith('#')) {
@@ -155,5 +159,10 @@ export class PostComponent {
                 this.electron.remote.shell.openExternal(anchor.href);
             }
         }
+    }
+
+    public async openDetail(id: string) {
+        await this.scuttlebot.get(id);
+        await this.router.navigate(['/post/', id]);
     }
 }

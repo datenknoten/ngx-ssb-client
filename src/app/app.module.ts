@@ -14,6 +14,8 @@ import {
 import {
     NgxsModule,
 } from '@ngxs/store';
+import { ScrollToModule } from '@nicky-lenaers/ngx-scroll-to';
+import { HotkeyModule } from 'angular2-hotkeys';
 
 import {
     NewPostComponent,
@@ -74,8 +76,8 @@ import {
                 component: PostDetailComponent,
             },
         ], {
-            enableTracing: false,
-        }),
+                enableTracing: false,
+            }),
         BrowserModule,
         NgxsModule.forRoot([
             IdentitiesState,
@@ -83,6 +85,11 @@ import {
             VotingsState,
             CurrentFeedSettingState,
         ]),
+        ScrollToModule.forRoot(),
+        HotkeyModule.forRoot({
+            disableCheatSheet: false,
+            cheatSheetCloseEsc: true,
+        }),
     ],
     providers: [
         ElectronService,

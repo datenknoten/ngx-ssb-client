@@ -1,5 +1,5 @@
 <div class="post" [ngClass]="{ post: true, full: mode == 'full' }">
-    <div class="ui green segment">
+    <div class="ui crosshatch green segment" [ngClass]="{ui: true, crosshatch: active, piled: post.comments.length > 0, green: true, segment: true}">
         <div class="ui grid">
             <div class="twelve wide content column" [innerHtml]="convertHtml(post.html) | safeHtml" (click)="click($event)">
             </div>
