@@ -94,7 +94,7 @@ export class PublicFeedComponent implements OnDestroy {
         this.hotkeys.push(
             new Hotkey(
                 'N',
-                this.pageBackward.bind(this),
+                this.pageForward.bind(this),
                 undefined,
                 'Switches to the next page.',
             ),
