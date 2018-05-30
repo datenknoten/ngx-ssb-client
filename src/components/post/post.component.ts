@@ -3,14 +3,21 @@
  */
 
 import {
+    ChangeDetectorRef,
     Component,
     ElementRef,
     Input,
+    OnDestroy,
+    OnInit,
+    QueryList,
+    ViewChildren,
 } from '@angular/core';
 import { Router } from '@angular/router';
 import {
     Store,
 } from '@ngxs/store';
+import { ScrollToService } from '@nicky-lenaers/ngx-scroll-to';
+import { Hotkey, HotkeysService } from 'angular2-hotkeys';
 
 import {
     IdentityModel,
@@ -30,7 +37,7 @@ const ref = window.require('ssb-ref');
     templateUrl: './post.component.html',
     styleUrls: ['./post.component.scss'],
 })
-export class PostComponent {
+export class PostComponent implements OnInit, OnDestroy {
 
     @Input()
     public post!: PostModel;
@@ -41,6 +48,13 @@ export class PostComponent {
     @Input()
     public active: boolean = false;
 
+    @ViewChildren(PostComponent)
+    public comments?: QueryList<PostComponent>;
+
+    public activeComment?: PostComponent;
+
+    private hotkeys: Hotkey[] = [];
+
     public constructor(
         private store: Store,
         private scuttlebot: ScuttlebotService,
@@ -48,7 +62,54 @@ export class PostComponent {
         private router: Router,
         private helper: HelperService,
         public elementRef: ElementRef,
-    ) { }
+        private _hotkeysService: HotkeysService,
+        private _scrollService: ScrollToService,
+        private changeDetectorRef: ChangeDetectorRef,
+    ) {
+    }
+
+    public ngOnInit() {
+        if (this.mode === 'full') {
+            this.initHotkeys();
+        }
+    }
+
+    public ngOnDestroy() {
+        for (const hotkey of this.hotkeys) {
+            this._hotkeysService.remove(hotkey);
+        }
+    }
+
+    public initHotkeys() {
+        this.hotkeys.push(
+            new Hotkey(
+                'n',
+                this.shortcutHandler.bind(this),
+                undefined,
+                'Scrolls to the next post. If you are at the end, go to the next page.',
+            ),
+        );
+        this.hotkeys.push(
+            new Hotkey(
+                'p',
+                this.shortcutHandler.bind(this),
+                undefined,
+                'Scrolls to the previous post. If you are at the beginning, go to the previous page.',
+            ),
+        );
+        this.hotkeys.push(
+            new Hotkey(
+                'f',
+                this.favoriteActiveItem.bind(this),
+                undefined,
+                'Toggle the favorite state of the active item',
+            ),
+        );
+
+        for (const key of this.hotkeys) {
+            this._hotkeysService.add(key);
+        }
+    }
 
     public convertHtml(html: string) {
         return this.helper.convertHtml(html);
@@ -164,5 +225,41 @@ export class PostComponent {
     public async openDetail(id: string) {
         await this.scuttlebot.get(id);
         await this.router.navigate(['/post/', id]);
+    }
+
+    private favoriteActiveItem() {
+        if (this.activeComment instanceof PostComponent) {
+            this.activeComment.toggleLike();
+        }
+        return false;
+    }
+
+    private shortcutHandler(_event: ExtendedKeyboardEvent, combo: string) {
+        const isForward = (combo === 'n');
+
+        if (!(this.comments instanceof QueryList)) {
+            return false;
+        }
+
+        if (typeof this.activeComment === 'undefined') {
+            this.activeComment = (isForward ? this.comments.first : undefined);
+        } else if (!(this.activeComment === (isForward ? this.comments.last : this.comments.first))) {
+            const index = this.comments.toArray().indexOf(this.activeComment);
+            this.activeComment = this.comments.toArray()[index + (isForward ? 1 : -1)];
+        }
+
+        for (const item of this.comments.toArray()) {
+            item.active = false;
+        }
+
+        if (this.activeComment instanceof PostComponent) {
+            this.activeComment.active = true;
+            this._scrollService.scrollTo({
+                target: this.activeComment.elementRef,
+                offset: -50,
+            });
+        }
+        this.changeDetectorRef.detectChanges();
+        return false;
     }
 }
