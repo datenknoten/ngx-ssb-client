@@ -187,6 +187,7 @@ export class PublicFeedComponent implements OnDestroy {
 
     private favoriteActiveItem() {
         if (this.activeFeedItem instanceof PostComponent) {
+            // tslint:disable-next-line:no-floating-promises
             this.activeFeedItem.toggleLike();
         }
         return false;

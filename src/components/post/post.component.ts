@@ -55,6 +55,7 @@ export class PostComponent implements OnInit, OnDestroy {
 
     private hotkeys: Hotkey[] = [];
 
+    // tslint:disable-next-line:parameters-max-number
     public constructor(
         private store: Store,
         private scuttlebot: ScuttlebotService,
@@ -229,6 +230,7 @@ export class PostComponent implements OnInit, OnDestroy {
 
     private favoriteActiveItem() {
         if (this.activeComment instanceof PostComponent) {
+            // tslint:disable-next-line:no-floating-promises
             this.activeComment.toggleLike();
         }
         return false;
