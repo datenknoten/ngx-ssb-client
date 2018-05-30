@@ -131,6 +131,14 @@ export class PublicFeedComponent implements OnDestroy {
                 'Opens the active item',
             ),
         );
+        this.hotkeys.push(
+            new Hotkey(
+                'f',
+                this.favoriteActiveItem.bind(this),
+                undefined,
+                'Toggle the favorite state of the active item',
+            ),
+        );
 
         for (const key of this.hotkeys) {
             this._hotkeysService.add(key);
@@ -173,6 +181,13 @@ export class PublicFeedComponent implements OnDestroy {
         if (this.activeFeedItem instanceof PostComponent) {
             // tslint:disable-next-line:no-floating-promises
             this.activeFeedItem.openDetail(this.activeFeedItem.post.id);
+        }
+        return false;
+    }
+
+    private favoriteActiveItem() {
+        if (this.activeFeedItem instanceof PostComponent) {
+            this.activeFeedItem.toggleLike();
         }
         return false;
     }
