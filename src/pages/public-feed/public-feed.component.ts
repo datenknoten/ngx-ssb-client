@@ -3,6 +3,7 @@
  */
 
 import {
+    ApplicationRef,
     ChangeDetectorRef,
     Component,
     ElementRef,
@@ -25,6 +26,11 @@ import {
 import {
     Observable,
 } from 'rxjs';
+import {
+    debounceTime,
+    map,
+// tslint:disable-next-line:no-submodule-imports
+} from 'rxjs/operators';
 
 import {
     PaginateFeed,
@@ -43,6 +49,7 @@ import {
 } from '../../models';
 import {
     HelperService,
+    ScuttlebotService,
 } from '../../providers';
 import {
     AppState,
@@ -74,6 +81,7 @@ export class PublicFeedComponent implements OnDestroy {
 
     private hotkeys: Hotkey[] = [];
 
+    // tslint:disable-next-line:parameters-max-number
     public constructor(
         private store: Store,
         private route: ActivatedRoute,
@@ -81,8 +89,28 @@ export class PublicFeedComponent implements OnDestroy {
         private _scrollService: ScrollToService,
         private changeDetectorRef: ChangeDetectorRef,
         private _hotkeysService: HotkeysService,
+        private _app: ApplicationRef,
+        private _bot: ScuttlebotService,
     ) {
-        this.posts = this.store.select(PublicFeedComponent.feedSelector);
+        this.posts = this
+            .store
+            .select((state: any) => {
+                return {
+                    posts: state.posts,
+                    currentFeedSettings: state.currentFeedSettings,
+                };
+            })
+            .pipe(
+                debounceTime(600),
+                map<any, PostModel[]>(this.feedSelector.bind(this)),
+        );
+
+        this.posts.subscribe(() => {
+            setImmediate(() => {
+                this._app.tick();
+            });
+        });
+
         this.route.url.subscribe(() => {
             const id = this.route.snapshot.paramMap.get('channel');
             if (!(typeof id === 'string')) {
@@ -152,14 +180,14 @@ export class PublicFeedComponent implements OnDestroy {
     }
 
     public pageBackward() {
-        this.store.dispatch(new PaginateFeed(-1)).subscribe(() => {
-            window.scrollTo(0, document.body.scrollHeight);
-        });
+        this.store.dispatch(new PaginateFeed(-1));
         this.changeDetectorRef.detectChanges();
         return false;
     }
 
     public pageForward() {
+        // tslint:disable-next-line:no-floating-promises
+        this._bot.updateFeed(500, true);
         this.store.dispatch(new PaginateFeed(1)).subscribe(() => {
             window.scroll(0, 0);
         });
@@ -229,6 +257,44 @@ export class PublicFeedComponent implements OnDestroy {
         return false;
     }
 
+    private feedSelector(state: { posts: PostModel[], currentFeedSettings: CurrentFeedSettings }): PostModel[] {
+        const settings = state.currentFeedSettings;
+
+        const _posts = state.posts
+            .filter((item: PostModel) => !(typeof item.rootId === 'string'))
+            .filter((item: PostModel) => {
+                const channel = settings.channel;
+                if (channel !== 'public') {
+                    const type = ref.type(channel);
+                    if (type === 'feed') {
+                        return (item.author instanceof IdentityModel && item.author.id === channel);
+                    } else {
+                        return item.primaryChannel === settings.channel ||
+                            item
+                                .mentions
+                                .map(_item => _item.link)
+                                .includes(`#${settings.channel}`) ||
+                            item
+                                .comments
+                                .map(_item => _item.mentions)
+                                .reduce((previous, current) => previous.concat(current), [])
+                                .map(_item => _item.link)
+                                .includes(`#${settings.channel}`);
+                    }
+                } else {
+                    return true;
+                }
+            });
+
+        _posts.sort((a: PostModel, b: PostModel) => {
+            return b.latestActivity.getTime() - a.latestActivity.getTime();
+        });
+
+        return _posts.slice(
+            (settings.currentPage - 1) * settings.elementsPerPage,
+            settings.currentPage * settings.elementsPerPage);
+    }
+
     private static identitySelector(state: AppState): IdentityModel | undefined {
         if (state.currentFeedSettings.channelType === 'feed') {
             return state
@@ -238,37 +304,5 @@ export class PublicFeedComponent implements OnDestroy {
         } else {
             return undefined;
         }
-    }
-
-    private static feedSelector(state: { posts: PostModel[], currentFeedSettings: CurrentFeedSettings }): PostModel[] {
-        return state
-            .posts
-            .filter((item: PostModel) => !(typeof item.rootId === 'string'))
-            .filter((item) => {
-                const channel = state.currentFeedSettings.channel;
-                if (channel !== 'public') {
-                    const type = ref.type(channel);
-                    if (type === 'feed') {
-                        return (item.author instanceof IdentityModel && item.author.id === channel);
-                    } else {
-                        return item.primaryChannel === state.currentFeedSettings.channel ||
-                            item
-                                .mentions
-                                .map(_item => _item.link)
-                                .includes(`#${state.currentFeedSettings.channel}`) ||
-                            item
-                                .comments
-                                .map(_item => _item.mentions)
-                                .reduce((previous, current) => previous.concat(current), [])
-                                .map(_item => _item.link)
-                                .includes(`#${state.currentFeedSettings.channel}`);
-                    }
-                } else {
-                    return true;
-                }
-            })
-            .slice(
-                (state.currentFeedSettings.currentPage - 1) * state.currentFeedSettings.elementsPerPage,
-                state.currentFeedSettings.currentPage * state.currentFeedSettings.elementsPerPage);
     }
 }

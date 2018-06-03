@@ -17,6 +17,7 @@ process.on('unhandledRejection', function(error) {
 import {
     app,
     BrowserWindow,
+    BrowserWindowConstructorOptions,
     protocol,
     screen,
 } from 'electron';
@@ -48,7 +49,7 @@ const debug = require('debug')('ngx:ssb:init');
         const size = electronScreen.getPrimaryDisplay().workAreaSize;
 
 
-        const windowOptions = {
+        const windowOptions: BrowserWindowConstructorOptions = {
             x: 0,
             y: 0,
             width: size.width,
@@ -62,7 +63,7 @@ const debug = require('debug')('ngx:ssb:init');
             win = openWindow('http://localhost:4200', windowOptions);
         } else {
             win = openWindow(url.format({
-                pathname: path.join(__dirname, 'dist/index.html'),
+                pathname: path.resolve(__dirname, '../dist/index.html'),
                 protocol: 'file:',
                 slashes: true,
             }), windowOptions);

@@ -42,6 +42,8 @@ export class ScuttlebotService {
 
     public counter = 0;
     private bot: any;
+
+    private lastUpdate?: number;
     public constructor(
         private store: Store,
     ) {
@@ -49,14 +51,19 @@ export class ScuttlebotService {
         this.init();
     }
 
-    public async updateFeed(itemCount: number = 500) {
+    public async updateFeed(itemCount: number = 500, loadMore: boolean = false) {
         this.store.dispatch(new LoadFeed(true));
         const feed = this.bot.createFeedStream({
             reverse: true,
+            lt: ((loadMore === true && typeof this.lastUpdate === 'number') ? this.lastUpdate : undefined),
             limit: itemCount,
         });
-
-        return this.drainFeed(feed, this.parsePacket.bind(this));
+        return this.drainFeed(feed, (packet: any) => {
+            this.parsePacket(packet);
+            if ((typeof this.lastUpdate === 'undefined') || (packet.timestamp < this.lastUpdate)) {
+                this.lastUpdate = packet.timestamp;
+            }
+        });
 
     }
 
@@ -166,7 +173,7 @@ export class ScuttlebotService {
                 .posts
                 .filter(item => item.id === id)
                 .length,
-            );
+        );
         if (count > 0) {
             return;
         }
@@ -174,9 +181,11 @@ export class ScuttlebotService {
         try {
             const packet = await get(id);
             if (packet && packet.content) {
-                this.parsePacket({
-                    key: id,
-                    value: packet,
+                setImmediate(() => {
+                    this.parsePacket({
+                        key: id,
+                        value: packet,
+                    });
                 });
             }
         } catch (error) {
@@ -195,15 +204,14 @@ export class ScuttlebotService {
             values: true,
             keys: true,
         });
-
         await this.drainFeed(feed, async (data: any) => {
             const _id = data.key;
             const post = this
                 .store
-                .selectSnapshot((state: { posts: PostModel[]}) => state
+                .selectSnapshot((state: { posts: PostModel[] }) => state
                     .posts
                     .filter(item => item.id === _id),
-                );
+            );
             if ((post instanceof PostModel) && !post.isMissing) {
                 return;
             }
@@ -229,7 +237,7 @@ export class ScuttlebotService {
         await this.drainFeed(userFeed, this.parsePacket.bind(this));
 
         this.store.dispatch(new UpdateMessageCount(true));
-        await this.updateFeed(4000);
+        await this.updateFeed(500);
     }
 
     private async getFeedItem(feed: any): Promise<any> {
@@ -481,13 +489,6 @@ export class ScuttlebotService {
 
         if (packetType === 'post') {
             this.parsePost(id, packet);
-            // } else if (packetType === 'about') {
-            //     this.store.dispatch(new UpdateIdentity(
-            //         packet.content.about,
-            //         packet.content.name,
-            //         packet.content.description,
-            //         packet.content.image,
-            //     ));
         } else if (packetType === 'vote') {
             const voting = new VotingModel();
             voting.id = id;
@@ -522,14 +523,15 @@ export class ScuttlebotService {
         return new Promise<void>((resolve, reject) => {
             pull(
                 feed,
-                pull.drain((data: any) => {
-                    setImmediate(() => {
-                        callback.bind(this, data)();
-                    });
-                }, (error: any) => {
-                    if (error) {
-                        reject(error);
+                pull.collect((err: any, data: any) => {
+                    if (err) {
+                        reject(err);
                         return;
+                    }
+                    for (const item of data) {
+                        setImmediate(() => {
+                            callback.bind(this, item)();
+                        });
                     }
                     resolve();
                 }),

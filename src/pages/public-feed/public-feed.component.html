@@ -14,7 +14,7 @@
                 <p *ngIf="(identity | async ).about" [innerHtml]="getDescription(identity | async) | safeHtml"></p>
             </div>
             <div class="image column" *ngIf="(identity | async).primaryImage">
-                <img [src]="getImage(identity | async) | safeSSBUrlPipe" class="ui fluid rounded image">
+                <img [attr.data-src]="getImage(identity | async)" class="ui fluid rounded image">
             </div>
         </div>
 

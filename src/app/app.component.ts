@@ -12,6 +12,7 @@ import {
     Router,
 } from '@angular/router';
 import {
+    Select,
     Store,
 } from '@ngxs/store';
 import {
@@ -22,6 +23,11 @@ import * as jq from 'jquery';
 import {
     Observable,
 } from 'rxjs';
+import {
+    debounceTime,
+    map,
+// tslint:disable-next-line:no-submodule-imports
+} from 'rxjs/operators';
 
 import {
     CurrentFeedSettings,
@@ -46,11 +52,12 @@ require('semantic-ui-css');
 export class AppComponent implements OnInit {
     public title: string = 'app';
 
-    // @Select()
-    public self: Observable<IdentityModel>;
+    public self: Observable<IdentityModel | undefined>;
 
-    // @Select(CurrentFeedSettingState)
     public currentFeedSettings: Observable<CurrentFeedSettings>;
+
+    @Select((state: any) => state.posts.length)
+    public messageCount!: Observable<number>;
 
     public sidebar: any;
 
@@ -67,10 +74,10 @@ export class AppComponent implements OnInit {
 
         this.self = this
             .store
-            .select((state: any) => state
-                .identities
-                .filter((item: IdentityModel) => item.isSelf)
-                .pop(),
+            .select((state: any) => state.identities)
+            .pipe(
+                debounceTime(600),
+                map((items: IdentityModel[]) => items.filter(item => item.isSelf).pop()),
         );
 
         this._hotkeysService.add(

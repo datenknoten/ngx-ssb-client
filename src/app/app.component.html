@@ -12,9 +12,15 @@
             </div>
             <div class="results"></div>
         </div> -->
+        <div class="item">
+            <div class="la-ball-clip-rotate-pulse la-sm">
+                <div></div>
+                <div></div>
+            </div>
+        </div>
         <div class="item" *ngFor="let settings of [(currentFeedSettings | async)]">
             <div title="Loaded {{ settings?.messageCount }} Messages from Feed">
-                <i class="sync alternate icon"></i> {{ settings?.messageCount }}
+                <i class="sync alternate icon"></i> {{ settings?.messageCount }} / {{ messageCount | async }}
             </div>
         </div>
         <a class="item" (click)="toggleSidebar()" title="Expand Sidebar">
@@ -22,13 +28,13 @@
         </a>
     </div>
 </div>
-<div class="content">
+<div class="content" lazy-load-images>
     <router-outlet></router-outlet>
 </div>
 <div class="ui right sidebar">
     <div class="ui fluid card" *ngIf="(self | async)">
         <div class="image">
-            <img [src]="formatBlobUrl((self | async)?.primaryImage) | safeSSBUrlPipe">
+            <img [attr.data-src]="formatBlobUrl((self | async)?.primaryImage)">
         </div>
         <div class="content">
             <div class="header">{{ (self | async)?.primaryName }}</div>
@@ -52,7 +58,7 @@
             <div class="menu">
                 <a class="item" (click)="log(followee)" *ngFor="let followee of (self | async)?.following">
                     <img class="ui left spaced mini image" src="./assets/img/image.png" *ngIf="!followee.primaryImage">
-                    <img class="ui left spaced mini image" [src]="formatBlobUrl(followee.primaryImage) | safeSSBUrlPipe" *ngIf="followee.primaryImage"> {{ followee.primaryName }}
+                    <img class="ui left spaced mini image" [attr.data-src]="formatBlobUrl(followee.primaryImage)" *ngIf="followee.primaryImage"> {{ followee.primaryName }}
                     <!-- <div class="horizontal ui label" title="3 new messages">3</div> -->
                 </a>
             </div>

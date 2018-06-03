@@ -6,6 +6,7 @@ import {
     IsOptional,
     IsString,
 } from 'class-validator';
+import { memoize } from 'decko';
 
 import {
     BaseModel,
@@ -55,6 +56,7 @@ export class PostModel extends BaseModel {
         return newest;
     }
 
+    @memoize()
     public get html(): string {
         return md.block(this.content, {
             emoji: (emoji: string) => {
