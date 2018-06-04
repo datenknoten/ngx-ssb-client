@@ -22,7 +22,7 @@ import {
 })
 export class PostsState {
     @Action(UpdatePost)
-    public updatePost(ctx: StateContext<PostModel[]>, action: UpdatePost) {
+    public async updatePost(ctx: StateContext<PostModel[]>, action: UpdatePost) {
         const state = ctx.getState();
         let post: PostModel;
         const postExists = state
@@ -49,9 +49,6 @@ export class PostsState {
 
             if (root instanceof PostModel && root.comments.filter(item => item.id === post.id).length === 0) {
                 root.comments.push(post);
-                root.comments.sort((a, b) => {
-                    return a.date.getTime() - b.date.getTime();
-                });
             }
         } else {
             // also check if this post has comments
@@ -60,9 +57,7 @@ export class PostsState {
             if (comments.length > 0) {
                 post.comments = [
                     ...comments,
-                ].sort((a, b) => {
-                    return a.date.getTime() - b.date.getTime();
-                });
+                ];
             }
         }
 
@@ -70,20 +65,16 @@ export class PostsState {
             ctx.setState([
                 ...state,
                 post,
-            ].sort((a, b) => {
-                return b.latestActivity.getTime() - a.latestActivity.getTime();
-            }));
+            ]);
         } else {
             ctx.setState([
                 ...state,
-            ].sort((a, b) => {
-                return b.latestActivity.getTime() - a.latestActivity.getTime();
-            }));
+            ]);
         }
     }
 
     @Action(SetIdentity)
-    public setIdentity(ctx: StateContext<PostModel[]>, action: SetIdentity) {
+    public async setIdentity(ctx: StateContext<PostModel[]>, action: SetIdentity) {
         const state = ctx.getState();
         state
             .filter(item => item.authorId === action.identity.id)

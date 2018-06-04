@@ -36,7 +36,12 @@ export class HelperService {
         const that = this;
 
         $('img:not(.emoji)')
-            .addClass('ui rounded image');
+            .addClass('ui rounded image')
+            .each(function(this: any) {
+                const src = this.attribs.src;
+                this.attribs.src = '';
+                this.attribs['data-src'] = src;
+            });
         $('h1,h2,h3')
             .addClass('ui dividing header');
         $('table')

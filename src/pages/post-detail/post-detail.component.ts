@@ -3,6 +3,7 @@
  */
 
 import {
+    ApplicationRef,
     Component,
 } from '@angular/core';
 import {
@@ -30,6 +31,7 @@ export class PostDetailComponent {
     public constructor(
         private route: ActivatedRoute,
         private store: Store,
+        private _app: ApplicationRef,
     ) {
         this.postChange();
         this.route.url.subscribe(this.postChange.bind(this));
@@ -48,7 +50,13 @@ export class PostDetailComponent {
 
         this.post.subscribe((item?: PostModel) => {
             if (item instanceof PostModel) {
+                item.comments.sort((a, b) => {
+                    return a.date.getTime() - b.date.getTime();
+                });
                 window.scrollTo(0, 0);
+                setImmediate(() => {
+                    this._app.tick();
+                });
             }
         });
     }

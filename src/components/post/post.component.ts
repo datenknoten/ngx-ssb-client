@@ -18,6 +18,7 @@ import {
 } from '@ngxs/store';
 import { ScrollToService } from '@nicky-lenaers/ngx-scroll-to';
 import { Hotkey, HotkeysService } from 'angular2-hotkeys';
+import { memoize } from 'decko';
 
 import {
     IdentityModel,
@@ -112,6 +113,7 @@ export class PostComponent implements OnInit, OnDestroy {
         }
     }
 
+    @memoize()
     public convertHtml(html: string) {
         return this.helper.convertHtml(html);
     }
