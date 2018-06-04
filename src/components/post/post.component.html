@@ -16,7 +16,8 @@
                     <div class="item">
                         <a class="ui green image label" [routerLink]="['/post', post.id]">
                             <i class="calendar icon"></i>
-                            <div title="First posted {{ post.date | humanReadableDate   }}" class="detail">{{ post.latestActivity | humanReadableDate }}</div>
+                            <div *ngIf="mode === 'full'" title="First posted {{ post.date | humanReadableDate   }}" class="detail">{{ post.date | humanReadableDate }}</div>
+                            <div *ngIf="mode === 'condensed'" title="First posted {{ post.date | humanReadableDate   }}" class="detail">{{ post.latestActivity | humanReadableDate }}</div>
                         </a>
                     </div>
                     <div class="item">
