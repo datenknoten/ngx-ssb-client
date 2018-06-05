@@ -57,7 +57,7 @@ export class NewPostComponent {
     public setupEditor() {
         this.previewPost = new PostModel();
         this.visible = true;
-        setImmediate(() => {
+        setTimeout(() => {
             this.editor = new editorModule({
                 el: this.editorContainer.nativeElement,
                 initialEditType: 'markdown',
@@ -71,7 +71,7 @@ export class NewPostComponent {
                         this.createBlob(file, cb);
                     },
                 },
-            });
+            }, 50);
 
             this.editor.mdEditor.eventManager.listen('keyup', (event: { data: KeyboardEvent }) => {
                 if (event.data.keyCode === 27) {
