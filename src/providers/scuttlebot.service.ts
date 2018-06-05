@@ -394,7 +394,7 @@ export class ScuttlebotService {
 
             let imageId;
 
-            if (typeof data.value.content.image === 'object') {
+            if (data.value.content.image && typeof data.value.content.image === 'object') {
                 imageId = data.value.content.image.link;
             } else {
                 imageId = data.value.content.image;
