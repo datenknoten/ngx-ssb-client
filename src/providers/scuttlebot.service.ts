@@ -230,13 +230,6 @@ export class ScuttlebotService {
 
         await this.fetchContacts(whoami.id);
 
-        const userFeed = this.bot.createUserStream({
-            id: whoami.id,
-        });
-
-        await this.drainFeed(userFeed, this.parsePacket.bind(this));
-
-        this.store.dispatch(new UpdateMessageCount(true));
         await this.updateFeed(500);
     }
 
