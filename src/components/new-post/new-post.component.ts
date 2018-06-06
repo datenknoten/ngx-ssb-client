@@ -6,7 +6,9 @@ import {
     Component,
     ElementRef,
     Input,
+    QueryList,
     ViewChild,
+    ViewChildren,
 } from '@angular/core';
 import { Store } from '@ngxs/store';
 import * as jq from 'jquery';
@@ -41,8 +43,8 @@ export class NewPostComponent {
 
     public previewPost?: PostModel;
 
-    @ViewChild('editor')
-    private editorContainer!: ElementRef;
+    @ViewChildren('editor')
+    private editorContainer!: QueryList<any>;
 
     @ViewChild('preview')
     private preview!: ElementRef;
@@ -57,9 +59,16 @@ export class NewPostComponent {
     public setupEditor() {
         this.previewPost = new PostModel();
         this.visible = true;
-        setTimeout(() => {
+
+        const subscription = this.editorContainer.changes.subscribe((item: QueryList<ElementRef>) => {
+            subscription.unsubscribe();
+            if (item.length === 0) {
+                return;
+            }
+            const editorContainer = item.first;
+
             this.editor = new editorModule({
-                el: this.editorContainer.nativeElement,
+                el: editorContainer.nativeElement,
                 initialEditType: 'markdown',
                 previewStyle: 'tabs',
                 exts: ['colorSyntax'],
@@ -83,9 +92,9 @@ export class NewPostComponent {
             });
 
             if (this.context instanceof PostModel) {
-                this.editorContainer.nativeElement.scrollIntoView(true);
+                editorContainer.nativeElement.scrollIntoView(true);
             } else {
-                this.editorContainer.nativeElement.scrollIntoView(false);
+                editorContainer.nativeElement.scrollIntoView(false);
             }
             this.editor.focus();
         });
