@@ -29,6 +29,7 @@ const createSbot = window.require('scuttlebot')
     .use(window.require('ssb-search'))
     .use(window.require('ssb-names'))
     .use(window.require('ssb-ws'))
+    .use(window.require('ssb-ebt'))
     .use(window.require(path.resolve(__dirname, '../dist-electron/blob-mimetype')));
 
 // tslint:disable-next-line:no-default-export
