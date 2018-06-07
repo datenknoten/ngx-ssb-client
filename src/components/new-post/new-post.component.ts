@@ -80,7 +80,20 @@ export class NewPostComponent {
                         this.createBlob(file, cb);
                     },
                 },
-            }, 50);
+            });
+
+            const command = this.editor.commandManager.constructor.command('identity', {
+                name: 'Identity',
+                keyMap: ['CTRL+F'],
+                exec: (mde: any) => {
+                    console.log(mde);
+                },
+                type: 0,
+            });
+
+            this.editor.commandManager.addCommand(command);
+
+            console.log(this.editor);
 
             this.editor.mdEditor.eventManager.listen('keyup', (event: { data: KeyboardEvent }) => {
                 if (event.data.keyCode === 27) {
