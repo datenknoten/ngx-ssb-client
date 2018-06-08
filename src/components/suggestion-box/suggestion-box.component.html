@@ -1,21 +1,4 @@
-<div class="ui top attached five item menu">
-    <div class="active item">
-        All
-    </div>
-    <div class="item">
-        Identities
-    </div>
-    <div class="item">
-        emojis
-    </div>
-    <div class="item">
-        Channels
-    </div>
-    <div class="item">
-        Blobs
-    </div>
-</div>
-<div class="ui top attached one item menu">
+<div class="ui top fixed one item menu">
     <div class="fitted item">
         <div class="ui icon input">
             <input (keyup)="setSearchTerm($event)" placeholder="Search..." type="search">
@@ -25,11 +8,14 @@
 </div>
 <div class="ui bottom attached segment">
     <table class="ui celled table">
-        <tr *ngFor="let suggestion of suggestions | async">
+        <tr *ngFor="let suggestion of suggestions | async" (click)="selectSuggestion(suggestion)">
             <td width="100">
                 <img class="ui fluid rounded green image" [attr.src]="suggestion.image | safeSSBUrlPipe">
             </td>
             <td>{{ suggestion.displayName }}</td>
+            <td *ngIf="suggestion.type === 'identity'" width="100"><i class="user icon"></i></td>
+            <td *ngIf="suggestion.type === 'emoji'" width="100"><i class="smile outline icon"></i></td>
+            <td *ngIf="suggestion.type === 'blob'" width="100">{{ suggestion.type }}</td>
         </tr>
     </table>
 </div>

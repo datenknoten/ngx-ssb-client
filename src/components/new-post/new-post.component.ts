@@ -45,6 +45,10 @@ export class NewPostComponent {
 
     public previewPost?: PostModel;
 
+    public editor: any;
+
+    public suggestionModal!: any;
+
     @ViewChildren('editor')
     private editorContainer!: QueryList<any>;
 
@@ -54,7 +58,6 @@ export class NewPostComponent {
     @ViewChild('suggestion')
     private suggestion!: ElementRef;
 
-    private editor: any;
 
     public constructor(
         public scuttlebot: ScuttlebotService,
@@ -89,26 +92,22 @@ export class NewPostComponent {
 
             const command = this.editor.commandManager.constructor.command('identity', {
                 name: 'Identity',
-                keyMap: ['CTRL+F'],
-                exec: (mde: any) => {
+                keyMap: ['CTRL+SPACE'],
+                exec: () => {
                     this.showSuggestion = true;
 
-                    const modal: any = jq(this.suggestion.nativeElement);
-                    modal
+                    this.suggestionModal = jq(this.suggestion.nativeElement);
+                    this.suggestionModal
                         .modal({
-                            onApprove: function () {
-                                console.log('oh hai');
-                            },
+                            transition: 'fade',
                         })
                         .modal('show');
-                    console.log(mde);
+
                 },
                 type: 0,
             });
 
             this.editor.commandManager.addCommand(command);
-
-            console.log(this.editor);
 
             this.editor.mdEditor.eventManager.listen('keyup', (event: { data: KeyboardEvent }) => {
                 if (event.data.keyCode === 27) {
@@ -182,7 +181,7 @@ export class NewPostComponent {
         const modal: any = jq(this.preview.nativeElement);
         modal
             .modal({
-                onApprove: function () {
+                onApprove: function() {
                     that.cancel();
 
                     // tslint:disable-next-line:no-floating-promises

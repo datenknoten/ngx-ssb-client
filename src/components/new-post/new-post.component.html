@@ -33,8 +33,8 @@
         </div>
     </div>
 </div>
-<div #suggestion class="ui modal">
-    <div class="scrolling content">
-        <app-suggestion-box></app-suggestion-box>
+<div #suggestion class="ui suggestion modal">
+    <div class="scrolling content" *ngIf="visible">
+        <app-suggestion-box [editor]="editor" [modal]="suggestionModal"></app-suggestion-box>
     </div>
 </div>
