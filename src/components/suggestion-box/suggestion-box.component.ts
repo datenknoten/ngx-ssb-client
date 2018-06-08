@@ -67,17 +67,25 @@ export class SuggestionBoxComponent {
             ).pipe(map(results => {
                 const identities = results[0];
                 const searchTerm = results[1];
+                const emojis = this.getEmojis();
                 console.log(this.getEmojis());
 
-                return identities
-                    .filter(item => item.primaryName.includes(searchTerm))
-                    .map(item => {
+                const suggestions = identities
+                    .map<Suggestion>(item => {
                         return {
                             image: this.getImage(item),
                             displayName: item.primaryName,
                             type: 'identity',
                         };
                     });
+
+                for (const emoji of emojis) {
+                    suggestions.push(emoji);
+                }
+
+                return suggestions
+                    .filter(item => item.displayName.includes(searchTerm))
+                    .slice(0, 20);
             }));
 
         this.suggestions.subscribe(results => {
