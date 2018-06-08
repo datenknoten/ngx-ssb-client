@@ -1,0 +1,35 @@
+<div class="ui top attached five item menu">
+    <div class="active item">
+        All
+    </div>
+    <div class="item">
+        Identities
+    </div>
+    <div class="item">
+        emojis
+    </div>
+    <div class="item">
+        Channels
+    </div>
+    <div class="item">
+        Blobs
+    </div>
+</div>
+<div class="ui top attached one item menu">
+    <div class="fitted item">
+        <div class="ui icon input">
+            <input (keyup)="setSearchTerm($event)" placeholder="Search..." type="search">
+            <i class="search icon"></i>
+        </div>
+    </div>
+</div>
+<div class="ui bottom attached segment">
+    <table class="ui celled table">
+        <tr *ngFor="let suggestion of suggestions | async">
+            <td width="100">
+                <img class="ui fluid rounded green image" [attr.src]="suggestion.image | safeSSBUrlPipe">
+            </td>
+            <td>{{ suggestion.displayName }}</td>
+        </tr>
+    </table>
+</div>

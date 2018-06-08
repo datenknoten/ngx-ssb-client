@@ -41,6 +41,8 @@ export class NewPostComponent {
     @Input()
     public context?: PostModel | string;
 
+    public showSuggestion: boolean = false;
+
     public previewPost?: PostModel;
 
     @ViewChildren('editor')
@@ -48,6 +50,9 @@ export class NewPostComponent {
 
     @ViewChild('preview')
     private preview!: ElementRef;
+
+    @ViewChild('suggestion')
+    private suggestion!: ElementRef;
 
     private editor: any;
 
@@ -86,6 +91,16 @@ export class NewPostComponent {
                 name: 'Identity',
                 keyMap: ['CTRL+F'],
                 exec: (mde: any) => {
+                    this.showSuggestion = true;
+
+                    const modal: any = jq(this.suggestion.nativeElement);
+                    modal
+                        .modal({
+                            onApprove: function () {
+                                console.log('oh hai');
+                            },
+                        })
+                        .modal('show');
                     console.log(mde);
                 },
                 type: 0,
@@ -167,7 +182,7 @@ export class NewPostComponent {
         const modal: any = jq(this.preview.nativeElement);
         modal
             .modal({
-                onApprove: function() {
+                onApprove: function () {
                     that.cancel();
 
                     // tslint:disable-next-line:no-floating-promises

@@ -21,6 +21,7 @@ import { LazyLoadImagesModule } from 'ngx-lazy-load-images';
 import {
     NewPostComponent,
     PostComponent,
+    SuggestionBoxComponent,
 } from '../components';
 import {
     PostDetailComponent,
@@ -60,6 +61,7 @@ import {
         PostDetailComponent,
         PublicFeedComponent,
         SafeSSBUrlPipe,
+        SuggestionBoxComponent,
     ],
     imports: [
         RouterModule.forRoot([
