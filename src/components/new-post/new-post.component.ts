@@ -6,7 +6,9 @@ import {
     Component,
     ElementRef,
     Input,
+    QueryList,
     ViewChild,
+    ViewChildren,
 } from '@angular/core';
 import { Store } from '@ngxs/store';
 import * as jq from 'jquery';
@@ -39,15 +41,23 @@ export class NewPostComponent {
     @Input()
     public context?: PostModel | string;
 
+    public showSuggestion: boolean = false;
+
     public previewPost?: PostModel;
 
-    @ViewChild('editor')
-    private editorContainer!: ElementRef;
+    public editor: any;
+
+    public suggestionModal!: any;
+
+    @ViewChildren('editor')
+    private editorContainer!: QueryList<any>;
 
     @ViewChild('preview')
     private preview!: ElementRef;
 
-    private editor: any;
+    @ViewChild('suggestion')
+    private suggestion!: ElementRef;
+
 
     public constructor(
         public scuttlebot: ScuttlebotService,
@@ -57,9 +67,16 @@ export class NewPostComponent {
     public setupEditor() {
         this.previewPost = new PostModel();
         this.visible = true;
-        setTimeout(() => {
+
+        const subscription = this.editorContainer.changes.subscribe((item: QueryList<ElementRef>) => {
+            subscription.unsubscribe();
+            if (item.length === 0) {
+                return;
+            }
+            const editorContainer = item.first;
+
             this.editor = new editorModule({
-                el: this.editorContainer.nativeElement,
+                el: editorContainer.nativeElement,
                 initialEditType: 'markdown',
                 previewStyle: 'tabs',
                 exts: ['colorSyntax'],
@@ -71,7 +88,26 @@ export class NewPostComponent {
                         this.createBlob(file, cb);
                     },
                 },
-            }, 50);
+            });
+
+            const command = this.editor.commandManager.constructor.command('identity', {
+                name: 'Identity',
+                keyMap: ['CTRL+SPACE'],
+                exec: () => {
+                    this.showSuggestion = true;
+
+                    this.suggestionModal = jq(this.suggestion.nativeElement);
+                    this.suggestionModal
+                        .modal({
+                            transition: 'fade',
+                        })
+                        .modal('show');
+
+                },
+                type: 0,
+            });
+
+            this.editor.commandManager.addCommand(command);
 
             this.editor.mdEditor.eventManager.listen('keyup', (event: { data: KeyboardEvent }) => {
                 if (event.data.keyCode === 27) {
@@ -83,9 +119,9 @@ export class NewPostComponent {
             });
 
             if (this.context instanceof PostModel) {
-                this.editorContainer.nativeElement.scrollIntoView(true);
+                editorContainer.nativeElement.scrollIntoView(true);
             } else {
-                this.editorContainer.nativeElement.scrollIntoView(false);
+                editorContainer.nativeElement.scrollIntoView(false);
             }
             this.editor.focus();
         });

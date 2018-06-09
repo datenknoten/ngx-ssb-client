@@ -195,6 +195,23 @@ export class ScuttlebotService {
         }
     }
 
+    public async searchBlobs(searchTerm: string): Promise<any> {
+        if (searchTerm.length < 4) {
+            return;
+        }
+
+        return new Promise((resolve, reject) => {
+            this.bot.meme.search(searchTerm, (err: any, results: any) => {
+                if (err) {
+                    reject(err);
+                    return;
+                }
+
+                resolve(results);
+            });
+        });
+    }
+
     private async fetchThread(id: string) {
         await this.get(id);
 
