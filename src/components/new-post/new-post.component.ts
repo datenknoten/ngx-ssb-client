@@ -41,7 +41,13 @@ export class NewPostComponent {
     @Input()
     public context?: PostModel | string;
 
+    public showSuggestion: boolean = false;
+
     public previewPost?: PostModel;
+
+    public editor: any;
+
+    public suggestionModal!: any;
 
     @ViewChildren('editor')
     private editorContainer!: QueryList<any>;
@@ -49,7 +55,9 @@ export class NewPostComponent {
     @ViewChild('preview')
     private preview!: ElementRef;
 
-    private editor: any;
+    @ViewChild('suggestion')
+    private suggestion!: ElementRef;
+
 
     public constructor(
         public scuttlebot: ScuttlebotService,
@@ -80,7 +88,26 @@ export class NewPostComponent {
                         this.createBlob(file, cb);
                     },
                 },
-            }, 50);
+            });
+
+            const command = this.editor.commandManager.constructor.command('identity', {
+                name: 'Identity',
+                keyMap: ['CTRL+SPACE'],
+                exec: () => {
+                    this.showSuggestion = true;
+
+                    this.suggestionModal = jq(this.suggestion.nativeElement);
+                    this.suggestionModal
+                        .modal({
+                            transition: 'fade',
+                        })
+                        .modal('show');
+
+                },
+                type: 0,
+            });
+
+            this.editor.commandManager.addCommand(command);
 
             this.editor.mdEditor.eventManager.listen('keyup', (event: { data: KeyboardEvent }) => {
                 if (event.data.keyCode === 27) {
