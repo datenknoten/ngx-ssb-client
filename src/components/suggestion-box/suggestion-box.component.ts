@@ -3,25 +3,31 @@
  */
 
 import {
+    ChangeDetectorRef,
     Component,
     Input,
+    QueryList,
+    ViewChildren,
 } from '@angular/core';
 import { Store } from '@ngxs/store';
+import { ScrollToService } from '@nicky-lenaers/ngx-scroll-to';
 import * as jq from 'jquery';
 import {
     BehaviorSubject,
     combineLatest,
+    from,
     Observable,
 } from 'rxjs';
 import {
     debounceTime,
     map,
+    switchMap,
 } from 'rxjs/operators';
 
 import {
     IdentityModel,
 } from '../../models';
-import { HelperService } from '../../providers';
+import { HelperService, ScuttlebotService } from '../../providers';
 
 require('semantic-ui-css');
 const emojiNamedCharacters = require('emoji-named-characters');
@@ -37,7 +43,7 @@ interface Suggestion {
 @Component({
     selector: 'app-suggestion-box',
     templateUrl: './suggestion-box.component.html',
-    // styleUrls: ['./new-post.component.scss'],
+    styleUrls: ['./suggestion-box.component.scss'],
 })
 export class SuggestionBoxComponent {
     @Input()
@@ -53,10 +59,18 @@ export class SuggestionBoxComponent {
 
     private observeSearchTerm: BehaviorSubject<string>;
 
+    @ViewChildren('suggestionItem')
+    private suggestionItems!: QueryList<any>;
+
+    private activeSuggestion?: Suggestion;
+
 
     public constructor(
         private store: Store,
         private helper: HelperService,
+        private _cref: ChangeDetectorRef,
+        private _scrollService: ScrollToService,
+        private _sbot: ScuttlebotService,
     ) {
         this.observeSearchTerm = new BehaviorSubject<string>(this._searchTerm);
         this.observeSearchTerm.pipe(debounceTime(300));
@@ -71,12 +85,17 @@ export class SuggestionBoxComponent {
             .suggestions = combineLatest(
                 this.identities,
                 this.observeSearchTerm,
+                this.observeSearchTerm.pipe(
+                    debounceTime(300),
+                    switchMap((searchTerm) => from(this._sbot.searchBlobs(searchTerm))),
+                ),
             ).pipe(map(results => {
                 const identities = results[0];
                 const searchTerm = results[1];
+                const blobs = results[2];
                 const emojis = this.getEmojis();
 
-                const suggestions = identities
+                let suggestions = identities
                     .map<Suggestion>(item => {
                         return {
                             image: this.getImage(item),
@@ -90,10 +109,29 @@ export class SuggestionBoxComponent {
                     suggestions.push(emoji);
                 }
 
+                if (typeof blobs === 'object') {
+                    const ids = Object.keys(blobs);
+                    for (const id of ids) {
+                        suggestions.push({
+                            displayName: blobs[id][0].name,
+                            image: `ssb://ssb/${id}`,
+                            value: id,
+                            type: 'blob',
+                        });
+                    }
+                }
+
                 const searchRegEx = new RegExp(searchTerm, 'i');
-                return suggestions
+                suggestions = suggestions
                     .filter(item => searchRegEx.test(item.displayName))
                     .slice(0, 20);
+
+
+                if (suggestions.length > 0) {
+                    this.activeSuggestion = suggestions[0];
+                }
+
+                return suggestions;
             }));
     }
 
@@ -101,8 +139,12 @@ export class SuggestionBoxComponent {
         return this.helper.formatIdentityImageUrl(identity);
     }
 
-    public setSearchTerm(event: any) {
-        this.observeSearchTerm.next(event.target.value);
+    public keyHandler(event: KeyboardEvent) {
+        if (['ArrowDown', 'ArrowUp', 'Enter'].indexOf(event.key) > -1) {
+            this.handleKeyboardNavigation(event);
+        } else {
+            this.observeSearchTerm.next((event.target as HTMLInputElement).value);
+        }
     }
 
     public selectSuggestion(suggestion: Suggestion) {
@@ -111,6 +153,8 @@ export class SuggestionBoxComponent {
             markdown = `:${suggestion.value}:`;
         } else if (suggestion.type === 'identity') {
             markdown = `[${suggestion.displayName}](${suggestion.value})`;
+        } else if (suggestion.type === 'blob') {
+            markdown = `![${suggestion.displayName}](${suggestion.value})`;
         }
 
         this.editor.insertText(markdown);
@@ -118,6 +162,41 @@ export class SuggestionBoxComponent {
         const selector: any = jq('.ui.visible.modal');
 
         selector.modal('hide');
+    }
+
+    private handleKeyboardNavigation(event: KeyboardEvent) {
+        if (typeof this.activeSuggestion === 'undefined') {
+            return;
+        }
+        if (event.key === 'Enter') {
+            this.selectSuggestion(this.activeSuggestion);
+        } else if (event.key === 'ArrowDown' || event.key === 'ArrowUp') {
+            const index = this
+                .suggestionItems
+                .toArray()
+                .map(item => item.nativeElement.dataset.id)
+                .indexOf(this.activeSuggestion.value);
+            if (index > -1 || index < this.suggestionItems.length) {
+                const element = this
+                    .suggestionItems
+                    .toArray()[index + (event.key === 'ArrowDown' ? 1 : -1)];
+                if (!element) {
+                    return;
+                }
+                const newId = element
+                    .nativeElement
+                    .dataset
+                    .id;
+                this.suggestions.subscribe(items => {
+                    this.activeSuggestion = items.filter(item => item.value === newId).pop();
+                    this._cref.detectChanges();
+                    this._scrollService.scrollTo({
+                        target: element.nativeElement,
+                        offset: -50,
+                    });
+                });
+            }
+        }
     }
 
     private getEmojis(): Suggestion[] {

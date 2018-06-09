@@ -1,21 +1,24 @@
 <div class="ui top fixed one item menu">
     <div class="fitted item">
         <div class="ui icon input">
-            <input (keyup)="setSearchTerm($event)" placeholder="Search..." type="search">
+            <input (keyup)="keyHandler($event)" placeholder="Search..." type="search">
             <i class="search icon"></i>
         </div>
     </div>
 </div>
-<div class="ui bottom attached segment">
-    <table class="ui celled table">
-        <tr *ngFor="let suggestion of suggestions | async" (click)="selectSuggestion(suggestion)">
-            <td width="100">
-                <img class="ui fluid rounded green image" [attr.src]="suggestion.image | safeSSBUrlPipe">
-            </td>
-            <td>{{ suggestion.displayName }}</td>
-            <td *ngIf="suggestion.type === 'identity'" width="100"><i class="user icon"></i></td>
-            <td *ngIf="suggestion.type === 'emoji'" width="100"><i class="smile outline icon"></i></td>
-            <td *ngIf="suggestion.type === 'blob'" width="100">{{ suggestion.type }}</td>
-        </tr>
-    </table>
-</div>
+<table class="ui celled suggestion table">
+    <tr #suggestionItem *ngFor="let suggestion of suggestions | async" (click)="selectSuggestion(suggestion)" [attr.data-id]="suggestion.value"
+        [ngClass]="{active: activeSuggestion && (activeSuggestion.value === suggestion.value)}">
+        <td width="100">
+            <img class="ui fluid rounded green image" [attr.src]="suggestion.image | safeSSBUrlPipe">
+        </td>
+        <td>{{ suggestion.displayName }}</td>
+        <td *ngIf="suggestion.type === 'identity'" width="100">
+            <i class="user icon"></i>
+        </td>
+        <td *ngIf="suggestion.type === 'emoji'" width="100">
+            <i class="smile outline icon"></i>
+        </td>
+        <td *ngIf="suggestion.type === 'blob'" width="100">{{ suggestion.type }}</td>
+    </tr>
+</table>
