@@ -62,7 +62,7 @@ export class AppComponent implements OnInit {
     public sidebar: any;
 
     public constructor(
-        private sbot: ScuttlebotService,
+        public sbot: ScuttlebotService,
         private router: Router,
         private store: Store,
         private _hotkeysService: HotkeysService,
@@ -137,8 +137,12 @@ export class AppComponent implements OnInit {
         return `ssb://ssb/${id}`;
     }
 
-    public async updateFeed() {
-        await this.sbot.updateFeed();
+    public async openPublicFeed() {
+        await this.router.navigate(['/feed/', 'public']);
+    }
+
+    public async openParticipatingFeed() {
+        await this.router.navigate(['/feed/', 'participating']);
     }
 
     public toggleSidebar() {

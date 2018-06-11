@@ -1,5 +1,6 @@
 <div class="ui top fixed green menu">
-    <a class="active item" routerLink="/" (click)="updateFeed()">Public Feed</a>
+    <a class="item" routerLink="/" (click)="openPublicFeed()">Public Feed</a>
+    <a class="item" routerLink="/" (click)="openParticipatingFeed()" title="Discussions you are participating in">Participating</a>
     <!-- <a (click)="debug()" class="item">Private Feed</a>
     <a class="item">Gatherings</a>
     <a class="item">Discover</a>

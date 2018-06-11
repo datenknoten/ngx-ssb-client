@@ -29,7 +29,6 @@ import {
 import {
     debounceTime,
     map,
-// tslint:disable-next-line:no-submodule-imports
 } from 'rxjs/operators';
 
 import {
@@ -264,7 +263,14 @@ export class PublicFeedComponent implements OnDestroy {
             .filter((item: PostModel) => !(typeof item.rootId === 'string'))
             .filter((item: PostModel) => {
                 const channel = settings.channel;
-                if (channel !== 'public') {
+                if (channel === 'participating') {
+                    return (item.author instanceof IdentityModel && item.author.isSelf) ||
+                        (
+                            item.comments.filter(
+                                _item => _item.author instanceof IdentityModel && _item.author.isSelf,
+                            ).length > 0
+                        );
+                } else if (channel !== 'public') {
                     const type = ref.type(channel);
                     if (type === 'feed') {
                         return (item.author instanceof IdentityModel && item.author.id === channel);

@@ -82,6 +82,7 @@ export class NewPostComponent {
                 exts: ['colorSyntax'],
                 height: '400px',
                 usageStatistics: false,
+                hideModeSwitch: true,
                 hooks: {
                     addImageBlobHook: (file: File, cb: (url: string, text: string) => void) => {
                         // tslint:disable-next-line:no-floating-promises
