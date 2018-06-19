@@ -23,7 +23,7 @@
                                 "glob": "*",
                                 "input": "node_modules/twemoji/2/svg",
                                 "output": "/assets/emoji"
-                            },
+                            }
                         ],
                         "styles": [
                             "src/styles.css",
@@ -31,7 +31,8 @@
                             "node_modules/tui-editor/dist/tui-editor.css",
                             "node_modules/tui-editor/dist/tui-editor-contents.css",
                             "node_modules/highlight.js/styles/github.css",
-                            "node_modules/semantic-ui-css/semantic.css"
+                            "node_modules/semantic-ui-css/semantic.css",
+                            "node_modules/codemirror/addon/hint/show-hint.css"
                         ],
                         "scripts": []
                     },

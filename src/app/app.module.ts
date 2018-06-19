@@ -37,6 +37,7 @@ import {
     ElectronService,
     HelperService,
     ScuttlebotService,
+    SuggestionService,
 } from '../providers';
 import {
     CurrentFeedSettingState,
@@ -99,6 +100,7 @@ import {
         ElectronService,
         ScuttlebotService,
         HelperService,
+        SuggestionService,
     ],
     bootstrap: [AppComponent],
     entryComponents: [

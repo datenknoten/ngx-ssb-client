@@ -11,6 +11,7 @@ import {
     ViewChildren,
 } from '@angular/core';
 import { Store } from '@ngxs/store';
+import * as hyperMD from 'hypermd';
 import * as jq from 'jquery';
 
 import {
@@ -19,14 +20,17 @@ import {
     PostModel,
 } from '../../models';
 import {
-    ScuttlebotService,
+    ScuttlebotService, SuggestionService,
 } from '../../providers';
+
+const cm = require('codemirror');
+const mentions = window.require('ssb-mentions');
 
 window['jQuery'] = jq;
 require('semantic-ui-css');
 
-const mentions = window.require('ssb-mentions');
-const editorModule = require('tui-editor');
+require('codemirror/addon/hint/show-hint');
+
 
 @Component({
     selector: 'app-new-post',
@@ -55,16 +59,18 @@ export class NewPostComponent {
     @ViewChild('preview')
     private preview!: ElementRef;
 
-    @ViewChild('suggestion')
-    private suggestion!: ElementRef;
+    // @ViewChild('suggestion')
+    // private suggestion!: ElementRef;
 
 
     public constructor(
         public scuttlebot: ScuttlebotService,
         public store: Store,
+        private _suggestion: SuggestionService,
     ) { }
 
     public setupEditor() {
+        const that = this;
         this.previewPost = new PostModel();
         this.visible = true;
 
@@ -75,47 +81,38 @@ export class NewPostComponent {
             }
             const editorContainer = item.first;
 
-            this.editor = new editorModule({
-                el: editorContainer.nativeElement,
-                initialEditType: 'markdown',
-                previewStyle: 'tabs',
-                exts: ['colorSyntax'],
-                height: '400px',
-                usageStatistics: false,
-                hooks: {
-                    addImageBlobHook: (file: File, cb: (url: string, text: string) => void) => {
-                        // tslint:disable-next-line:no-floating-promises
-                        this.createBlob(file, cb);
-                    },
-                },
-            });
-
-            const command = this.editor.commandManager.constructor.command('identity', {
-                name: 'Identity',
-                keyMap: ['CTRL+SPACE'],
-                exec: () => {
-                    this.showSuggestion = true;
-
-                    this.suggestionModal = jq(this.suggestion.nativeElement);
-                    this.suggestionModal
-                        .modal({
-                            transition: 'fade',
-                        })
-                        .modal('show');
-
-                },
-                type: 0,
-            });
-
-            this.editor.commandManager.addCommand(command);
-
-            this.editor.mdEditor.eventManager.listen('keyup', (event: { data: KeyboardEvent }) => {
-                if (event.data.keyCode === 27) {
-                    const button = window.document.querySelector<HTMLButtonElement>('app-new-post .ui.red.button');
-                    if (button instanceof HTMLButtonElement) {
-                        button.click();
-                    }
+            const getHints = function(editor: any, cb: Function, _options: any) {
+                const word = /[\w$]+/;
+                const cur = editor.getCursor();
+                const curLine = editor.getLine(cur.line);
+                const end = cur.ch;
+                let start = end;
+                while (start && word.test(curLine.charAt(start - 1))) {
+                    --start;
                 }
+                const curWord = start !== end && curLine.slice(start, end);
+
+
+                that._suggestion.searchTerm.next(curWord);
+
+                that._suggestion.suggestions.subscribe(items => {
+                    cb({
+                        list: items,
+                        from: cm.Pos(cur.line, start),
+                        to: cm.Pos(cur.line, end),
+                    });
+                });
+            };
+            (getHints as any).async = true;
+
+
+            this.editor = hyperMD.fromTextArea(editorContainer.nativeElement, {
+                extraKeys: { 'Ctrl-Space': 'autocomplete' },
+                lineNumbers: false,
+                hintOptions: {
+                    hint: getHints,
+                },
+                hmdInsertFile: this.fileHandler,
             });
 
             if (this.context instanceof PostModel) {
@@ -135,7 +132,7 @@ export class NewPostComponent {
     public async submit() {
         const post = new PostModel();
 
-        post.content = this.editor.getMarkdown();
+        post.content = this.editor.getValue().replace('ssb://ssb/', '');
 
         if (!(typeof this.context === 'undefined')) {
             if (this.context instanceof PostModel) {
@@ -196,9 +193,23 @@ export class NewPostComponent {
             .modal('show');
     }
 
-    private async createBlob(file: File, cb: (url: string, text: string) => void) {
-        const blob = await this.scuttlebot.createBlob(file);
-        cb(blob, file.name);
+    private async fileHandler(files: any, action: hyperMD.InsertFile.HandlerAction) {
+        if (files.length <= 0) {
+            return true;
+        }
+
+        const blobs: string[] = [];
+
+        for (const file of files) {
+            const blobId = await this.scuttlebot.createBlob(file);
+            blobs.push(`![${file.name}](ssb://ssb/${blobId})`);
+        }
+
+        action.finish(
+            blobs.join('\n'),
+        );
+
+        return true;
     }
 }
 
