@@ -112,7 +112,7 @@ export class NewPostComponent {
                 hintOptions: {
                     hint: getHints,
                 },
-                hmdInsertFile: this.fileHandler,
+                hmdInsertFile: this.fileHandler.bind(this),
             });
 
             if (this.context instanceof PostModel) {
