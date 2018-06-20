@@ -28,11 +28,11 @@
                         "styles": [
                             "src/styles.css",
                             "node_modules/codemirror/lib/codemirror.css",
-                            "node_modules/tui-editor/dist/tui-editor.css",
-                            "node_modules/tui-editor/dist/tui-editor-contents.css",
                             "node_modules/highlight.js/styles/github.css",
                             "node_modules/semantic-ui-css/semantic.css",
-                            "node_modules/codemirror/addon/hint/show-hint.css"
+                            "node_modules/codemirror/addon/hint/show-hint.css",
+                            "node_modules/hypermd/mode/hypermd.css",
+                            "node_modules/hypermd/theme/hypermd-light.css"
                         ],
                         "scripts": []
                     },
