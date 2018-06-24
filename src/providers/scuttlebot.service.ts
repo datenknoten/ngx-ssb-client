@@ -216,6 +216,17 @@ export class ScuttlebotService {
         });
     }
 
+    public async fetchChannelSubscriptions(id: string) {
+        const stream = pull(
+            this.bot.createUserStream({id}),
+            pull.filter((msg: any) => {
+                return !msg.value || msg.value.content.type === 'channel';
+            }),
+        );
+
+        await this.drainFeed(stream, this.parsePacket);
+    }
+
     private async fetchThread(id: string) {
         await this.get(id);
 
@@ -248,6 +259,8 @@ export class ScuttlebotService {
         const whoami = await this.getFeedItem(this.bot.whoami);
 
         await this.fetchIdentity(whoami.id, true);
+
+        await this.fetchChannelSubscriptions(whoami.id);
 
         await this.fetchContacts(whoami.id);
 
