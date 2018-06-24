@@ -1,36 +1,24 @@
 # NgxSsbClient
+> experimental [secure scuttlebutt](https://www.scuttlebutt.nz/) client based on angular and electron.
 
-Welcome to my experiment with [scuttlebutt](https://www.scuttlebutt.nz/). I started this client for two reasons:
+[![pipeline status](https://gitlab.com/datenknoten/ngx-ssb-client/badges/develop/pipeline.svg)](https://gitlab.com/datenknoten/ngx-ssb-client/commits/develop)
+
+![ngx-ssb-client screenshot](client-screenshot)
+
+I started this client to the secure scuttlebutt network for two reasons:
 
 1. I wanted to learn more about scuttlebutt.
 1. I was a bit unhappy with patchwork and wanted to explore other UI-Concepts.
 
-## Goals
+## Installation
 
-I'm aiming at writing a full client with [angular](https://angular.io/) and [semantic ui](https://semantic-ui.com/). But as a german proverb goes [„Der Weg ist das Ziel“](http://false-friends.crellin.de/2012/06/der-weg-ist-das-ziel-auf-englisch.html), learning is my main goal while writing this client and not finishing as fast as possible.
+Not yet :scream:
 
-## Components
+If you want to try out, go the next chapter.
 
-### Angular
+## Development setup
 
-I'm using angular as my base for this web application.
-
-### Semantic UI
-
-Since I'm very bad at design, I'm using this library as it provides fundamental elements with a very neat design.
-
-### NGXS
-
-[ngxs](https://ngxs.gitbook.io/ngxs) is a library to manager your local state and it does so very good and very programmer friendly.
-
-### Toast UI Editor
-
-[tui.editor](https://github.com/nhnent/tui.editor) looked very good for my purpose, so it is going to be the markdown editor of my choice.
-
-## Development
-
-If you want to develop on this do these steps:
-
-* Clone this repo
-* npm i
-* npm run start
+```
+$ npm i
+$ npm run start
+```
