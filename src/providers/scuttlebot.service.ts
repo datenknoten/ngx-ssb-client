@@ -195,7 +195,11 @@ export class ScuttlebotService {
         }
     }
 
-    public async searchBlobs(searchTerm: string): Promise<any> {
+    public async searchBlobs(searchTerm?: string): Promise<any> {
+        if (typeof searchTerm !== 'string') {
+            return;
+        }
+
         if (searchTerm.length < 4) {
             return;
         }

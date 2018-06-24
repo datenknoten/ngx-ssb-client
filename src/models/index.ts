@@ -11,3 +11,4 @@ export { LinkModel } from './link.model';
 export { IdentityNameModel } from './identity-name.model';
 export { IdentityImageModel } from './identity-image.model';
 export { IdentityDescriptionModel } from './identity-description.model';
+export { Suggestion } from './suggestion.model';

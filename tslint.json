@@ -21,7 +21,7 @@
             "app",
             "kebab-case"
         ],
-        "no-submodule-imports": [true, "rxjs", "@angular/platform-browser", "@angular/core/testing"],
+        "no-submodule-imports": [true, "rxjs", "@angular/platform-browser", "@angular/core/testing", "codemirror", "hypermd"],
         "no-output-on-prefix": true,
         "use-input-property-decorator": true,
         "use-output-property-decorator": true,
