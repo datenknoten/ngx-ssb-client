@@ -227,6 +227,21 @@ export class ScuttlebotService {
         await this.drainFeed(stream, this.parsePacket);
     }
 
+    public async fetchIdentityPosts(id: string) {
+        const stream = pull(
+            this.bot.createUserStream({
+                id,
+                limit: 500,
+                reverse: true,
+            }),
+            pull.filter((msg: any) => {
+                return !msg.value || msg.value.content.type === 'post';
+            }),
+        );
+
+        await this.drainFeed(stream, this.parsePacket);
+    }
+
     private async fetchThread(id: string) {
         await this.get(id);
 

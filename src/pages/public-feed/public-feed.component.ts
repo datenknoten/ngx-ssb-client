@@ -29,7 +29,7 @@ import {
 import {
     debounceTime,
     map,
-// tslint:disable-next-line:no-submodule-imports
+    // tslint:disable-next-line:no-submodule-imports
 } from 'rxjs/operators';
 
 import {
@@ -111,10 +111,13 @@ export class PublicFeedComponent implements OnDestroy {
             });
         });
 
-        this.route.url.subscribe(() => {
+        this.route.url.subscribe(async () => {
             const id = this.route.snapshot.paramMap.get('channel');
             if (!(typeof id === 'string')) {
                 throw new Error('No Such Channel');
+            }
+            if (ref.isFeedId(id)) {
+                await this._bot.fetchIdentityPosts(id);
             }
             this.store.dispatch(new SwitchChannel(id));
         });
@@ -267,7 +270,8 @@ export class PublicFeedComponent implements OnDestroy {
                 if (channel !== 'public') {
                     const type = ref.type(channel);
                     if (type === 'feed') {
-                        return (item.author instanceof IdentityModel && item.author.id === channel);
+                        return (item.authorId === channel) ||
+                            (item.comments.filter(comment => comment.authorId === channel).length > 0);
                     } else {
                         return item.primaryChannel === settings.channel ||
                             item
