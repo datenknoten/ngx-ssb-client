@@ -141,6 +141,7 @@ export class NewPostComponent {
                 } else {
                     post.rootId = this.context.id;
                 }
+                post.primaryChannel = this.context.primaryChannel;
             } else if (this.context !== 'public') {
                 post.primaryChannel = this.context;
             }
