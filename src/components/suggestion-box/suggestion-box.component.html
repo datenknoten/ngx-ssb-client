@@ -10,7 +10,7 @@
     <tr #suggestionItem *ngFor="let suggestion of suggestions | async" (click)="selectSuggestion(suggestion)" [attr.data-id]="suggestion.value"
         [ngClass]="{active: activeSuggestion && (activeSuggestion.value === suggestion.value)}">
         <td width="100">
-            <img class="ui fluid rounded green image" [attr.src]="suggestion.image | safeSSBUrlPipe">
+            <img class="ui fluid rounded green image" [src]="suggestion.image | safeSSBUrlPipe">
         </td>
         <td>{{ suggestion.displayName }}</td>
         <td *ngIf="suggestion.type === 'identity'" width="100">

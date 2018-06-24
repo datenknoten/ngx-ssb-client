@@ -16,7 +16,6 @@ import {
 } from '@ngxs/store';
 import { ScrollToModule } from '@nicky-lenaers/ngx-scroll-to';
 import { HotkeyModule } from 'angular2-hotkeys';
-import { LazyLoadImagesModule } from 'ngx-lazy-load-images';
 
 import {
     NewPostComponent,
@@ -94,7 +93,6 @@ import {
             disableCheatSheet: false,
             cheatSheetCloseEsc: true,
         }),
-        LazyLoadImagesModule,
     ],
     providers: [
         ElectronService,

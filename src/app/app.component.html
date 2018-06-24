@@ -28,13 +28,13 @@
         </a>
     </div>
 </div>
-<div class="content" lazy-load-images>
+<div class="content">
     <router-outlet></router-outlet>
 </div>
 <div class="ui right sidebar">
     <div class="ui fluid card" *ngIf="(self | async)">
         <div class="image">
-            <img [attr.data-src]="formatBlobUrl((self | async)?.primaryImage)">
+            <img [src]="formatBlobUrl((self | async)?.primaryImage) | safeSSBUrlPipe">
         </div>
         <div class="content">
             <div class="header">{{ (self | async)?.primaryName }}</div>
@@ -58,7 +58,7 @@
             <div class="menu">
                 <a class="item" (click)="log(followee)" *ngFor="let followee of (self | async)?.following">
                     <img class="ui left spaced mini image" src="./assets/img/image.png" *ngIf="!followee.primaryImage">
-                    <img class="ui left spaced mini image" [attr.data-src]="formatBlobUrl(followee.primaryImage)" *ngIf="followee.primaryImage"> {{ followee.primaryName }}
+                    <img class="ui left spaced mini image" [src]="formatBlobUrl(followee.primaryImage)  | safeSSBUrlPipe" *ngIf="followee.primaryImage"> {{ followee.primaryName }}
                     <!-- <div class="horizontal ui label" title="3 new messages">3</div> -->
                 </a>
             </div>
