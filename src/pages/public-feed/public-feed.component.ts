@@ -118,6 +118,8 @@ export class PublicFeedComponent implements OnDestroy {
             }
             if (ref.isFeedId(id)) {
                 await this._bot.fetchIdentityPosts(id);
+            } else if (id !== 'public') {
+                await this._bot.fetchChannelPosts(id);
             }
             this.store.dispatch(new SwitchChannel(id));
         });

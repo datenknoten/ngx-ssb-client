@@ -21,7 +21,7 @@ export class HelperService {
 
     public constructor(
         private store: Store,
-    ) {}
+    ) { }
 
     public formatIdentityImageUrl(identity?: IdentityModel): string {
         if ((identity instanceof IdentityModel) && (identity.image.length > 0)) {
@@ -48,6 +48,14 @@ export class HelperService {
             });
 
         return $.html();
+    }
+
+    public take(n: number) {
+        return function(read: any) {
+            return function(abort: any, cb: any) {
+                read(n-- === 0 ? true : abort, cb);
+            };
+        };
     }
 
     private parseIdentityLink(item: any, $: any) {

@@ -33,6 +33,8 @@ import {
     VotingModel,
 } from '../models';
 
+import { HelperService } from './helper.service';
+
 const util = window.require('util');
 const split = require('split-buffer');
 const pull = window.require('pull-stream');
@@ -46,6 +48,7 @@ export class ScuttlebotService {
     private lastUpdate?: number;
     public constructor(
         private store: Store,
+        private helper: HelperService,
     ) {
         // tslint:disable-next-line:no-floating-promises
         this.init();
@@ -218,7 +221,7 @@ export class ScuttlebotService {
 
     public async fetchChannelSubscriptions(id: string) {
         const stream = pull(
-            this.bot.createUserStream({id}),
+            this.bot.createUserStream({ id }),
             pull.filter((msg: any) => {
                 return !msg.value || msg.value.content.type === 'channel';
             }),
@@ -237,6 +240,30 @@ export class ScuttlebotService {
             pull.filter((msg: any) => {
                 return !msg.value || msg.value.content.type === 'post';
             }),
+        );
+
+        await this.drainFeed(stream, this.parsePacket);
+    }
+
+    public async fetchChannelPosts(channel: string) {
+        const filter = {
+            // live: true,
+            reverse: true,
+            query: [{
+                $filter: {
+                    value: {
+                        timestamp: { $gt: 0 }, // forces results ordered by published time
+                        content: {
+                            type: 'post',
+                            channel: channel,
+                        },
+                    },
+                },
+            }],
+        };
+        const stream = pull(
+            this.bot.query.read(filter),
+            this.helper.take(20),
         );
 
         await this.drainFeed(stream, this.parsePacket);
