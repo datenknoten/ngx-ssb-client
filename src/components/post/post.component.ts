@@ -230,6 +230,19 @@ export class PostComponent implements OnInit, OnDestroy {
         await this.router.navigate(['/post/', id]);
     }
 
+    public setActiveComment(post: PostModel) {
+        if (this.comments instanceof QueryList && this.comments.length > 0) {
+            for (const item of this.comments.toArray()) {
+                item.active = false;
+                if (item.post === post) {
+                    this.activeComment = item;
+                    item.active = true;
+                }
+            }
+        }
+        this.changeDetectorRef.detectChanges();
+    }
+
     private favoriteActiveItem() {
         if (this.activeComment instanceof PostComponent) {
             // tslint:disable-next-line:no-floating-promises
@@ -266,4 +279,6 @@ export class PostComponent implements OnInit, OnDestroy {
         this.changeDetectorRef.detectChanges();
         return false;
     }
+
+
 }

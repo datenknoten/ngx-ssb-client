@@ -23,7 +23,7 @@
 
 
 <div #feedContainer class="feed" *ngIf="posts">
-    <div *ngFor="let post of posts | async">
+    <div *ngFor="let post of posts | async" (click)="setActiveFeedItem(post)">
         <app-post [post]="post"></app-post>
     </div>
     <div class="ui green bottom fixed menu">

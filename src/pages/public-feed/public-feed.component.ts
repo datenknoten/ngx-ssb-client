@@ -210,6 +210,19 @@ export class PublicFeedComponent implements OnDestroy {
         }
     }
 
+    public setActiveFeedItem(post: PostModel) {
+        if (this.feedItems instanceof QueryList && this.feedItems.length > 0) {
+            for (const item of this.feedItems.toArray()) {
+                item.active = false;
+                if (item.post === post) {
+                    this.activeFeedItem = item;
+                    item.active = true;
+                }
+            }
+        }
+        this.changeDetectorRef.detectChanges();
+    }
+
     private openActiveItem() {
         if (this.activeFeedItem instanceof PostComponent) {
             // tslint:disable-next-line:no-floating-promises
