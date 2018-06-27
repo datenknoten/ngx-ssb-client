@@ -269,6 +269,7 @@ export class PublicFeedComponent implements OnDestroy {
             this._scrollService.scrollTo({
                 target: this.activeFeedItem.elementRef,
                 offset: -50,
+                duration: 0,
             });
         }
         this.changeDetectorRef.detectChanges();

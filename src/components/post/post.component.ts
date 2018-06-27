@@ -274,6 +274,7 @@ export class PostComponent implements OnInit, OnDestroy {
             this._scrollService.scrollTo({
                 target: this.activeComment.elementRef,
                 offset: -50,
+                duration: 0,
             });
         }
         this.changeDetectorRef.detectChanges();
