@@ -29,7 +29,9 @@
     </div>
 </div>
 <div class="content">
-    <router-outlet></router-outlet>
+    <div class="ui container">
+        <router-outlet></router-outlet>
+    </div>
 </div>
 <div class="ui right sidebar">
     <div class="ui fluid card" *ngIf="(self | async)">

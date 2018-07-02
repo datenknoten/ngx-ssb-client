@@ -1,9 +1,9 @@
 <div class="post" [ngClass]="{ post: true, full: mode == 'full' }">
     <div class="ui crosshatch green segment" [ngClass]="{ui: true, crosshatch: active, piled: post.comments.length > 0, green: true, segment: true}">
-        <div class="ui grid">
-            <div class="twelve wide content column" [innerHtml]="convertHtml(post.html) | safeHtml" (click)="click($event)">
+        <div class="flex-container">
+            <div class="content column" [innerHtml]="convertHtml(post.html) | safeHtml" (click)="click($event)">
             </div>
-            <div class="four wide details column">
+            <div class="details column">
                 <img class="ui fluid rounded green image" [src]="getImage(post.author)  | safeSSBUrlPipe">
                 <div class="author item">
                     <a class="ui green image label" [routerLink]="['/feed', post.authorId]">
@@ -31,15 +31,11 @@
                             <i class="heart outline icon" [ngClass]="{heart: true, outline: !hasSelfLike, icon: true}"></i>
                             <div class="detail">{{ post.voteCount }}</div>
                         </a>
-                    </div>
-                    <div class="item">
                         <a class="ui green image label" [title]="formatComments(post)" [routerLink]="['/post', post.id]">
                             <i class="comment icon"></i>
                             <div class="detail">{{ post.comments.length }}</div>
                         </a>
-                    </div>
-                    <div class="item">
-                        <div class="ui green image label" title="The estimated time to read this post">
+                        <div class="ui green image label" title="The estimated time to read this post in minutes">
                             <i class="hourglass half icon"></i>
                             <div *ngIf="mode == 'full'" class="detail">{{ post.readingTime | humanReadableDuration }}</div>
                             <div *ngIf="mode != 'full'" class="detail">{{ post.totalReadingTime | humanReadableDuration }}</div>
