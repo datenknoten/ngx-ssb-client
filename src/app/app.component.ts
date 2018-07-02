@@ -26,7 +26,7 @@ import {
 import {
     debounceTime,
     map,
-// tslint:disable-next-line:no-submodule-imports
+    // tslint:disable-next-line:no-submodule-imports
 } from 'rxjs/operators';
 
 import {
@@ -143,6 +143,21 @@ export class AppComponent implements OnInit {
 
     public toggleSidebar() {
         this.sidebar.sidebar('toggle');
+    }
+
+    public async openMyFeed() {
+        const me = this
+            .store
+            .selectSnapshot(
+                (state: any) => state
+                    .identities
+                    .filter((item: IdentityModel) => item.isSelf).pop());
+
+        if (me instanceof IdentityModel) {
+            await this.sbot.fetchIdentityPosts(me.id);
+            // tslint:disable-next-line:no-floating-promises
+            this.router.navigate(['/feed/', me.id]);
+        }
     }
 
     public goToChannel(event: MouseEvent, channel: ChannelSubscription) {
