@@ -1,71 +1,49 @@
-<div class="post" [ngClass]="{ post: true, full: mode == 'full' }">
-    <div class="ui crosshatch green segment" [ngClass]="{ui: true, crosshatch: active, piled: post.comments.length > 0, green: true, segment: true}">
-        <div class="flex-container">
-            <div class="content column" [innerHtml]="convertHtml(post.html) | safeHtml" (click)="click($event)">
-            </div>
-            <div class="details column">
-                <div class="ui fluid card">
-                    <div class="image">
-                        <img [src]="getImage(post.author)  | safeSSBUrlPipe">
-                    </div>
-                    <div class="content">
-                        <a class="header" [routerLink]="['/feed', post.authorId]">
-                            <ng-container *ngIf="post.author">{{ post.author.primaryName }}</ng-container>
-                            <ng-container *ngIf="!post.author">{{ post.authorId }}</ng-container>
-                        </a>
-                        <div class="meta" *ngIf="mode != 'draft'">
-                            <div class="date">
-                                <div *ngIf="mode === 'full'" class="detail">Posted {{ post.date | humanReadableDate }}</div>
-                                <div *ngIf="mode === 'condensed'" title="Posted {{ post.date | humanReadableDate   }}" class="detail">Last activity {{ post.latestActivity | humanReadableDate }}</div>
-                            </div>
+<div class="post" [ngClass]="{ post: true, full: mode == 'full', active: active  }">
+    <div class="flex-container">
+        <div (click)="click($event)" [innerHtml]="convertHtml(post.html) | safeHtml" class="content column ui crosshatch green segment"
+            [ngClass]="{ui: true, crosshatch: active, piled: post.comments.length > 0, green: true, segment: true}">
+        </div>
+        <div class="details column">
+            <div class="ui fluid green card">
+                <div class="image">
+                    <img [src]="getImage(post.author)  | safeSSBUrlPipe">
+                </div>
+                <div class="content">
+                    <a class="header" [routerLink]="['/feed', post.authorId]">
+                        <ng-container *ngIf="post.author">{{ post.author.primaryName }}</ng-container>
+                        <ng-container *ngIf="!post.author">{{ post.authorId }}</ng-container>
+                    </a>
+                    <div class="meta" *ngIf="mode != 'draft'">
+                        <div class="date">
+                            <div *ngIf="mode === 'full'" class="detail">Posted {{ post.date | humanReadableDate }}</div>
+                            <div *ngIf="mode === 'condensed'" title="Posted {{ post.date | humanReadableDate   }}" class="detail">Last activity {{ post.latestActivity | humanReadableDate }}</div>
                         </div>
-                    </div>
-                    <div class="extra content">
-                        <a [title]="formatComments(post)" [routerLink]="['/post', post.id]">
-                            <i class="comment icon"></i>
-                            {{ post.comments.length }}
-                        </a>
-                        <a [title]="formatVotes(post)" (click)="toggleLike()">
-                            <i class="heart outline icon" [ngClass]="{heart: true, outline: !hasSelfLike, icon: true}"></i>
-                            {{ post.voteCount }}
-                        </a>
                     </div>
                 </div>
-                <ng-container *ngIf="mode != 'draft'">
-                    <div class="item">
-                        <a class="ui green image label" [routerLink]="['/post', post.id]">
-                            <i class="calendar icon"></i>
-                            <div *ngIf="mode === 'full'" title="First posted {{ post.date | humanReadableDate   }}" class="detail">{{ post.date | humanReadableDate }}</div>
-                            <div *ngIf="mode === 'condensed'" title="First posted {{ post.date | humanReadableDate   }}" class="detail">{{ post.latestActivity | humanReadableDate }}</div>
-                        </a>
-                    </div>
-                    <div class="item">
-                        <a class="ui green image label" *ngIf="post.primaryChannel" [routerLink]="['/feed', post.primaryChannel]">
-                            <i class="hashtag icon"></i>
-                            <div class="detail">{{ post.primaryChannel }}</div>
-                        </a>
-                    </div>
-                    <div class="item">
-                        <a class="ui green image label" [title]="formatVotes(post)" (click)="toggleLike()">
-                            <i class="heart outline icon" [ngClass]="{heart: true, outline: !hasSelfLike, icon: true}"></i>
-                            <div class="detail">{{ post.voteCount }}</div>
-                        </a>
-                        <a class="ui green image label" [title]="formatComments(post)" [routerLink]="['/post', post.id]">
-                            <i class="comment icon"></i>
-                            <div class="detail">{{ post.comments.length }}</div>
-                        </a>
-                        <div class="ui green image label" title="The estimated time to read this post in minutes">
-                            <i class="hourglass half icon"></i>
-                            <div *ngIf="mode == 'full'" class="detail">{{ post.readingTime | humanReadableDuration }}</div>
-                            <div *ngIf="mode != 'full'" class="detail">{{ post.totalReadingTime | humanReadableDuration }}</div>
-                        </div>
-                    </div>
-                    <div class="item">
-                        <a class="ui green image label" (click)="log()">
-                            <i class="bug icon"></i>
-                        </a>
-                    </div>
-                </ng-container>
+                <div class="extra content">
+                    <a [title]="formatComments(post)" [routerLink]="['/post', post.id]">
+                        <i class="comment icon"></i>
+                        {{ post.comments.length }}
+                    </a>
+                    <a [title]="formatVotes(post)" (click)="toggleLike()">
+                        <i class="heart outline icon" [ngClass]="{heart: true, outline: !hasSelfLike, icon: true}"></i>
+                        {{ post.voteCount }}
+                    </a>
+                    <span title="The estimated time to read this post in minutes">
+                        <i class="hourglass half icon"></i>
+                        <ng-container *ngIf="mode == 'full'" class="detail">{{ post.readingTime | humanReadableDuration }}</ng-container>
+                        <ng-container *ngIf="mode != 'full'" class="detail">{{ post.totalReadingTime | humanReadableDuration }}</ng-container>
+                    </span>
+                    <a (click)="log()">
+                        <i class="bug icon"></i>
+                    </a>
+                    <br />
+                    <a *ngIf="post.primaryChannel" [routerLink]="['/feed', post.primaryChannel]">
+                        <i class="hashtag icon"></i>
+                        {{ post.primaryChannel }}
+                    </a>
+
+                </div>
             </div>
         </div>
     </div>

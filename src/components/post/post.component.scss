@@ -1,3 +1,9 @@
+.active.post {
+    .content.column {
+        border: 1px solid rgba(34, 36, 38, 0.95);
+    }
+}
+
 .ui.label i.icon {
     margin-right: 0;
 }
@@ -19,18 +25,18 @@
     overflow: hidden;
     order: 0;
     flex: 1 1 auto;
-    align-self: auto;
+    align-self: stretch;
     padding-right: 1rem;
 }
 
 .details.column {
-    order: 0;
+    align-self: stretch;
+    order: 1;
     flex: 0 1 auto;
-    align-self: auto;
 
-    max-width: 200px;
-    min-width: 200px;
-    width: 200px;
+    max-width: 240px;
+    min-width: 240px;
+    width: 240px;
 
     padding-left: 1rem;
 
@@ -56,5 +62,3 @@
 
 
 }
-
-

@@ -137,6 +137,10 @@ export class PostModel extends BaseModel {
     }
 
     public get readingTime(): number {
-        return readingTime(this.content).time + 20000;
+        if (typeof this.content === 'string') {
+            return readingTime(this.content).time + 20000;
+        } else {
+            return 0;
+        }
     }
 }
