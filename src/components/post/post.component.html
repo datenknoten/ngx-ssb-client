@@ -4,13 +4,32 @@
             <div class="content column" [innerHtml]="convertHtml(post.html) | safeHtml" (click)="click($event)">
             </div>
             <div class="details column">
-                <img class="ui fluid rounded green image" [src]="getImage(post.author)  | safeSSBUrlPipe">
-                <div class="author item">
-                    <a class="ui green image label" [routerLink]="['/feed', post.authorId]">
-                        <i class="user icon"></i>
-                        <div class="detail" *ngIf="post.author">{{ post.author.primaryName }}</div>
-                        <div class="detail" *ngIf="!post.author">{{ post.authorId }}</div>
-                    </a>
+                <div class="ui fluid card">
+                    <div class="image">
+                        <img [src]="getImage(post.author)  | safeSSBUrlPipe">
+                    </div>
+                    <div class="content">
+                        <a class="header" [routerLink]="['/feed', post.authorId]">
+                            <ng-container *ngIf="post.author">{{ post.author.primaryName }}</ng-container>
+                            <ng-container *ngIf="!post.author">{{ post.authorId }}</ng-container>
+                        </a>
+                        <div class="meta" *ngIf="mode != 'draft'">
+                            <div class="date">
+                                <div *ngIf="mode === 'full'" class="detail">Posted {{ post.date | humanReadableDate }}</div>
+                                <div *ngIf="mode === 'condensed'" title="Posted {{ post.date | humanReadableDate   }}" class="detail">Last activity {{ post.latestActivity | humanReadableDate }}</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="extra content">
+                        <a [title]="formatComments(post)" [routerLink]="['/post', post.id]">
+                            <i class="comment icon"></i>
+                            {{ post.comments.length }}
+                        </a>
+                        <a [title]="formatVotes(post)" (click)="toggleLike()">
+                            <i class="heart outline icon" [ngClass]="{heart: true, outline: !hasSelfLike, icon: true}"></i>
+                            {{ post.voteCount }}
+                        </a>
+                    </div>
                 </div>
                 <ng-container *ngIf="mode != 'draft'">
                     <div class="item">

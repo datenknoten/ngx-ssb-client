@@ -17,7 +17,7 @@ export class HumanReadableDurationPipe implements PipeTransform {
         return humanizeDuration(value, {
             round: true,
             units: ['m'],
-        }).replace(' minutes', '');
+        }).replace(' minutes', '').replace(' minute', '');
     }
 
 }
