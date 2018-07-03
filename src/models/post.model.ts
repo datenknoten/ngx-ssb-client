@@ -27,7 +27,7 @@ export class PostModel extends BaseModel {
     public votes: VotingModel[] = [];
     public comments: PostModel[] = [];
     @IsString()
-    public content!: string;
+    public content?: string;
     @IsString()
     @IsOptional()
     public rootId?: string;

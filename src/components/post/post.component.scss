@@ -40,25 +40,20 @@
 
     padding-left: 1rem;
 
-    .item {
-        display: block;
-        margin-top: 0.5rem;
-        margin-bottom: 0.5rem;
+    .extra.content.container {
+        display: flex;
+        flex-direction: row;
+        flex-wrap: wrap;
+        justify-content: flex-start;
+        align-content: stretch;
+        align-items: stretch;
 
-        .ui.label > .detail {
-            vertical-align: middle;
+        & > * {
+            flex: 1 1 auto;
         }
 
-        .label {
-            max-width: 100%;
-            // overflow: hidden;
-
-            .detail {
-                overflow-wrap: break-word;
-                max-width: 94%;
-            }
+        & > .primary-channel {
+            width: 100%;
         }
     }
-
-
 }

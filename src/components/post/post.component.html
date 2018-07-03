@@ -20,7 +20,7 @@
                         </div>
                     </div>
                 </div>
-                <div class="extra content">
+                <div class="extra content container">
                     <a [title]="formatComments(post)" [routerLink]="['/post', post.id]">
                         <i class="comment icon"></i>
                         {{ post.comments.length }}
@@ -38,7 +38,7 @@
                         <i class="bug icon"></i>
                     </a>
                     <br />
-                    <a *ngIf="post.primaryChannel" [routerLink]="['/feed', post.primaryChannel]">
+                    <a class="primary-channel" *ngIf="post.primaryChannel" [routerLink]="['/feed', post.primaryChannel]">
                         <i class="hashtag icon"></i>
                         {{ post.primaryChannel }}
                     </a>
