@@ -44,7 +44,7 @@ export class PostComponent implements OnInit, OnDestroy {
     public post!: PostModel;
 
     @Input()
-    public mode: 'condensed' | 'full' | 'draft' = 'condensed';
+    public mode: 'condensed' | 'full' | 'draft' | 'comment' = 'condensed';
 
     @Input()
     public active: boolean = false;

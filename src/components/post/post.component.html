@@ -15,15 +15,17 @@
                     </a>
                     <div class="meta" *ngIf="mode != 'draft'">
                         <div class="date">
-                            <div *ngIf="mode === 'full'" class="detail">Posted {{ post.date | humanReadableDate }}</div>
+                            <div *ngIf="mode === 'full' || mode === 'comment'" class="detail">Posted {{ post.date | humanReadableDate }}</div>
                             <div *ngIf="mode === 'condensed'" title="Posted {{ post.date | humanReadableDate   }}" class="detail">Last activity {{ post.latestActivity | humanReadableDate }}</div>
                         </div>
                     </div>
                 </div>
                 <div class="extra content container">
                     <a [title]="formatComments(post)" [routerLink]="['/post', post.id]">
-                        <i class="comment icon"></i>
-                        {{ post.comments.length }}
+                        <ng-container *ngIf="mode !== 'comment'">
+                            <i class="comment icon"></i>
+                            {{ post.comments.length }}
+                        </ng-container>
                     </a>
                     <a [title]="formatVotes(post)" (click)="toggleLike()">
                         <i class="heart outline icon" [ngClass]="{heart: true, outline: !hasSelfLike, icon: true}"></i>
@@ -48,7 +50,7 @@
         </div>
     </div>
     <ng-container *ngIf="mode == 'full'">
-        <app-post [post]="comment" *ngFor="let comment of post.comments" (click)="setActiveComment(comment)"></app-post>
+        <app-post [post]="comment" *ngFor="let comment of post.comments" (click)="setActiveComment(comment)" mode="comment"></app-post>
         <div class="ui green segment">
             <app-new-post [context]="post"></app-new-post>
         </div>
