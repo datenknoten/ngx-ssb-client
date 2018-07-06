@@ -4,8 +4,8 @@ build_script:
     npm install
     npm run electron:windows
 
-deploy_script:
-  - ps: |
-    if($env:appveyor_repo_tag -eq 'True') {
-        print hallo
-    }
+# deploy_script:
+#   - ps: |
+#     if($env:appveyor_repo_tag -eq 'True') {
+#         print hallo
+#     }
