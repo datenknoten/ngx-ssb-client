@@ -2,7 +2,7 @@ test: off
 build_script:
   - ps: |
     npm install
-    npm run electron:windows
+    npm run "electron:windows"
 
 # deploy_script:
 #   - ps: |
