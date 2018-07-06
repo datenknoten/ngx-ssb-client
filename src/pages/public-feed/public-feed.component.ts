@@ -41,6 +41,7 @@ import {
 } from '../../components';
 import {
     CurrentFeedSettings,
+    GlobalState,
 } from '../../interfaces';
 import {
     IdentityDescriptionModel,
@@ -116,7 +117,9 @@ export class PublicFeedComponent implements OnDestroy {
             if (!(typeof id === 'string')) {
                 throw new Error('No Such Channel');
             }
-            if (ref.isFeedId(id)) {
+            if (id === 'mentions') {
+                // fetch mentions
+            } else if (ref.isFeedId(id)) {
                 await this._bot.fetchIdentityPosts(id);
             } else if (id !== 'public') {
                 await this._bot.fetchChannelPosts(id);
@@ -276,14 +279,33 @@ export class PublicFeedComponent implements OnDestroy {
         return false;
     }
 
-    private feedSelector(state: { posts: PostModel[], currentFeedSettings: CurrentFeedSettings }): PostModel[] {
+    private feedSelector(state: GlobalState): PostModel[] {
         const settings = state.currentFeedSettings;
 
         const _posts = state.posts
             .filter((item: PostModel) => !(typeof item.rootId === 'string'))
             .filter((item: PostModel) => {
                 const channel = settings.channel;
-                if (channel !== 'public') {
+                if (channel === 'mentions') {
+                    const self = this
+                        .store
+                        .selectSnapshot<IdentityModel | undefined>(
+                            (_state: GlobalState) => _state
+                                .identities
+                                .filter(_item => _item.isSelf)
+                                .pop(),
+                    );
+
+                    if (!(self instanceof IdentityModel)) {
+                        return false;
+                    }
+
+                    return ((item.mentions.map(_item => _item.link).includes(self.id)) ||
+                            (item
+                                .comments
+                                .map(_item => _item.mentions.map(mention => mention.link).includes(self.id))
+                                .filter(_item => _item === true).length > 0));
+                } else if (channel !== 'public') {
                     const type = ref.type(channel);
                     if (type === 'feed') {
                         return (item.authorId === channel) ||

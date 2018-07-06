@@ -160,6 +160,20 @@ export class AppComponent implements OnInit {
         }
     }
 
+    public async openMentions() {
+        const me = this
+        .store
+        .selectSnapshot(
+            (state: any) => state
+                .identities
+                .filter((item: IdentityModel) => item.isSelf).pop());
+
+    if (me instanceof IdentityModel) {
+        // tslint:disable-next-line:no-floating-promises
+        this.router.navigate(['/feed/mentions']);
+    }
+    }
+
     public goToChannel(event: MouseEvent, channel: ChannelSubscription) {
         event.preventDefault();
         this.sidebar.sidebar('toggle');
