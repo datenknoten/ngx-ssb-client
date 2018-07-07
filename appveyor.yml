@@ -1,8 +1,13 @@
 test: off
+
+artifacts:
+  - path: dist/ngx-ssb-client Setup 0.1.0.exe
+    name: Application
+
 build_script:
   ps: |
-    npm install
-    npm run electron:windows
+    npm --silent install
+    npm run --silent electron:windows
 
 # deploy_script:
 #   - ps: |
