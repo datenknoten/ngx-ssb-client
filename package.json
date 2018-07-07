@@ -15,7 +15,7 @@
         "postinstall": "electron-builder install-app-deps && patch-package",
         "start": "cross-env DEBUG=ngx* npm-run-all -p ng:serve electron:serve",
         "build": "ng build --base-href . && npm run electron:tsc",
-        "build:prod": "ng build --prod --base-href . && npm run electron:tsc",
+        "build:prod": "ng build --progress false --prod --base-href . && npm run electron:tsc",
         "ng:serve": "ng serve",
         "electron:start": "electron .",
         "electron:tsc": "tsc -p tsconfig.electron.json",
