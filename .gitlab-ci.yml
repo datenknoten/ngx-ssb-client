@@ -35,5 +35,10 @@ build app:
 
 package linux app:
     stage: package
+    artifacts:
+        name: "$CI_COMMIT_REF_NAME"
+        paths:
+            - out/ngx-ssb-client-x86_64.AppImage
+            - out/ngx-ssb-client-amd64.snap
     script:
         - npm run electron:linux
