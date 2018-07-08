@@ -6,9 +6,9 @@ stages:
     - build
     - package
 
-cache:
-    paths:
-        - node_modules
+# cache:
+#     paths:
+#         - node_modules
 
 before_script:
     - echo "unsafe-perm=true" > ~/.npmrc
