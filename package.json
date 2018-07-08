@@ -13,7 +13,11 @@
         "artifactName": "${productName}-${arch}.${ext}",
         "directories": {
             "output": "out"
-        }
+        },
+        "asarUnpack": [
+            "**node_modules/mmmagic/**"
+        ],
+        "asar": false
     },
     "scripts": {
         "ng": "ng",
@@ -26,6 +30,7 @@
         "e2e": "ng e2e",
         "postinstall": "electron-builder install-app-deps && patch-package",
         "start": "cross-env DEBUG=ngx* npm-run-all -p ng:serve electron:serve",
+        "start:prod": "npm run build:prod && electron .",
         "build": "ng build --base-href . && npm run electron:tsc",
         "build:prod": "ng build --progress false --prod --base-href . && npm run electron:tsc",
         "ng:serve": "ng serve",
