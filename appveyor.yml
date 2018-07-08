@@ -22,5 +22,4 @@ deploy:
     artifact: out/ngx-ssb-client.exe
     draft: true
     on:
-        branch: master                 # release from master branch only
         appveyor_repo_tag: true        # deploy on tag push only
