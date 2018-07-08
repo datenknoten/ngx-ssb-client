@@ -4,6 +4,7 @@ stages:
     - lint
     - test
     - build
+    - package
 
 cache:
     paths:
@@ -31,3 +32,8 @@ build app:
     stage: build
     script:
         - npm run ng -- build --prod --progress=false
+
+package linux app:
+    stage: package
+    script:
+        - npm run electron:linux
