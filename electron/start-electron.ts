@@ -28,7 +28,7 @@ import {
     createBlobHandler,
     openWindow,
     setupContext,
-} from '../electron';
+} from '.';
 
 const debug = require('debug')('ngx:ssb:init');
 
@@ -61,6 +61,8 @@ const debug = require('debug')('ngx:ssb:init');
                 electron: require(`${__dirname}/../node_modules/electron`),
             });
             win = openWindow('http://localhost:4200', windowOptions);
+
+            win.webContents.openDevTools();
         } else {
             win = openWindow(url.format({
                 pathname: path.resolve(__dirname, '../dist/index.html'),
@@ -71,10 +73,10 @@ const debug = require('debug')('ngx:ssb:init');
 
         win.maximize();
 
-        win.webContents.openDevTools();
-
         win.on('closed', () => {
-            win = null;
+            signale.error('main window closed');
+            app.quit();
+            setTimeout(() => process.exit(0), 500);
         });
 
         protocol.registerBufferProtocol('ssb', createBlobHandler());
@@ -84,7 +86,7 @@ const debug = require('debug')('ngx:ssb:init');
     app.on('ready', createWindow);
 
     app.on('window-all-closed', () => {
+        signale.error('All windows closed');
         app.quit();
     });
 })();
-
