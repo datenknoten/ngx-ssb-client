@@ -1,13 +1,16 @@
 test: off
 
 artifacts:
-  - path: dist/ngx-ssb-client Setup 0.1.0.exe
-    name: Application
+  - path: dist/ngx-ssb-client-x64.exe
+    name: Application (64 Bit)
+  - path: dist/ngx-ssb-client-ia32.exe
+    name: Application (32 Bit)
 
 build_script:
   ps: |
     npm --silent install
     npm run --silent electron:windows
+    npm run --silent electron:windows32
 
 # deploy_script:
 #   - ps: |
