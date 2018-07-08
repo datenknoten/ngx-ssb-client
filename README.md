@@ -3,7 +3,7 @@
 
 [![pipeline status](https://gitlab.com/datenknoten/ngx-ssb-client/badges/develop/pipeline.svg)](https://gitlab.com/datenknoten/ngx-ssb-client/commits/develop)
 
-![ngx-ssb-client screenshot](client-screenshot)
+![ngx-ssb-client screenshot](client-screenshot.png)
 
 I started this client to the secure scuttlebutt network for two reasons:
 
