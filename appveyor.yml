@@ -6,7 +6,7 @@ test: off
 
 artifacts:
     - path: out/ngx-ssb-client.exe
-        name: Application (64 Bit)
+      name: Application
 
 build_script:
     ps: |
