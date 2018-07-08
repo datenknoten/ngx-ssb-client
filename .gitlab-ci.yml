@@ -34,6 +34,8 @@ build app:
         - npm run ng -- build --prod --progress=false
 
 package linux app:
+    only:
+        - tags
     stage: package
     artifacts:
         name: "$CI_COMMIT_REF_NAME"
@@ -42,3 +44,8 @@ package linux app:
             - out/ngx-ssb-client-amd64.snap
     script:
         - npm run electron:linux
+        - wget https://github.com/aktau/github-release/releases/download/v0.7.2/linux-amd64-github-release.tar.bz2
+        - echo '16515e89c8419075c7c88df5cdaac63aa798f539a33107809adbde76e002ac0732f4732159d093e287878b956c650e90cd0fa94d4836ebcf7cd19599e1d238c3  linux-amd64-github-release.tar.bz2'  | sha512sum -c -
+        - tar xf linux-amd64-github-release.tar.bz2 --strip-components 3 bin/linux/amd64/github-release
+        - github-release upload --user datenknoten --repo ngx-ssb-client --tag $CI_COMMIT_REF_SLUG --name "ngx-ssb-client-amd64.snap" --file out/ngx-ssb-client-amd64.snap
+        - github-release upload --user datenknoten --repo ngx-ssb-client --tag $CI_COMMIT_REF_SLUG --name "ngx-ssb-client-x86_64.AppImage" --file out/ngx-ssb-client-x86_64.AppImage
