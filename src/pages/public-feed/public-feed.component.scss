@@ -22,3 +22,19 @@
         min-width: 200px;
     }
 }
+
+.loading-container {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: nowrap;
+    justify-content: flex-start;
+    align-content: center;
+    align-items: stretch;
+
+    .loading {
+        order: 0;
+        flex: 1 1 auto;
+        align-self: stretch;
+        text-align: center;
+    }
+}

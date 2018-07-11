@@ -72,6 +72,9 @@ export class PublicFeedComponent implements OnDestroy {
     @Select(CurrentFeedSettingState)
     public settings?: Observable<CurrentFeedSettings>;
 
+    @Select((state: GlobalState) => state.currentFeedSettings.loadingFeed)
+    public loading?: Observable<boolean>;
+
     @ViewChild('feedContainer')
     public feedContainer?: ElementRef;
 
@@ -195,7 +198,7 @@ export class PublicFeedComponent implements OnDestroy {
 
     public pageForward() {
         // tslint:disable-next-line:no-floating-promises
-        this._bot.updateFeed(500, true);
+        this._bot.updateFeed(true);
         this.store.dispatch(new PaginateFeed(1)).subscribe(() => {
             window.scroll(0, 0);
         });
