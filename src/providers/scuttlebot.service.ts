@@ -269,6 +269,7 @@ export class ScuttlebotService {
     }
 
     public async fetchChannelPosts(channel: string) {
+        this.store.dispatch(new LoadFeed(true));
         const filter = {
             // live: true,
             reverse: true,
@@ -290,6 +291,7 @@ export class ScuttlebotService {
         );
 
         await this.drainFeed(stream, this.parsePacket);
+        this.store.dispatch(new LoadFeed(false));
     }
 
     public async fetchPostVotings(post: PostModel) {
