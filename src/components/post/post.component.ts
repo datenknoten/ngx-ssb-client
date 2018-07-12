@@ -21,6 +21,9 @@ import { Hotkey, HotkeysService } from 'angular2-hotkeys';
 import { memoize } from 'decko';
 
 import {
+    AddVoting,
+} from '../../actions';
+import {
     IdentityModel,
     PostModel,
     VotingModel,
@@ -195,8 +198,10 @@ export class PostComponent implements OnInit, OnDestroy {
             throw new Error('Self not found');
         }
 
+        voting.date = new Date();
+
         await this.scuttlebot.publish(voting);
-        await this.scuttlebot.updateFeed();
+        this.store.dispatch(new AddVoting(voting));
     }
 
     public async click(event: MouseEvent) {
