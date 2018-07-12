@@ -9,6 +9,25 @@
         <textarea #editor></textarea>
     </div>
     <div class="extra content">
+        <div class="ui segment" *ngIf="editHelpVisibile === false" (click)="toggleEditHelp()">
+            <h4>Editing Help</h4>
+        </div>
+        <ng-container *ngIf="editHelpVisibile === true">
+            <div class="ui top attached secondary segment" (click)="toggleEditHelp()">
+                <h4>Editing Help</h4>
+            </div>
+            <div class="ui attached segment">
+                <ul>
+                    <li>You can use <a href="https://guides.github.com/features/mastering-markdown/">Markdown</a> here to format your post.</li>
+                    <li>You can drop Images or other Files here.</li>
+                    <li>Usable emojis can be found on <a href="https://www.webpagefx.com/tools/emoji-cheat-sheet/">https://www.webpagefx.com/tools/emoji-cheat-sheet/</a></li>
+                    <li>You can search for Identities, Blobs and Emojis by entering part of the word and pressing the keys ctrl and space at the same time.</li>
+                    <li>Please be aware, that once you post your message it is in the eternal log and can't be deleted.</li>
+                </ul>
+            </div>
+        </ng-container>
+    </div>
+    <div class="extra content">
         <div class="right aligned">
             <button class="ui red button" (click)="cancel()">Cancel</button>
             <button class="ui green button" (click)="submit()">Post</button>

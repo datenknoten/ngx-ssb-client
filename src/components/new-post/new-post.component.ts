@@ -53,14 +53,13 @@ export class NewPostComponent {
 
     public suggestionModal!: any;
 
+    public editHelpVisibile: boolean = true;
+
     @ViewChildren('editor')
     private editorContainer!: QueryList<any>;
 
     @ViewChild('preview')
     private preview!: ElementRef;
-
-    // @ViewChild('suggestion')
-    // private suggestion!: ElementRef;
 
 
     public constructor(
@@ -68,6 +67,10 @@ export class NewPostComponent {
         public store: Store,
         private _suggestion: SuggestionService,
     ) { }
+
+    public toggleEditHelp() {
+        this.editHelpVisibile = !this.editHelpVisibile;
+    }
 
     public setupEditor() {
         const that = this;
