@@ -162,22 +162,25 @@ export class AppComponent implements OnInit {
 
     public async openMentions() {
         const me = this
-        .store
-        .selectSnapshot(
-            (state: any) => state
-                .identities
-                .filter((item: IdentityModel) => item.isSelf).pop());
+            .store
+            .selectSnapshot(
+                (state: any) => state
+                    .identities
+                    .filter((item: IdentityModel) => item.isSelf).pop());
 
-    if (me instanceof IdentityModel) {
-        // tslint:disable-next-line:no-floating-promises
-        this.router.navigate(['/feed/mentions']);
-    }
+        if (me instanceof IdentityModel) {
+            // tslint:disable-next-line:no-floating-promises
+            this.router.navigate(['/feed/mentions']);
+        }
     }
 
-    public goToChannel(event: MouseEvent, channel: ChannelSubscription) {
+    public async goToChannel(event: MouseEvent, channel: ChannelSubscription | IdentityModel) {
         event.preventDefault();
         this.sidebar.sidebar('toggle');
-        // tslint:disable-next-line:no-floating-promises
-        this.router.navigate(['/feed/', channel.channel]);
+        if (channel instanceof ChannelSubscription) {
+            await this.router.navigate(['/feed/', channel.channel]);
+        } else if (channel instanceof IdentityModel) {
+            await this.router.navigate(['/feed/', channel.id]);
+        }
     }
 }
