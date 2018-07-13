@@ -6,6 +6,7 @@ import {
     Action,
     State,
     StateContext,
+    Store,
 } from '@ngxs/store';
 
 import {
@@ -29,6 +30,10 @@ const normalizeChannel = window.require('ssb-ref').normalizeChannel;
     defaults: [],
 })
 export class IdentitiesState {
+    public constructor(
+        public store: Store,
+    ) {}
+
     @Action(UpdateIdentity)
     public updateIdentity(ctx: StateContext<IdentityModel[]>, action: UpdateIdentity) {
         const state = ctx.getState();

@@ -54,20 +54,43 @@ export class ScuttlebotService {
         this.init();
     }
 
-    public async updateFeed(itemCount: number = 500, loadMore: boolean = false) {
+    public async updateFeed(loadMore: boolean = false) {
         this.store.dispatch(new LoadFeed(true));
-        const feed = this.bot.createFeedStream({
+        const ltFilter = (
+            (loadMore === true && typeof this.lastUpdate === 'number') ?
+                this.lastUpdate : undefined
+        );
+        const query = {
+            // live: true,
+            limit: 50,
             reverse: true,
-            lt: ((loadMore === true && typeof this.lastUpdate === 'number') ? this.lastUpdate : undefined),
-            limit: itemCount,
-        });
-        return this.drainFeed(feed, (packet: any) => {
-            this.parsePacket(packet);
+            query: [{
+                $filter: {
+                    timestamp: {
+                        $lt: ltFilter,
+                    },
+                    value: {
+                        timestamp: {
+                            // forces results ordered by published time
+                            $gt: 0,
+                        },
+                        content: {
+                            type: 'post',
+                            // root: { $is: 'undefined' },
+                        },
+                    },
+                },
+            }],
+        };
+        const feed = this.bot.query.read(query);
+        await this.drainFeed(feed, async (packet: any) => {
+            await this.parsePacket(packet);
             if ((typeof this.lastUpdate === 'undefined') || (packet.timestamp < this.lastUpdate)) {
                 this.lastUpdate = packet.timestamp;
             }
         });
 
+        this.store.dispatch(new LoadFeed(false));
     }
 
     public async publishPost(post: PostModel) {
@@ -184,11 +207,9 @@ export class ScuttlebotService {
         try {
             const packet = await get(id);
             if (packet && packet.content) {
-                setImmediate(() => {
-                    this.parsePacket({
-                        key: id,
-                        value: packet,
-                    });
+                await this.parsePacket({
+                    key: id,
+                    value: packet,
                 });
             }
         } catch (error) {
@@ -231,6 +252,7 @@ export class ScuttlebotService {
     }
 
     public async fetchIdentityPosts(id: string) {
+        this.store.dispatch(new LoadFeed(true));
         const stream = pull(
             this.bot.createUserStream({
                 id,
@@ -243,9 +265,11 @@ export class ScuttlebotService {
         );
 
         await this.drainFeed(stream, this.parsePacket);
+        this.store.dispatch(new LoadFeed(false));
     }
 
     public async fetchChannelPosts(channel: string) {
+        this.store.dispatch(new LoadFeed(true));
         const filter = {
             // live: true,
             reverse: true,
@@ -267,6 +291,18 @@ export class ScuttlebotService {
         );
 
         await this.drainFeed(stream, this.parsePacket);
+        this.store.dispatch(new LoadFeed(false));
+    }
+
+    public async fetchPostVotings(post: PostModel) {
+        const query = {
+            rel: 'vote',
+            dest: post.id,
+        };
+        const feed = this.bot.links(query);
+        return this.drainFeed(feed, async (packet: any) => {
+            await this.get(packet.key);
+        });
     }
 
     private async fetchThread(id: string) {
@@ -289,7 +325,7 @@ export class ScuttlebotService {
             if ((post instanceof PostModel) && !post.isMissing) {
                 return;
             }
-            this.parsePost(_id, data.value);
+            await this.parsePost(_id, data.value);
         });
     }
 
@@ -306,7 +342,7 @@ export class ScuttlebotService {
 
         await this.fetchContacts(whoami.id);
 
-        await this.updateFeed(500);
+        await this.updateFeed();
     }
 
     private async getFeedItem(feed: any): Promise<any> {
@@ -505,7 +541,7 @@ export class ScuttlebotService {
         });
     }
 
-    private parsePost(id: string, packet: any) {
+    private async parsePost(id: string, packet: any) {
         const post = new PostModel();
         post.id = id;
         post.raw = packet;
@@ -516,11 +552,6 @@ export class ScuttlebotService {
             .selectSnapshot<IdentityModel[]>((state) => state.identities)
             .filter(item => item.id === packet.author)
             .pop();
-        if (!(post.author instanceof IdentityModel) ||
-            ((post.author instanceof IdentityModel) && post.author.isMissing)) {
-            // tslint:disable-next-line:no-floating-promises
-            this.fetchIdentity(post.authorId);
-        }
         post.votes = this
             .store
             .selectSnapshot<VotingModel[]>((state) => state.votings)
@@ -535,18 +566,21 @@ export class ScuttlebotService {
             }
         }
         this.store.dispatch(new UpdatePost(post));
+        await this.fetchPostVotings(post);
+        if (!(post.author instanceof IdentityModel) ||
+            ((post.author instanceof IdentityModel) && post.author.isMissing)) {
+            await this.fetchIdentity(post.authorId);
+        }
         if (typeof post.rootId === 'string') {
             // got a non root node, fetch the root
-            // tslint:disable-next-line:no-floating-promises
-            this.get(packet.content.root);
+            await this.get(packet.content.root);
         } else {
             // got a root node, fetch the whole thread
-            // tslint:disable-next-line:no-floating-promises
-            this.fetchThread(post.id);
+            await this.fetchThread(post.id);
         }
     }
 
-    private parsePacket(_packet: any) {
+    private async parsePacket(_packet: any) {
         this.store.dispatch(new UpdateMessageCount());
         const id = _packet.key;
         const packet = _packet.value;
@@ -557,7 +591,7 @@ export class ScuttlebotService {
         const packetType = packet.content.type;
 
         if (packetType === 'post') {
-            this.parsePost(id, packet);
+            await this.parsePost(id, packet);
         } else if (packetType === 'vote') {
             const voting = new VotingModel();
             voting.id = id;
@@ -573,8 +607,7 @@ export class ScuttlebotService {
                 .filter(item => item.id === packet.author)
                 .pop();
             if (!(voting.author instanceof IdentityModel)) {
-                // tslint:disable-next-line:no-floating-promises
-                this.fetchIdentity(voting.authorId);
+                await this.fetchIdentity(voting.authorId);
             }
             this.store.dispatch(new AddVoting(voting));
         } else if (packetType === 'channel') {
@@ -592,15 +625,15 @@ export class ScuttlebotService {
         return new Promise<void>((resolve, reject) => {
             pull(
                 feed,
-                pull.collect((err: any, data: any) => {
+                pull.collect(async (err: any, data: any) => {
                     if (err) {
                         reject(err);
                         return;
                     }
                     for (const item of data) {
-                        setImmediate(() => {
-                            callback.bind(this, item)();
-                        });
+                        // setImmediate(() => {
+                        await callback.bind(this, item)();
+                        // });
                     }
                     resolve();
                 }),

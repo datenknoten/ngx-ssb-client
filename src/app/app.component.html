@@ -60,7 +60,7 @@
             <i class="users icon"></i>
             Following
             <div class="menu">
-                <a class="item" (click)="log(followee)" *ngFor="let followee of (self | async)?.following">
+                <a class="item" (click)="goToChannel($event, followee)" *ngFor="let followee of (self | async)?.following">
                     <img class="ui left spaced mini image" src="./assets/img/image.png" *ngIf="!followee.primaryImage">
                     <img class="ui left spaced mini image" [src]="formatBlobUrl(followee.primaryImage)  | safeSSBUrlPipe" *ngIf="followee.primaryImage"> {{ followee.primaryName }}
                     <!-- <div class="horizontal ui label" title="3 new messages">3</div> -->
