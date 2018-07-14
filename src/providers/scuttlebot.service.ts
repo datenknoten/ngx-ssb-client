@@ -256,7 +256,7 @@ export class ScuttlebotService {
         const stream = pull(
             this.bot.createUserStream({
                 id,
-                limit: 500,
+                limit: 100,
                 reverse: true,
             }),
             pull.filter((msg: any) => {
