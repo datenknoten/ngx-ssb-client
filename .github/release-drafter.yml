@@ -1,0 +1,14 @@
+template: |
+  # ngx-ssb-client x.y.z
+
+  *Header Image here*
+
+  Summary of changes here
+
+  Hashes with [minisign](https://jedisct1.github.io/minisign/) here.
+
+  Links to DAT
+
+  ## What's Changed
+
+  $CHANGES
