@@ -1,5 +1,13 @@
 /* You can add global styles to this file, and also import other style files */
 
+@import '~@angular/material/prebuilt-themes/purple-green.css';
+
+/* .mat-dialog-container {
+    color: inherit !important;
+    background-color: transparent !important;
+} */
+
+
 @font-face {
     font-family: 'Titillium';
     src: local('Titillium Semibold Upright'), local('Titillium-SemiboldUpright'),

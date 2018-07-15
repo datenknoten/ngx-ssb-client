@@ -12,6 +12,7 @@ import {
     QueryList,
     ViewChildren,
 } from '@angular/core';
+import { MatDialog } from '@angular/material';
 import { Router } from '@angular/router';
 import {
     Store,
@@ -23,6 +24,7 @@ import { memoize } from 'decko';
 import {
     AddVoting,
 } from '../../actions';
+import { BlobComponent } from '../../components';
 import {
     IdentityModel,
     PostModel,
@@ -70,6 +72,7 @@ export class PostComponent implements OnInit, OnDestroy {
         private _hotkeysService: HotkeysService,
         private _scrollService: ScrollToService,
         private changeDetectorRef: ChangeDetectorRef,
+        public dialog: MatDialog,
     ) {
     }
 
@@ -214,16 +217,7 @@ export class PostComponent implements OnInit, OnDestroy {
         if (anchor instanceof HTMLAnchorElement) {
             event.preventDefault();
             if (anchor.href.startsWith('ssb://')) {
-                const target = anchor.href.replace(/^ssb:\/\/ssb\//, '');
-                const id = ref.extract(target);
-                const type = ref.type(id);
-                if (type === 'msg') {
-                    await this.openDetail(id);
-                } else if (type === 'feed') {
-                    await this.router.navigate(['/feed/', id]);
-                } else if (target.startsWith('#')) {
-                    await this.router.navigate(['/feed', ref.normalizeChannel(target)]);
-                }
+                await this.handleSSBLinks(anchor);
             } else if (anchor.href.startsWith('http')) {
                 this.electron.remote.shell.openExternal(anchor.href);
             }
@@ -246,6 +240,28 @@ export class PostComponent implements OnInit, OnDestroy {
             }
         }
         this.changeDetectorRef.detectChanges();
+    }
+
+    private async handleSSBLinks(anchor: HTMLAnchorElement) {
+        const target = anchor.href.replace(/^ssb:\/\/ssb\//, '');
+        const id = ref.extract(target);
+        const type = ref.type(id);
+        if (type === 'msg') {
+            await this.openDetail(id);
+        }
+        else if (type === 'feed') {
+            await this.router.navigate(['/feed/', id]);
+        }
+        else if (target.startsWith('#')) {
+            await this.router.navigate(['/feed', ref.normalizeChannel(target)]);
+        }
+        else if (type === 'blob') {
+            this.dialog.open(BlobComponent, {
+                data: {
+                    blobId: id,
+                },
+            });
+        }
     }
 
     private favoriteActiveItem() {

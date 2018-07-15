@@ -6,8 +6,14 @@ import {
     NgModule,
 } from '@angular/core';
 import {
+    MatDialogModule,
+} from '@angular/material';
+import {
     BrowserModule,
 } from '@angular/platform-browser';
+import {
+    NoopAnimationsModule,
+} from '@angular/platform-browser/animations';
 import {
     RouterModule,
 } from '@angular/router';
@@ -18,6 +24,7 @@ import { ScrollToModule } from '@nicky-lenaers/ngx-scroll-to';
 import { HotkeyModule } from 'angular2-hotkeys';
 
 import {
+    BlobComponent,
     NewPostComponent,
     PostComponent,
     SuggestionBoxComponent,
@@ -62,6 +69,7 @@ import {
         PublicFeedComponent,
         SafeSSBUrlPipe,
         SuggestionBoxComponent,
+        BlobComponent,
     ],
     imports: [
         RouterModule.forRoot([
@@ -93,6 +101,8 @@ import {
             disableCheatSheet: false,
             cheatSheetCloseEsc: true,
         }),
+        NoopAnimationsModule,
+        MatDialogModule,
     ],
     providers: [
         ElectronService,
@@ -104,6 +114,7 @@ import {
     entryComponents: [
         PostDetailComponent,
         PublicFeedComponent,
+        BlobComponent,
     ],
 })
 export class AppModule { }

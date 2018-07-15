@@ -336,6 +336,43 @@ export class ScuttlebotService {
         });
     }
 
+    public async getMimeTypeFor(id: string): Promise<string> {
+        if (!id.startsWith('&')) {
+            throw new Error('not a valid blob id');
+        }
+
+        return new Promise<string>((resolve, reject) => {
+            this.bot.getMimeTypeFor(id, (err: any, data: string) => {
+                if (err) {
+                    reject(err);
+                    return;
+                }
+                resolve(data);
+            });
+        });
+    }
+
+    public async getBlob(id: string): Promise<Buffer[]> {
+        const hasBlob = util.promisify(this.bot.blobs.has);
+
+        if (!hasBlob(id)) {
+            throw new Error('blob is not available');
+        }
+
+        return new Promise<Buffer[]>((resolve, reject) => {
+            pull(
+                this.bot.blobs.get(id),
+                pull.collect((error: any, array: Buffer[]) => {
+                    if (error) {
+                        reject(new Error('Failed to fetch blob'));
+                        return;
+                    }
+                    resolve(array);
+                }),
+            );
+        });
+    }
+
     private async fetchThread(id: string) {
         await this.get(id);
 
