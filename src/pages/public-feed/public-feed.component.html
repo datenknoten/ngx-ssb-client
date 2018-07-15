@@ -11,7 +11,17 @@
         <div class="ui green segment" *ngIf="(identity | async)">
             <div class="identity grid">
                 <div class="text column">
-                    <h1 class="ui dividing header">{{ (identity | async).primaryName }}</h1>
+                    <h1 class="ui dividing header">
+                        {{ (identity | async).primaryName }}
+                        <ng-container *ngIf="(identity | async).isSelf === false">
+                            <button class="ui green basic right floated button" (click)="toggleFollow()" *ngIf="!(self | async).isFollowing(identity | async)">
+                                Follow
+                            </button>
+                            <button class="ui green right floated button" (click)="toggleFollow()" *ngIf="(self | async).isFollowing(identity | async)">
+                                Unfollow
+                            </button>
+                        </ng-container>
+                    </h1>
                     <p *ngIf="(identity | async ).about" [innerHtml]="getDescription(identity | async) | safeHtml"></p>
                 </div>
                 <div class="image column" *ngIf="(identity | async).primaryImage">

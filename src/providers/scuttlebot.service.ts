@@ -14,6 +14,7 @@ import * as moment from 'moment';
 import {
     AddVoting,
     LoadFeed,
+    ResetContacts,
     SetChannelSubscription,
     SetContact,
     UpdateIdentity,
@@ -23,6 +24,7 @@ import {
 import {
     FeedEndError,
 } from '../errors';
+import { GlobalState } from '../interfaces';
 import {
     IdentityDescriptionModel,
     IdentityImageModel,
@@ -32,6 +34,7 @@ import {
     PostModel,
     VotingModel,
 } from '../models';
+import { IdentityID } from '../types';
 
 import { HelperService } from './helper.service';
 
@@ -54,43 +57,30 @@ export class ScuttlebotService {
         this.init();
     }
 
-    public async updateFeed(loadMore: boolean = false) {
-        this.store.dispatch(new LoadFeed(true));
-        const ltFilter = (
-            (loadMore === true && typeof this.lastUpdate === 'number') ?
-                this.lastUpdate : undefined
-        );
-        const query = {
-            // live: true,
-            limit: 50,
-            reverse: true,
-            query: [{
-                $filter: {
-                    timestamp: {
-                        $lt: ltFilter,
-                    },
-                    value: {
-                        timestamp: {
-                            // forces results ordered by published time
-                            $gt: 0,
-                        },
-                        content: {
-                            type: 'post',
-                            // root: { $is: 'undefined' },
-                        },
-                    },
-                },
-            }],
+    public async publishSubscription(identity: IdentityModel) {
+        const me = this
+            .store
+            .selectSnapshot<IdentityModel | undefined>(
+                (state: GlobalState) =>
+                    state
+                        .identities
+                        .filter(item => item.isSelf)
+                        .pop(),
+            );
+        if (!(me instanceof IdentityModel)) {
+            throw new Error('Self not found');
+        }
+        const json = {
+            type: 'contact',
+            contact: identity.id,
+            following: !me.isFollowing(identity),
         };
-        const feed = this.bot.query.read(query);
-        await this.drainFeed(feed, async (packet: any) => {
-            await this.parsePacket(packet);
-            if ((typeof this.lastUpdate === 'undefined') || (packet.timestamp < this.lastUpdate)) {
-                this.lastUpdate = packet.timestamp;
-            }
-        });
 
-        this.store.dispatch(new LoadFeed(false));
+        const publish = util.promisify(this.bot.publish);
+
+        await publish(json);
+
+        await this.fetchContacts(me.id);
     }
 
     public async publishPost(post: PostModel) {
@@ -145,11 +135,13 @@ export class ScuttlebotService {
         await publish(json);
     }
 
-    public async publish(message: PostModel | VotingModel) {
+    public async publish(message: PostModel | VotingModel | IdentityModel) {
         if (message instanceof PostModel) {
             return this.publishPost(message);
         } else if (message instanceof VotingModel) {
             return this.publishVoting(message);
+        } else if (message instanceof IdentityModel) {
+            return this.publishSubscription(message);
         } else {
             throw new Error('Invalid Model');
         }
@@ -187,6 +179,45 @@ export class ScuttlebotService {
                 cb(true);
             });
         });
+    }
+
+    public async updateFeed(loadMore: boolean = false) {
+        this.store.dispatch(new LoadFeed(true));
+        const ltFilter = (
+            (loadMore === true && typeof this.lastUpdate === 'number') ?
+                this.lastUpdate : undefined
+        );
+        const query = {
+            // live: true,
+            limit: 50,
+            reverse: true,
+            query: [{
+                $filter: {
+                    timestamp: {
+                        $lt: ltFilter,
+                    },
+                    value: {
+                        timestamp: {
+                            // forces results ordered by published time
+                            $gt: 0,
+                        },
+                        content: {
+                            type: 'post',
+                            // root: { $is: 'undefined' },
+                        },
+                    },
+                },
+            }],
+        };
+        const feed = this.bot.query.read(query);
+        await this.drainFeed(feed, async (packet: any) => {
+            await this.parsePacket(packet);
+            if ((typeof this.lastUpdate === 'undefined') || (packet.timestamp < this.lastUpdate)) {
+                this.lastUpdate = packet.timestamp;
+            }
+        });
+
+        this.store.dispatch(new LoadFeed(false));
     }
 
     public async get(id?: string): Promise<void> {
@@ -397,7 +428,7 @@ export class ScuttlebotService {
         return following;
     }
 
-    private async fetchContacts(id?: string) {
+    private async fetchContacts(id?: IdentityID) {
         if (!(typeof id === 'string')) {
             return;
         }
@@ -405,6 +436,8 @@ export class ScuttlebotService {
         if (!id.startsWith('@')) {
             return;
         }
+
+        this.store.dispatch(new ResetContacts(id));
 
         const feed = this.bot.friends.stream({ live: true });
 
@@ -419,8 +452,7 @@ export class ScuttlebotService {
         const following = this.extractFollowing(id, data);
 
         for (const follower of followers) {
-            // tslint:disable-next-line:no-floating-promises
-            this.fetchIdentity(follower);
+            await this.fetchIdentity(follower);
             this.store.dispatch(new SetContact(
                 follower,
                 id,
@@ -428,8 +460,7 @@ export class ScuttlebotService {
         }
 
         for (const followee of following) {
-            // tslint:disable-next-line:no-floating-promises
-            this.fetchIdentity(followee);
+            await this.fetchIdentity(followee);
             this.store.dispatch(new SetContact(
                 id,
                 followee,
