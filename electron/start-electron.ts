@@ -79,6 +79,15 @@ const debug = require('debug')('ngx:ssb:init');
             setTimeout(() => process.exit(0), 500);
         });
 
+        const handleRedirect = (event: any, redirectUrl: string) => {
+            event.preventDefault();
+            require('electron').shell.openExternal(redirectUrl);
+            return false;
+        };
+
+        win.webContents.on('will-navigate', handleRedirect);
+        win.webContents.on('new-window', handleRedirect);
+
         protocol.registerBufferProtocol('ssb', createBlobHandler());
     }
 
