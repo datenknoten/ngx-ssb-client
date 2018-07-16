@@ -1,0 +1,23 @@
+<div class="ui image segment">
+    <div class="container">
+        <div class="image">
+            <div #pdf *ngIf="(mimeType | async) == 'application/pdf'">
+                <p>
+                    Here should be <a href="http://mozilla.github.io/pdf.js/">pdf.js</a> instance to render this pdf. If you want to work on this have a look at <a href="https://github.com/datenknoten/ngx-ssb-client/issues/42">bug #42</a>
+                </p>
+            </div>
+            <img class="ui fluid rounded image" [src]="blobLink  | safeSSBUrlPipe" *ngIf="(mimeType | async) != 'application/pdf'">
+        </div>
+        <div class="details">
+            <h3 class="ui dividing header">{{ blobId }}</h3>
+            <p>
+                MimeType: {{ mimeType | async }}
+            </p>
+            <p>
+                <button class="ui green button" (click)="saveBlob()">
+                    Download
+                </button>
+            </p>
+        </div>
+    </div>
+</div>

@@ -42,6 +42,10 @@ export class IdentityModel extends BaseModel {
         return this.id;
     }
 
+    public isFollowing(identity: IdentityModel): boolean {
+        return this.following.filter(item => item.id === identity.id).length === 1;
+    }
+
     private primaryReducer(previous: any, current: any) {
         if (current.weight > previous.weight) {
             return current;

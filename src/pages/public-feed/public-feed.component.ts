@@ -83,6 +83,13 @@ export class PublicFeedComponent implements OnDestroy {
 
     public activeFeedItem?: PostComponent;
 
+    @Select((state: GlobalState) => state
+        .identities
+        .filter(_item => _item.isSelf)
+        .pop(),
+    )
+    public self!: Observable<IdentityModel>;
+
     private hotkeys: Hotkey[] = [];
 
     // tslint:disable-next-line:parameters-max-number
@@ -229,6 +236,28 @@ export class PublicFeedComponent implements OnDestroy {
         this.changeDetectorRef.detectChanges();
     }
 
+    public async toggleFollow() {
+        const settings = this
+            .store
+            .selectSnapshot<CurrentFeedSettings>((state: GlobalState) => state.currentFeedSettings);
+
+        if (settings.channelType === 'feed') {
+            const identity = this
+                .store
+                .selectSnapshot<IdentityModel | undefined>(
+                    (state: GlobalState) =>
+                        state
+                            .identities
+                            .filter(item => settings.channel === item.id)
+                            .pop(),
+                );
+            if (identity instanceof IdentityModel) {
+                await this._bot.publishSubscription(identity);
+            }
+
+        }
+    }
+
     private openActiveItem() {
         if (this.activeFeedItem instanceof PostComponent) {
             // tslint:disable-next-line:no-floating-promises
@@ -304,10 +333,10 @@ export class PublicFeedComponent implements OnDestroy {
                     }
 
                     return ((item.mentions.map(_item => _item.link).includes(self.id)) ||
-                            (item
-                                .comments
-                                .map(_item => _item.mentions.map(mention => mention.link).includes(self.id))
-                                .filter(_item => _item === true).length > 0));
+                        (item
+                            .comments
+                            .map(_item => _item.mentions.map(mention => mention.link).includes(self.id))
+                            .filter(_item => _item === true).length > 0));
                 } else if (channel !== 'public') {
                     const type = ref.type(channel);
                     if (type === 'feed') {

@@ -10,6 +10,7 @@ import {
 } from '@ngxs/store';
 
 import {
+    ResetContacts,
     SetChannelSubscription,
     SetContact,
     SetIdentity,
@@ -32,7 +33,7 @@ const normalizeChannel = window.require('ssb-ref').normalizeChannel;
 export class IdentitiesState {
     public constructor(
         public store: Store,
-    ) {}
+    ) { }
 
     @Action(UpdateIdentity)
     public updateIdentity(ctx: StateContext<IdentityModel[]>, action: UpdateIdentity) {
@@ -78,6 +79,33 @@ export class IdentitiesState {
         }
 
         ctx.dispatch(new SetIdentity(identity));
+    }
+
+    @Action(ResetContacts)
+    public resetContacts(ctx: StateContext<IdentityModel[]>, action: ResetContacts) {
+        const state = ctx.getState();
+
+        const target = state
+            .filter(item => item.id === action.id)
+            .pop();
+
+        if (!(target instanceof IdentityModel)) {
+            // identity not yet found, nothing to do, just return siltently
+            return;
+        }
+
+        target.following = [];
+
+        const followees = state
+            .filter(item => item.followers.filter(_item => _item.id === target.id));
+
+        for (const followee of followees) {
+            followee.followers = followee.followers.filter(item => item.id === target.id);
+        }
+
+        ctx.setState([
+            ...state,
+        ]);
     }
 
     @Action(SetContact)
