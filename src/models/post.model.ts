@@ -71,10 +71,18 @@ export class PostModel extends BaseModel {
                 }
             },
             imageLink: (id: string) => {
-                return `ssb://ssb/${id}`;
+                if (id.startsWith('&')) {
+                    return `ssb://ssb/${id}`;
+                } else {
+                    return id;
+                }
             },
             toUrl: (id: string) => {
-                return `ssb://ssb/${id}`;
+                if (id.startsWith('&')) {
+                    return `ssb://ssb/${id}`;
+                } else {
+                    return id;
+                }
             },
         });
     }

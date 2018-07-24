@@ -81,6 +81,7 @@
         "jquery": "3.3.1",
         "mmmagic": "0.5.0",
         "moment": "2.22.2",
+        "dat-node": "3.5.11",
         "pdfjs-dist": "2.0.489",
         "pretty-error": "2.1.1",
         "pull-stream": "3.6.8",

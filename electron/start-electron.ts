@@ -4,12 +4,12 @@
 
 const signale = require('signale');
 
-process.on('uncaughtException', function(error) {
+process.on('uncaughtException', function (error) {
     signale.error(error);
     process.exit();
 });
 
-process.on('unhandledRejection', function(error) {
+process.on('unhandledRejection', function (error) {
     signale.error(error);
     process.exit();
 });
@@ -29,11 +29,12 @@ import {
     openWindow,
     setupContext,
 } from '.';
+import { createDatHandler } from './dat-handler';
 
 const debug = require('debug')('ngx:ssb:init');
 
 // tslint:disable-next-line:no-floating-promises
-(async function() {
+(async function () {
     let win: BrowserWindow | undefined | null;
     const args = process.argv.slice(1);
     const serve = args.includes('--serve');
@@ -80,18 +81,21 @@ const debug = require('debug')('ngx:ssb:init');
         });
 
         const handleRedirect = (event: any, redirectUrl: string) => {
-            event.preventDefault();
-            require('electron').shell.openExternal(redirectUrl);
-            return false;
+            if (!redirectUrl.startsWith('http://localhost:4200')) {
+                event.preventDefault();
+                require('electron').shell.openExternal(redirectUrl);
+                return false;
+            }
         };
 
         win.webContents.on('will-navigate', handleRedirect);
         win.webContents.on('new-window', handleRedirect);
 
         protocol.registerBufferProtocol('ssb', createBlobHandler());
+        protocol.registerBufferProtocol('dat', createDatHandler());
     }
 
-    protocol.registerStandardSchemes(['ssb']);
+    protocol.registerStandardSchemes(['ssb', 'dat']);
     app.on('ready', createWindow);
 
     app.on('window-all-closed', () => {
