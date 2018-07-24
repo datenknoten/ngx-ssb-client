@@ -48,6 +48,8 @@ export class ScuttlebotService {
     public counter = 0;
     private bot: any;
 
+    private _get!: (id: string) => Promise<any>;
+
     private lastUpdate?: number;
     public constructor(
         private store: Store,
@@ -66,7 +68,7 @@ export class ScuttlebotService {
                         .identities
                         .filter(item => item.isSelf)
                         .pop(),
-            );
+        );
         if (!(me instanceof IdentityModel)) {
             throw new Error('Self not found');
         }
@@ -112,7 +114,7 @@ export class ScuttlebotService {
 
         const publish = util.promisify(this.bot.publish);
 
-        await publish(json);
+        return publish(json);
     }
 
     public async publishVoting(voting: VotingModel) {
@@ -132,7 +134,7 @@ export class ScuttlebotService {
 
         const publish = util.promisify(this.bot.publish);
 
-        await publish(json);
+        return publish(json);
     }
 
     public async publish(message: PostModel | VotingModel | IdentityModel) {
@@ -189,7 +191,7 @@ export class ScuttlebotService {
         );
         const query = {
             // live: true,
-            limit: 50,
+            limit: 200,
             reverse: true,
             query: [{
                 $filter: {
@@ -209,6 +211,7 @@ export class ScuttlebotService {
                 },
             }],
         };
+
         const feed = this.bot.query.read(query);
         await this.drainFeed(feed, async (packet: any) => {
             await this.parsePacket(packet);
@@ -234,9 +237,9 @@ export class ScuttlebotService {
         if (count > 0) {
             return;
         }
-        const get = util.promisify(this.bot.get);
+
         try {
-            const packet = await get(id);
+            const packet = await this._get(id);
             if (packet && packet.content) {
                 await this.parsePacket({
                     key: id,
@@ -279,7 +282,7 @@ export class ScuttlebotService {
             }),
         );
 
-        await this.drainFeed(stream, this.parsePacket);
+        await this.drainFeed(stream);
     }
 
     public async fetchIdentityPosts(id: string) {
@@ -295,7 +298,7 @@ export class ScuttlebotService {
             }),
         );
 
-        await this.drainFeed(stream, this.parsePacket);
+        await this.drainFeed(stream);
         this.store.dispatch(new LoadFeed(false));
     }
 
@@ -321,7 +324,7 @@ export class ScuttlebotService {
             this.helper.take(20),
         );
 
-        await this.drainFeed(stream, this.parsePacket);
+        await this.drainFeed(stream);
         this.store.dispatch(new LoadFeed(false));
     }
 
@@ -373,44 +376,22 @@ export class ScuttlebotService {
         });
     }
 
-    private async fetchThread(id: string) {
-        await this.get(id);
-
-        const feed = this.bot.links({
-            rel: 'root',
-            dest: id,
-            values: true,
-            keys: true,
-        });
-        await this.drainFeed(feed, async (data: any) => {
-            const _id = data.key;
-            const post = this
-                .store
-                .selectSnapshot((state: { posts: PostModel[] }) => state
-                    .posts
-                    .filter(item => item.id === _id),
-            );
-            if ((post instanceof PostModel) && !post.isMissing) {
-                return;
-            }
-            await this.parsePost(_id, data.value);
-        });
-    }
-
     private async init() {
         const ssbClient = util.promisify(window.require('ssb-client'));
 
         this.bot = await ssbClient();
 
+        this._get = util.promisify(this.bot.get);
+
         const whoami = await this.getFeedItem(this.bot.whoami);
 
         await this.fetchIdentity(whoami.id, true);
 
+        await this.updateFeed();
+
         await this.fetchChannelSubscriptions(whoami.id);
 
-        await this.fetchContacts(whoami.id);
-
-        await this.updateFeed();
+        // await this.fetchContacts(whoami.id);
     }
 
     private async getFeedItem(feed: any): Promise<any> {
@@ -634,18 +615,18 @@ export class ScuttlebotService {
             }
         }
         this.store.dispatch(new UpdatePost(post));
-        await this.fetchPostVotings(post);
+
         if (!(post.author instanceof IdentityModel) ||
             ((post.author instanceof IdentityModel) && post.author.isMissing)) {
             await this.fetchIdentity(post.authorId);
         }
-        if (typeof post.rootId === 'string') {
-            // got a non root node, fetch the root
-            await this.get(packet.content.root);
-        } else {
-            // got a root node, fetch the whole thread
-            await this.fetchThread(post.id);
-        }
+
+        const stream = this.bot.backlinks.read({
+            query: [{ $filter: { dest: post.id } }],
+            index: 'DTA',
+        });
+
+        await this.drainFeed(stream);
     }
 
     private async parsePacket(_packet: any) {
@@ -689,7 +670,7 @@ export class ScuttlebotService {
         }
     }
 
-    private async drainFeed(feed: any, callback: Function): Promise<void> {
+    private async drainFeed(feed: any, callback: Function = this.parsePacket): Promise<void> {
         return new Promise<void>((resolve, reject) => {
             pull(
                 feed,
