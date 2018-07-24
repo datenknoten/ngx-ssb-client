@@ -45,6 +45,9 @@ export class NewPostComponent {
     @Input()
     public context?: PostModel | string;
 
+    @Input()
+    public replyText?: string;
+
     public showSuggestion: boolean = false;
 
     public previewPost?: PostModel;
@@ -108,6 +111,10 @@ export class NewPostComponent {
             };
             (getHints as any).async = true;
 
+            if (typeof this.replyText === 'string') {
+                editorContainer.nativeElement.value = this.replyText;
+                this.replyText = undefined;
+            }
 
             this.editor = hyperMD.fromTextArea(editorContainer.nativeElement, {
                 extraKeys: { 'Ctrl-Space': 'autocomplete' },

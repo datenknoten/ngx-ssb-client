@@ -6,10 +6,13 @@ import {
     ChangeDetectorRef,
     Component,
     ElementRef,
+    EventEmitter,
     Input,
     OnDestroy,
     OnInit,
+    Output,
     QueryList,
+    ViewChild,
     ViewChildren,
 } from '@angular/core';
 import { MatDialog } from '@angular/material';
@@ -21,10 +24,12 @@ import { ScrollToService } from '@nicky-lenaers/ngx-scroll-to';
 import { Hotkey, HotkeysService } from 'angular2-hotkeys';
 import { memoize } from 'decko';
 
+import * as moment from 'moment';
+
 import {
     AddVoting,
 } from '../../actions';
-import { BlobComponent } from '../../components';
+import { BlobComponent, NewPostComponent } from '../../components';
 import {
     IdentityModel,
     PostModel,
@@ -37,6 +42,11 @@ import {
 } from '../../providers';
 
 const ref = window.require('ssb-ref');
+
+type AuthorActivity = {
+    author: IdentityModel | undefined,
+    activity: Date,
+};
 
 @Component({
     selector: 'app-post',
@@ -54,10 +64,16 @@ export class PostComponent implements OnInit, OnDestroy {
     @Input()
     public active: boolean = false;
 
+    @Output()
+    public reply = new EventEmitter<PostModel>();
+
     @ViewChildren(PostComponent)
     public comments?: QueryList<PostComponent>;
 
     public activeComment?: PostComponent;
+
+    @ViewChild('editor')
+    public editor?: NewPostComponent;
 
     private hotkeys: Hotkey[] = [];
 
@@ -111,6 +127,14 @@ export class PostComponent implements OnInit, OnDestroy {
                 this.favoriteActiveItem.bind(this),
                 undefined,
                 'Toggle the favorite state of the active item',
+            ),
+        );
+        this.hotkeys.push(
+            new Hotkey(
+                'r',
+                this.replyActiveItem.bind(this),
+                undefined,
+                'Compose a reply to the active item',
             ),
         );
 
@@ -175,6 +199,31 @@ export class PostComponent implements OnInit, OnDestroy {
         return `Comments by ${commenters}`;
     }
 
+    public toIsoDate(date: Date) {
+        return moment(date).format('YYYY-MM-DD hh:mm');
+    }
+
+    public escapeID(id: string) {
+        return encodeURI(id);
+    }
+
+    public replyPost(post: PostModel) {
+        if (
+            this.editor instanceof NewPostComponent &&
+            typeof post.content === 'string' &&
+            post.author instanceof IdentityModel
+        ) {
+            let reply = post.content.split('\n').map(line => `> ${line}`).join('\n');
+            reply = `[@${post.author.primaryName}](${post.authorId}) wrote:
+
+${reply}`;
+            this.editor.replyText = reply.replace('](&', '](ssb://ssb/&');
+            this.editor.setupEditor();
+        } else if (typeof this.editor === 'undefined') {
+            this.reply.next(post);
+        }
+    }
+
     public async toggleLike() {
         const voting = new VotingModel();
         if (this.hasSelfLike) {
@@ -203,8 +252,12 @@ export class PostComponent implements OnInit, OnDestroy {
 
         voting.date = new Date();
 
-        await this.scuttlebot.publish(voting);
-        this.store.dispatch(new AddVoting(voting));
+        const result = await this.scuttlebot.publish(voting);
+        voting.id = result.key;
+
+        this.store.dispatch(new AddVoting(voting)).subscribe(() => {
+            this.changeDetectorRef.detectChanges();
+        });
     }
 
     public async click(event: MouseEvent) {
@@ -242,6 +295,67 @@ export class PostComponent implements OnInit, OnDestroy {
         this.changeDetectorRef.detectChanges();
     }
 
+    public get aggregateComments() {
+        if (this.post.comments.length === 0) {
+            return [];
+        }
+
+        const originalActivities = this.post.comments.map<AuthorActivity>((comment) => {
+            return {
+                author: comment.author,
+                activity: comment.date,
+            };
+        });
+
+        const activities: AuthorActivity[] = [];
+
+        for (const activity of originalActivities) {
+            const _activity = activities.filter(item => item.author === activity.author).pop();
+
+            if (typeof _activity !== 'undefined') {
+                if (_activity.activity < activity.activity) {
+                    _activity.activity = activity.activity;
+                }
+            } else {
+                activities.push(activity);
+            }
+        }
+
+        activities.sort((a, b) => b.activity.getTime() - a.activity.getTime());
+
+        return activities;
+    }
+
+    public get aggregatedVotes() {
+        if (this.post.votes.length === 0) {
+            return [];
+        }
+
+        let activities: AuthorActivity[] = [];
+
+        const votes = this.post.votes.filter(item => item.author instanceof IdentityModel);
+
+        for (const vote of votes) {
+            const _activity = activities.filter(item => item.author === vote.author).pop();
+
+            if (typeof _activity !== 'undefined') {
+                if (vote.value === 0) {
+                    activities = activities.filter(item => item.author !== vote.author);
+                }
+            } else {
+                if (vote.value === 1) {
+                    activities.push({
+                        activity: vote.date,
+                        author: vote.author,
+                    });
+                }
+            }
+        }
+
+        return activities;
+
+    }
+
     private async handleSSBLinks(anchor: HTMLAnchorElement) {
         const target = anchor.href.replace(/^ssb:\/\/ssb\//, '');
         const id = ref.extract(target);
@@ -270,6 +384,13 @@ export class PostComponent implements OnInit, OnDestroy {
             this.activeComment.toggleLike();
         }
         return false;
+    }
+
+    private replyActiveItem() {
+        if (this.activeComment instanceof PostComponent) {
+            // tslint:disable-next-line:no-floating-promises
+            this.activeComment.replyPost(this.activeComment.post);
+        }
     }
 
     private shortcutHandler(_event: ExtendedKeyboardEvent, combo: string) {
