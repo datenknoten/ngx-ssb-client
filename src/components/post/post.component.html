@@ -1,7 +1,10 @@
 <div class="post" [ngClass]="{ post: true, full: mode == 'full', active: active  }">
     <div class="flex-container">
-        <div (click)="click($event)" [innerHtml]="convertHtml(post.html) | safeHtml" class="content column ui crosshatch green segment"
+        <div *ngIf="!post.isMissing" (click)="click($event)" [innerHtml]="convertHtml(post.html) | safeHtml" class="content column ui crosshatch green segment"
             [ngClass]="{ui: true, crosshatch: active, piled: post.comments.length > 0, green: true, segment: true}">
+        </div>
+        <div *ngIf="post.isMissing" class="content column ui missing green segment">
+            This post is missing!
         </div>
         <div class="details column">
             <div class="ui fluid green card">
@@ -28,10 +31,16 @@
                 </div>
                 <div class="extra content">
                     <a [routerLink]="['/post', post.id]">
-                        <p>
-                            <i title="Posted at" class="calendar alternate outline icon"></i>
-                            {{ toIsoDate(post.date) }}
-                        </p>
+                        <ng-container *ngIf="!post.isMissing">
+                            <p *ngIf="mode === 'condensed'">
+                                <i title="Latest activity at" class="calendar alternate outline icon"></i>
+                                {{ toIsoDate(post.latestActivity) }}
+                            </p>
+                            <p *ngIf="mode === 'full' || mode === 'comment'">
+                                <i title="Posted at" class="calendar alternate outline icon"></i>
+                                {{ toIsoDate(post.date) }}
+                            </p>
+                        </ng-container>
                     </a>
                 </div>
 
@@ -39,7 +48,8 @@
                     <p>
                         <i title="Reading time" class="hourglass half icon"></i>
                         <ng-container *ngIf="mode == 'full'" class="detail">{{ post.readingTime | humanReadableDuration }}</ng-container>
-                        <ng-container *ngIf="mode != 'full'" class="detail">{{ post.totalReadingTime | humanReadableDuration }}</ng-container>
+                        <ng-container *ngIf="mode != 'full'" class="detail">{{ post.totalReadingTime | humanReadableDuration
+                            }}</ng-container>
                     </p>
                 </div>
 
