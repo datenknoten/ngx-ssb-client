@@ -37,7 +37,7 @@ export class PostModel extends BaseModel {
 
     public mentions: LinkModel[] = [];
 
-    public raw?: object;
+    public raw?: any;
 
     public constructor(init?: Partial<PostModel>) {
         super();
@@ -48,6 +48,10 @@ export class PostModel extends BaseModel {
         let newest = this.date;
 
         for (const comment of this.comments) {
+            // We encountered someone from the future, let's skip this entry for now…
+            if (comment.date.getTime() > Date.now()) {
+                continue;
+            }
             if (comment.date > newest) {
                 newest = comment.date;
             }
@@ -58,6 +62,13 @@ export class PostModel extends BaseModel {
 
     @memoize()
     public get html(): string {
+        const formatId = (id: string ) => {
+            if (id.startsWith('&')) {
+                return `ssb://ssb/${id}`;
+            } else {
+                return id;
+            }
+        };
         return md.block(this.content, {
             emoji: (emoji: string) => {
                 if (emoji in emojiNamedCharacters) {
@@ -70,20 +81,8 @@ export class PostModel extends BaseModel {
                     return `:${emoji}:`;
                 }
             },
-            imageLink: (id: string) => {
-                if (id.startsWith('&')) {
-                    return `ssb://ssb/${id}`;
-                } else {
-                    return id;
-                }
-            },
-            toUrl: (id: string) => {
-                if (id.startsWith('&')) {
-                    return `ssb://ssb/${id}`;
-                } else {
-                    return id;
-                }
-            },
+            imageLink: formatId,
+            toUrl: formatId,
         });
     }
 
