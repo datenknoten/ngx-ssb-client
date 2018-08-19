@@ -34,7 +34,7 @@ function drainFunc(blobId: string, magic: any, cb: requestCallback) {
                 signale.error({ err });
                 cb();
             }
-            debug(`Fetched blob ${blobId} as ${mimeType} with size ${data.length}`);
+            signale.debug(`Fetched blob ${blobId} as ${mimeType} with size ${data.length}`);
             cb({
                 mimeType,
                 data,
