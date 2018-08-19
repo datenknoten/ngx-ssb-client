@@ -8,12 +8,12 @@ import {
 } from 'electron';
 import * as path from 'path';
 
-// import {
-//     Magic,
-//     MAGIC_MIME_TYPE,
-// } from 'mmmagic';
+import {
+    Magic,
+    MAGIC_MIME_TYPE,
+} from 'mmmagic';
 
-const Dat = require('dat-node');
+const datModule = require('dat-node');
 
 import * as url from 'url';
 
@@ -21,9 +21,33 @@ const signale = require('signale');
 
 type requestCallback = (buffer?: Buffer | MimeTypedBuffer) => void;
 
+async function downloadFile(filepath: string, datUrl: url.UrlWithStringQuery) {
+    return new Promise<any>((resolve: any, reject: any) => {
+        datModule(filepath, {
+            temp: true,
+            sparse: true,
+            key: datUrl.host,
+        }, (err: any, dat: any) => {
+            if (err) {
+                reject(err);
+                return;
+            }
+            dat.joinNetwork();
+
+            dat.archive.readFile(datUrl.path, function(downloadError: any, content: any) {
+                if (downloadError) {
+                    reject(downloadError);
+                    return;
+                }
+                resolve(content);
+            });
+        });
+    });
+}
+
 export function createDatHandler() {
-    return async function (request: RegisterBufferProtocolRequest, cb: requestCallback) {
-        // const magic = new Magic(MAGIC_MIME_TYPE);
+    return async function(request: RegisterBufferProtocolRequest, cb: requestCallback) {
+        const magic = new Magic(MAGIC_MIME_TYPE);
 
         try {
             const datUrl = url.parse(request.url);
@@ -38,33 +62,19 @@ export function createDatHandler() {
                 filepath = path.join(filepath, '.ssb', 'datfiles', datUrl.host);
             }
 
-            const buffer = await new Promise<any>((resolve: any, reject: any) => {
-                Dat(filepath, {
-                    temp: true,
-                    sparse: true,
-                    key: datUrl.host,
-                }, (err: any, dat: any) => {
-                    if (err) {
-                        reject(err);
-                        return;
-                    }
-                    dat.joinNetwork();
+            const buffer = await downloadFile(filepath, datUrl);
 
-                    dat.archive.readFile(datUrl.path, function (downloadError: any, content: any) {
-                        if (downloadError) {
-                            reject(downloadError);
-                            return;
-                        }
-                        resolve(content);
-                    });
+            magic.detect(buffer, (err: any, mimeType: any) => {
+                if (err) {
+                    signale.error(`Failed to get mimetype for ${datUrl.host}`);
+                    signale.error({ err });
+                    cb();
+                }
+                signale.debug(`Fetched blob ${datUrl.host} as ${mimeType} with size ${buffer.length}`);
+                cb({
+                    mimeType: mimeType,
+                    data: buffer,
                 });
-            });
-
-            console.log(buffer);
-
-            cb({
-                mimeType: 'application/octet-stream',
-                data: buffer,
             });
 
         } catch (error) {
