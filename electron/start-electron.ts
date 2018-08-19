@@ -4,12 +4,12 @@
 
 const signale = require('signale');
 
-process.on('uncaughtException', function (error) {
+process.on('uncaughtException', function(error) {
     signale.error(error);
     process.exit();
 });
 
-process.on('unhandledRejection', function (error) {
+process.on('unhandledRejection', function(error) {
     signale.error(error);
     process.exit();
 });
@@ -34,7 +34,7 @@ import { createDatHandler } from './dat-handler';
 const debug = require('debug')('ngx:ssb:init');
 
 // tslint:disable-next-line:no-floating-promises
-(async function () {
+(async function() {
     let win: BrowserWindow | undefined | null;
     const args = process.argv.slice(1);
     const serve = args.includes('--serve');
