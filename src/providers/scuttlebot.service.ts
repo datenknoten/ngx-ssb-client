@@ -48,6 +48,8 @@ export class ScuttlebotService {
     public counter = 0;
     private bot: any;
 
+    private _get!: (id: string) => Promise<any>;
+
     private lastUpdate?: number;
     public constructor(
         private store: Store,
@@ -66,7 +68,7 @@ export class ScuttlebotService {
                         .identities
                         .filter(item => item.isSelf)
                         .pop(),
-            );
+        );
         if (!(me instanceof IdentityModel)) {
             throw new Error('Self not found');
         }
@@ -112,7 +114,7 @@ export class ScuttlebotService {
 
         const publish = util.promisify(this.bot.publish);
 
-        await publish(json);
+        return publish(json);
     }
 
     public async publishVoting(voting: VotingModel) {
@@ -132,7 +134,7 @@ export class ScuttlebotService {
 
         const publish = util.promisify(this.bot.publish);
 
-        await publish(json);
+        return publish(json);
     }
 
     public async publish(message: PostModel | VotingModel | IdentityModel) {
@@ -181,6 +183,8 @@ export class ScuttlebotService {
         });
     }
 
+    // This method needs refactoring but at the moment my time is limited
+    // tslint:disable-next-line:cognitive-complexity
     public async updateFeed(loadMore: boolean = false) {
         this.store.dispatch(new LoadFeed(true));
         const ltFilter = (
@@ -209,15 +213,162 @@ export class ScuttlebotService {
                 },
             }],
         };
-        const feed = this.bot.query.read(query);
-        await this.drainFeed(feed, async (packet: any) => {
-            await this.parsePacket(packet);
-            if ((typeof this.lastUpdate === 'undefined') || (packet.timestamp < this.lastUpdate)) {
-                this.lastUpdate = packet.timestamp;
-            }
-        });
 
-        this.store.dispatch(new LoadFeed(false));
+        const feed = this.bot.query.read(query);
+
+        const processBacklinks = (id: string, cb: (data: any[]) => void) => {
+            const backlinks = this.bot.backlinks.read({
+                query: [{ $filter: { dest: id } }],
+                index: 'DTA',
+            });
+
+            pull(
+                backlinks,
+                pull.collect((error: any, data: any[]) => {
+                    if (error) {
+                        throw error;
+                    }
+                    cb(data);
+                }),
+            );
+        };
+
+        pull(
+            // Fetch Messages
+            feed,
+            // Convert to Model
+            pull.map((post: any) => this.parsePacket(post)),
+            // Fetch root of comments and comments of roots
+            pull(
+                pull.asyncMap((item: PostModel, cb: (err: null, item: any) => void) => {
+                    if ((typeof this.lastUpdate === 'undefined') || (+item.date < this.lastUpdate)) {
+                        this.lastUpdate = +item.date;
+                    }
+                    if (typeof item.rootId === 'string') {
+                        // fetch root
+                        this.bot.get(item.rootId, (_error: any, root: any) => {
+                            if (_error) {
+                                const missing = new PostModel({
+                                    id: item.rootId,
+                                    isMissing: true,
+                                    date: new Date(),
+                                });
+                                cb(null, [missing, item]);
+                                return;
+                            }
+                            if (typeof item.rootId === 'string') {
+                                const post = this.parsePost(item.rootId, root);
+                                if (post instanceof PostModel) {
+                                    post.raw.needsComments = true;
+                                }
+                                cb(null, [item, post]);
+                                return;
+                            } else {
+                                cb(null, [item]);
+                                return;
+                            }
+                        });
+                    } else {
+                        // fetch comments of root
+                        const backlinks = this.bot.backlinks.read({
+                            query: [{ $filter: { dest: item.id } }],
+                            index: 'DTA',
+                        });
+
+                        pull(
+                            backlinks,
+                            pull.collect((error: any, data: any[]) => {
+                                if (error) {
+                                    throw error;
+                                }
+
+                                const newData = data
+                                    .map(_item => this.parsePacket(_item))
+                                    .filter(_item => _item instanceof PostModel);
+
+                                newData.push(item);
+
+                                cb(null, newData);
+                            }),
+                        );
+                    }
+                }),
+                pull.flatten(),
+            ),
+            // fetch comments from newly discovered roots
+            pull(
+                pull.asyncMap((item: PostModel, cb: (err: null, item: any) => void) => {
+                    if (item.raw && item.raw.needsComments === true) {
+                        processBacklinks(item.id, (data: any[]) => {
+                            const newData = data
+                                .map(_item => this.parsePacket(_item))
+                                .filter(_item => _item instanceof PostModel);
+                            newData.push(item);
+                            cb(null, newData);
+                        });
+                    } else {
+                        cb(null, [item]);
+                    }
+                }),
+                pull.flatten(),
+            ),
+            // Fetch author
+            pull.asyncMap((item: PostModel, cb: (err: null, item: any) => void) => {
+                if (!(item.author instanceof IdentityModel)) {
+                    // tslint:disable-next-line: no-floating-promises
+                    this.fetchIdentity(item.authorId).then(() => {
+                        const identity = this
+                            .store
+                            .selectSnapshot((state: GlobalState) =>
+                                state
+                                    .identities
+                                    .filter(_identity => _identity.id === item.authorId).pop());
+
+                        item.author = identity;
+                        cb(null, item);
+                    });
+                } else {
+                    cb(null, item);
+                }
+            }),
+            // Dispatch posts to the store
+            pull.map((item: PostModel) => {
+                this.store.dispatch(new UpdatePost(item));
+                return item;
+            }),
+            // Fetch votes
+            pull.asyncMap((item: PostModel, cb: (err: null, item: any) => void) => {
+                processBacklinks(item.id, (data: any[]) => {
+                    data
+                        .map(_item => this.parsePacket(_item))
+                        .forEach(_item => {
+                            if (_item instanceof VotingModel) {
+                                if (!(_item.author instanceof IdentityModel)) {
+                                    // tslint:disable-next-line: no-floating-promises
+                                    this.fetchIdentity(_item.authorId).then(() => {
+                                        const identity = this
+                                            .store
+                                            .selectSnapshot((state: GlobalState) =>
+                                                state
+                                                    .identities
+                                                    .filter(_identity => _identity.id === item.authorId).pop());
+
+                                        _item.author = identity;
+                                        this.store.dispatch(new AddVoting(_item));
+                                    });
+                                } else {
+                                    this.store.dispatch(new AddVoting(_item));
+                                }
+                            }
+                        });
+
+                    cb(null, item);
+                });
+            }),
+            pull.collect((_err: any, _items: PostModel[]) => {
+                this.store.dispatch(new LoadFeed(false));
+            }),
+        );
     }
 
     public async get(id?: string): Promise<void> {
@@ -234,11 +385,11 @@ export class ScuttlebotService {
         if (count > 0) {
             return;
         }
-        const get = util.promisify(this.bot.get);
+
         try {
-            const packet = await get(id);
+            const packet = await this._get(id);
             if (packet && packet.content) {
-                await this.parsePacket({
+                this.parsePacket({
                     key: id,
                     value: packet,
                 });
@@ -279,7 +430,7 @@ export class ScuttlebotService {
             }),
         );
 
-        await this.drainFeed(stream, this.parsePacket);
+        await this.drainFeed(stream);
     }
 
     public async fetchIdentityPosts(id: string) {
@@ -295,7 +446,7 @@ export class ScuttlebotService {
             }),
         );
 
-        await this.drainFeed(stream, this.parsePacket);
+        await this.drainFeed(stream);
         this.store.dispatch(new LoadFeed(false));
     }
 
@@ -321,7 +472,7 @@ export class ScuttlebotService {
             this.helper.take(20),
         );
 
-        await this.drainFeed(stream, this.parsePacket);
+        await this.drainFeed(stream);
         this.store.dispatch(new LoadFeed(false));
     }
 
@@ -373,44 +524,22 @@ export class ScuttlebotService {
         });
     }
 
-    private async fetchThread(id: string) {
-        await this.get(id);
-
-        const feed = this.bot.links({
-            rel: 'root',
-            dest: id,
-            values: true,
-            keys: true,
-        });
-        await this.drainFeed(feed, async (data: any) => {
-            const _id = data.key;
-            const post = this
-                .store
-                .selectSnapshot((state: { posts: PostModel[] }) => state
-                    .posts
-                    .filter(item => item.id === _id),
-            );
-            if ((post instanceof PostModel) && !post.isMissing) {
-                return;
-            }
-            await this.parsePost(_id, data.value);
-        });
-    }
-
     private async init() {
         const ssbClient = util.promisify(window.require('ssb-client'));
 
         this.bot = await ssbClient();
 
+        this._get = util.promisify(this.bot.get);
+
         const whoami = await this.getFeedItem(this.bot.whoami);
 
         await this.fetchIdentity(whoami.id, true);
 
+        await this.updateFeed();
+
         await this.fetchChannelSubscriptions(whoami.id);
 
         await this.fetchContacts(whoami.id);
-
-        await this.updateFeed();
     }
 
     private async getFeedItem(feed: any): Promise<any> {
@@ -609,7 +738,7 @@ export class ScuttlebotService {
         });
     }
 
-    private async parsePost(id: string, packet: any) {
+    private parsePost(id: string, packet: any) {
         const post = new PostModel();
         post.id = id;
         post.raw = packet;
@@ -633,22 +762,11 @@ export class ScuttlebotService {
                 post.mentions.push(new LinkModel({ link: mention.link }));
             }
         }
-        this.store.dispatch(new UpdatePost(post));
-        await this.fetchPostVotings(post);
-        if (!(post.author instanceof IdentityModel) ||
-            ((post.author instanceof IdentityModel) && post.author.isMissing)) {
-            await this.fetchIdentity(post.authorId);
-        }
-        if (typeof post.rootId === 'string') {
-            // got a non root node, fetch the root
-            await this.get(packet.content.root);
-        } else {
-            // got a root node, fetch the whole thread
-            await this.fetchThread(post.id);
-        }
+
+        return post;
     }
 
-    private async parsePacket(_packet: any) {
+    private parsePacket(_packet: any) {
         this.store.dispatch(new UpdateMessageCount());
         const id = _packet.key;
         const packet = _packet.value;
@@ -659,7 +777,7 @@ export class ScuttlebotService {
         const packetType = packet.content.type;
 
         if (packetType === 'post') {
-            await this.parsePost(id, packet);
+            return this.parsePost(id, packet);
         } else if (packetType === 'vote') {
             const voting = new VotingModel();
             voting.id = id;
@@ -674,10 +792,7 @@ export class ScuttlebotService {
                 .selectSnapshot<IdentityModel[]>((state) => state.identities)
                 .filter(item => item.id === packet.author)
                 .pop();
-            if (!(voting.author instanceof IdentityModel)) {
-                await this.fetchIdentity(voting.authorId);
-            }
-            this.store.dispatch(new AddVoting(voting));
+            return voting;
         } else if (packetType === 'channel') {
             this.store.dispatch(new SetChannelSubscription(
                 packet.author,
@@ -689,7 +804,7 @@ export class ScuttlebotService {
         }
     }
 
-    private async drainFeed(feed: any, callback: Function): Promise<void> {
+    private async drainFeed(feed: any, callback: Function = this.parsePacket): Promise<void> {
         return new Promise<void>((resolve, reject) => {
             pull(
                 feed,

@@ -29,6 +29,7 @@ import {
     openWindow,
     setupContext,
 } from '.';
+import { createDatHandler } from './dat-handler';
 
 const debug = require('debug')('ngx:ssb:init');
 
@@ -80,18 +81,21 @@ const debug = require('debug')('ngx:ssb:init');
         });
 
         const handleRedirect = (event: any, redirectUrl: string) => {
-            event.preventDefault();
-            require('electron').shell.openExternal(redirectUrl);
-            return false;
+            if (!redirectUrl.startsWith('http://localhost:4200')) {
+                event.preventDefault();
+                require('electron').shell.openExternal(redirectUrl);
+                return false;
+            }
         };
 
         win.webContents.on('will-navigate', handleRedirect);
         win.webContents.on('new-window', handleRedirect);
 
         protocol.registerBufferProtocol('ssb', createBlobHandler());
+        protocol.registerBufferProtocol('dat', createDatHandler());
     }
 
-    protocol.registerStandardSchemes(['ssb']);
+    protocol.registerStandardSchemes(['ssb', 'dat']);
     app.on('ready', createWindow);
 
     app.on('window-all-closed', () => {
