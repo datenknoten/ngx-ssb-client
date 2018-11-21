@@ -16,7 +16,7 @@ import {
 
 export class VotingModel extends BaseModel {
     @IsIn([1, 0, -1])
-    public value?: 1 | 0 | -1;
+    public value?: number;
 
     @IsString()
     public reason?: string;

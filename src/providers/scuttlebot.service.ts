@@ -162,6 +162,9 @@ export class ScuttlebotService {
         reader.readAsArrayBuffer(file);
         const parts = await new Promise<Buffer[]>((resolve) => {
             reader.onload = () => {
+                if (reader.result === null || typeof reader.result === 'string') {
+                    throw new Error('Could not read file');
+                }
                 resolve(split(new Buffer(reader.result), 64 * 1024));
             };
         });

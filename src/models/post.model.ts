@@ -17,7 +17,7 @@ import {
 
 const md = window.require('ssb-markdown');
 const emojiNamedCharacters = require('emoji-named-characters');
-const twemoji = require('twemoji');
+const twemoji = require('twemoji').default;
 const readingTime = require('reading-time');
 
 export class PostModel extends BaseModel {

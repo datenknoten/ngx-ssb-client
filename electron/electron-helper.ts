@@ -35,6 +35,7 @@ export async function setupContext(appName: string, opts: any, debug: boolean = 
             // tslint:disable-next-line:no-submodule-imports
             const ssbConfig = require('ssb-config/inject')(appName, {
             ...opts,
+            host: '127.0.0.1',
             port: 8008,
             blobsPort: 8989, // matches ssb-ws
             friends: {
