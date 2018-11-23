@@ -15,6 +15,7 @@ import {
 import {
     ActivatedRoute,
 } from '@angular/router';
+import { PostMessage } from '@catamaran/hull';
 import {
     Select, Store,
 } from '@ngxs/store';
@@ -46,7 +47,6 @@ import {
 import {
     IdentityDescriptionModel,
     IdentityModel,
-    PostModel,
 } from '../../models';
 import {
     HelperService,
@@ -57,6 +57,7 @@ import {
     CurrentFeedSettingState,
 } from '../../states';
 
+
 const ref = window.require('ssb-ref');
 
 @Component({
@@ -65,7 +66,7 @@ const ref = window.require('ssb-ref');
     styleUrls: ['./public-feed.component.scss'],
 })
 export class PublicFeedComponent implements OnDestroy {
-    public posts: Observable<PostModel[]>;
+    public posts: Observable<PostMessage[]>;
     @Select(PublicFeedComponent.identitySelector)
     public identity!: Observable<IdentityModel>;
 
@@ -113,7 +114,7 @@ export class PublicFeedComponent implements OnDestroy {
             })
             .pipe(
                 debounceTime(600),
-                map<any, PostModel[]>(this.feedSelector.bind(this)),
+                map<any, PostMessage[]>(this.feedSelector.bind(this)),
         );
 
         this.posts.subscribe(() => {
@@ -223,7 +224,7 @@ export class PublicFeedComponent implements OnDestroy {
         }
     }
 
-    public setActiveFeedItem(post: PostModel) {
+    public setActiveFeedItem(post: PostMessage) {
         if (this.feedItems instanceof QueryList && this.feedItems.length > 0) {
             for (const item of this.feedItems.toArray()) {
                 item.active = false;
@@ -311,58 +312,15 @@ export class PublicFeedComponent implements OnDestroy {
         return false;
     }
 
-    private feedSelector(state: GlobalState): PostModel[] {
+    private feedSelector(state: GlobalState): PostMessage[] {
         const settings = state.currentFeedSettings;
 
         const _posts = state.posts
-            .filter((item: PostModel) => !(typeof item.rootId === 'string'))
-            .filter((item: PostModel) => {
-                const channel = settings.channel;
-                if (channel === 'mentions') {
-                    const self = this
-                        .store
-                        .selectSnapshot<IdentityModel | undefined>(
-                            (_state: GlobalState) => _state
-                                .identities
-                                .filter(_item => _item.isSelf)
-                                .pop(),
-                    );
+            .filter((item) => !(item.root instanceof PostMessage));
 
-                    if (!(self instanceof IdentityModel)) {
-                        return false;
-                    }
-
-                    return ((item.mentions.map(_item => _item.link).includes(self.id)) ||
-                        (item
-                            .comments
-                            .map(_item => _item.mentions.map(mention => mention.link).includes(self.id))
-                            .filter(_item => _item === true).length > 0));
-                } else if (channel !== 'public') {
-                    const type = ref.type(channel);
-                    if (type === 'feed') {
-                        return (item.authorId === channel) ||
-                            (item.comments.filter(comment => comment.authorId === channel).length > 0);
-                    } else {
-                        return item.primaryChannel === settings.channel ||
-                            item
-                                .mentions
-                                .map(_item => _item.link)
-                                .includes(`#${settings.channel}`) ||
-                            item
-                                .comments
-                                .map(_item => _item.mentions)
-                                .reduce((previous, current) => previous.concat(current), [])
-                                .map(_item => _item.link)
-                                .includes(`#${settings.channel}`);
-                    }
-                } else {
-                    return true;
-                }
-            });
-
-        _posts.sort((a: PostModel, b: PostModel) => {
-            return b.latestActivity.getTime() - a.latestActivity.getTime();
-        });
+        // _posts.sort((a, b) => {
+        //     return b.latestActivity.getTime() - a.latestActivity.getTime();
+        // });
 
         return _posts.slice(
             (settings.currentPage - 1) * settings.elementsPerPage,

@@ -26,7 +26,7 @@ const ref = window.require('ssb-ref');
     defaults: {
         currentPage: 1,
         elementsPerPage: 20,
-        loadingFeed: true,
+        loadingFeed: false,
         messageCount: 0,
         channel: 'public',
         channelType: 'public',

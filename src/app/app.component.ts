@@ -40,6 +40,7 @@ import {
     ScuttlebotService,
 } from '../providers';
 import { CurrentFeedSettingState } from '../states';
+
 window['jQuery'] = jq;
 require('semantic-ui-css');
 

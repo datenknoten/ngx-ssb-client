@@ -2,9 +2,10 @@
  * @license MIT
  */
 
+import { PostMessage } from '@catamaran/hull';
+
 import {
     IdentityModel,
-    PostModel,
     VotingModel,
 } from '../models';
 
@@ -12,9 +13,10 @@ import {
     CurrentFeedSettings,
 } from './current-feed-settings.interface';
 
+
 export interface GlobalState {
     currentFeedSettings: CurrentFeedSettings;
     identities: IdentityModel[];
-    posts: PostModel[];
+    posts: PostMessage[];
     votings: VotingModel[];
 }

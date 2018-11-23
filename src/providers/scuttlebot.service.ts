@@ -2,9 +2,9 @@
  * @license MIT
  */
 
-import {
-    Injectable,
-} from '@angular/core';
+
+import { Injectable } from '@angular/core';
+import { Client } from '@catamaran/hull';
 import {
     Store,
 } from '@ngxs/store';
@@ -12,14 +12,12 @@ import { validate } from 'class-validator';
 import * as moment from 'moment';
 
 import {
-    AddVoting,
     LoadFeed,
     ResetContacts,
     SetChannelSubscription,
     SetContact,
     UpdateIdentity,
     UpdateMessageCount,
-    UpdatePost,
 } from '../actions';
 import {
     FeedEndError,
@@ -37,20 +35,23 @@ import {
 import { IdentityID } from '../types';
 
 import { HelperService } from './helper.service';
+import { FetchPosts } from '../actions/fetch-posts.action';
 
 const util = window.require('util');
 const split = require('split-buffer');
 const pull = window.require('pull-stream');
+const nodeClient = window.require('@catamaran/hull').Client;
 
 @Injectable()
 export class ScuttlebotService {
 
     public counter = 0;
+
+    public client!: Client;
     private bot: any;
 
     private _get!: (id: string) => Promise<any>;
 
-    private lastUpdate?: number;
     public constructor(
         private store: Store,
         private helper: HelperService,
@@ -68,7 +69,7 @@ export class ScuttlebotService {
                         .identities
                         .filter(item => item.isSelf)
                         .pop(),
-        );
+            );
         if (!(me instanceof IdentityModel)) {
             throw new Error('Self not found');
         }
@@ -188,190 +189,9 @@ export class ScuttlebotService {
 
     // This method needs refactoring but at the moment my time is limited
     // tslint:disable-next-line:cognitive-complexity
-    public async updateFeed(loadMore: boolean = false) {
-        this.store.dispatch(new LoadFeed(true));
-        const ltFilter = (
-            (loadMore === true && typeof this.lastUpdate === 'number') ?
-                this.lastUpdate : undefined
-        );
-        const query = {
-            // live: true,
-            limit: 50,
-            reverse: true,
-            query: [{
-                $filter: {
-                    timestamp: {
-                        $lt: ltFilter,
-                    },
-                    value: {
-                        timestamp: {
-                            // forces results ordered by published time
-                            $gt: 0,
-                        },
-                        content: {
-                            type: 'post',
-                            // root: { $is: 'undefined' },
-                        },
-                    },
-                },
-            }],
-        };
+    public async updateFeed(_loadMore: boolean = false) {
+        this.store.dispatch(new FetchPosts());
 
-        const feed = this.bot.query.read(query);
-
-        const processBacklinks = (id: string, cb: (data: any[]) => void) => {
-            const backlinks = this.bot.backlinks.read({
-                query: [{ $filter: { dest: id } }],
-                index: 'DTA',
-            });
-
-            pull(
-                backlinks,
-                pull.collect((error: any, data: any[]) => {
-                    if (error) {
-                        throw error;
-                    }
-                    cb(data);
-                }),
-            );
-        };
-
-        pull(
-            // Fetch Messages
-            feed,
-            // Convert to Model
-            pull.map((post: any) => this.parsePacket(post)),
-            // Fetch root of comments and comments of roots
-            pull(
-                pull.asyncMap((item: PostModel, cb: (err: null, item: any) => void) => {
-                    if ((typeof this.lastUpdate === 'undefined') || (+item.date < this.lastUpdate)) {
-                        this.lastUpdate = +item.date;
-                    }
-                    if (typeof item.rootId === 'string') {
-                        // fetch root
-                        this.bot.get(item.rootId, (_error: any, root: any) => {
-                            if (_error) {
-                                const missing = new PostModel({
-                                    id: item.rootId,
-                                    isMissing: true,
-                                    date: new Date(),
-                                });
-                                cb(null, [missing, item]);
-                                return;
-                            }
-                            if (typeof item.rootId === 'string') {
-                                const post = this.parsePost(item.rootId, root);
-                                if (post instanceof PostModel) {
-                                    post.raw.needsComments = true;
-                                }
-                                cb(null, [item, post]);
-                                return;
-                            } else {
-                                cb(null, [item]);
-                                return;
-                            }
-                        });
-                    } else {
-                        // fetch comments of root
-                        const backlinks = this.bot.backlinks.read({
-                            query: [{ $filter: { dest: item.id } }],
-                            index: 'DTA',
-                        });
-
-                        pull(
-                            backlinks,
-                            pull.collect((error: any, data: any[]) => {
-                                if (error) {
-                                    throw error;
-                                }
-
-                                const newData = data
-                                    .map(_item => this.parsePacket(_item))
-                                    .filter(_item => _item instanceof PostModel);
-
-                                newData.push(item);
-
-                                cb(null, newData);
-                            }),
-                        );
-                    }
-                }),
-                pull.flatten(),
-            ),
-            // fetch comments from newly discovered roots
-            pull(
-                pull.asyncMap((item: PostModel, cb: (err: null, item: any) => void) => {
-                    if (item.raw && item.raw.needsComments === true) {
-                        processBacklinks(item.id, (data: any[]) => {
-                            const newData = data
-                                .map(_item => this.parsePacket(_item))
-                                .filter(_item => _item instanceof PostModel);
-                            newData.push(item);
-                            cb(null, newData);
-                        });
-                    } else {
-                        cb(null, [item]);
-                    }
-                }),
-                pull.flatten(),
-            ),
-            // Fetch author
-            pull.asyncMap((item: PostModel, cb: (err: null, item: any) => void) => {
-                if (!(item.author instanceof IdentityModel)) {
-                    // tslint:disable-next-line: no-floating-promises
-                    this.fetchIdentity(item.authorId).then(() => {
-                        const identity = this
-                            .store
-                            .selectSnapshot((state: GlobalState) =>
-                                state
-                                    .identities
-                                    .filter(_identity => _identity.id === item.authorId).pop());
-
-                        item.author = identity;
-                        cb(null, item);
-                    });
-                } else {
-                    cb(null, item);
-                }
-            }),
-            // Dispatch posts to the store
-            pull.map((item: PostModel) => {
-                this.store.dispatch(new UpdatePost(item));
-                return item;
-            }),
-            // Fetch votes
-            pull.asyncMap((item: PostModel, cb: (err: null, item: any) => void) => {
-                processBacklinks(item.id, (data: any[]) => {
-                    data
-                        .map(_item => this.parsePacket(_item))
-                        .forEach(_item => {
-                            if (_item instanceof VotingModel) {
-                                if (!(_item.author instanceof IdentityModel)) {
-                                    // tslint:disable-next-line: no-floating-promises
-                                    this.fetchIdentity(_item.authorId).then(() => {
-                                        const identity = this
-                                            .store
-                                            .selectSnapshot((state: GlobalState) =>
-                                                state
-                                                    .identities
-                                                    .filter(_identity => _identity.id === item.authorId).pop());
-
-                                        _item.author = identity;
-                                        this.store.dispatch(new AddVoting(_item));
-                                    });
-                                } else {
-                                    this.store.dispatch(new AddVoting(_item));
-                                }
-                            }
-                        });
-
-                    cb(null, item);
-                });
-            }),
-            pull.collect((_err: any, _items: PostModel[]) => {
-                this.store.dispatch(new LoadFeed(false));
-            }),
-        );
     }
 
     public async get(id?: string): Promise<void> {
@@ -384,7 +204,7 @@ export class ScuttlebotService {
                 .posts
                 .filter(item => item.id === id)
                 .length,
-        );
+            );
         if (count > 0) {
             return;
         }
@@ -532,6 +352,8 @@ export class ScuttlebotService {
 
         this.bot = await ssbClient();
 
+        this.client = await nodeClient.create();
+
         this._get = util.promisify(this.bot.get);
 
         const whoami = await this.getFeedItem(this.bot.whoami);
@@ -540,9 +362,9 @@ export class ScuttlebotService {
 
         await this.updateFeed();
 
-        await this.fetchChannelSubscriptions(whoami.id);
+        // await this.fetchChannelSubscriptions(whoami.id);
 
-        await this.fetchContacts(whoami.id);
+        // await this.fetchContacts(whoami.id);
     }
 
     private async getFeedItem(feed: any): Promise<any> {
